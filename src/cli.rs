@@ -6,11 +6,7 @@ use structopt::StructOpt;
 #[derive(Debug, PartialEq, StructOpt)]
 #[structopt(name = "oak", about = "The `tree` command, but better.")]
 pub struct Args {
-    #[structopt(
-        short = "d",
-        long = "directory",
-        help = "Display a tree for this directory"
-    )]
+    #[structopt(help = "Display a tree for this directory")]
     pub directory: Option<String>,
 }
 
