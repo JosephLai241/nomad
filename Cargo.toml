@@ -1,8 +1,14 @@
 [package]
+authors = ["Joseph Lai"]
+description = "The tree command, but better"
+edition = "2021"
+keywords = ["tree"]
 name = "oak"
 version = "0.1.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+bat = "0.18.3"
+crossterm = "0.21.0"
+structopt = "0.3"
+tui = { version = "0.16.0", default-features = false, features = ["crossterm"] }
+
