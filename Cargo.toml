@@ -8,7 +8,8 @@ version = "0.1.0"
 
 [dependencies]
 bat = "0.18.3"
-crossterm = "0.21.0"
-structopt = "0.3"
+crossterm = "0.22.1"
+ignore = "0.4.18"
+structopt = "0.3.25"
 tui = { version = "0.16.0", default-features = false, features = ["crossterm"] }
 
