@@ -3,7 +3,7 @@ authors = ["Joseph Lai"]
 description = "The tree command, but better"
 edition = "2021"
 keywords = ["tree"]
-name = "oak"
+name = "nomad"
 version = "0.1.0"
 
 [dependencies]
