@@ -11,6 +11,7 @@ ansi_term = "0.12.1"
 bat = "0.18.3"
 crossterm = "0.22.1"
 ignore = "0.4.18"
+ptree = "0.3.2"
 structopt = "0.3.25"
 tui = { version = "0.16.0", default-features = false, features = ["crossterm"] }
 
