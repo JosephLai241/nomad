@@ -1,24 +1,40 @@
-//! `oak` - The `tree` command, but better.
+//! `nomad` - The `tree` command, but better.
 
 mod cli;
+mod traverse;
+mod utils;
 
 use std::{env, io::Result};
 
+use utils::icons::{get_icons_by_extension, get_icons_by_name};
+
+/// Run `nomad`.
 fn main() -> Result<()> {
     let args = cli::get_args();
 
-    // Set the target directory based on whether a directory was passed into `oak`.
+    // Set the target directory based on whether a directory was passed in.
     let target_directory;
-    if let Some(directory) = args.directory {
-        target_directory = directory;
+    if let Some(ref directory) = args.directory {
+        target_directory = directory.clone();
     } else {
-        // Get the current directory as the target for oak if no target was entered.
-        // Panic if Rust can't get the current directory.
+        // Get the current directory as the target if no target was entered.
         let directory = env::current_dir()?;
-        target_directory = directory.to_str().unwrap().into();
+        target_directory = directory
+            .into_os_string()
+            .into_string()
+            .expect("Could not get the current directory!")
+            .clone();
     }
 
-    println!("THE TARGET DIRECTORY IS: {}", target_directory);
+    let extension_icon_map = get_icons_by_extension();
+    let name_icon_map = get_icons_by_name();
+
+    if args.interactive {
+        unimplemented!()
+    } else {
+        let mut walker = traverse::build_walker(&args, &target_directory);
+        traverse::walk_directory(&args, &extension_icon_map, &target_directory, &mut walker)?;
+    }
 
     Ok(())
 }
