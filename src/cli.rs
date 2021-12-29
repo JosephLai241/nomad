@@ -4,7 +4,7 @@ use structopt::StructOpt;
 
 /// This struct contains all flags that are used in this program.
 #[derive(Debug, PartialEq, StructOpt)]
-#[structopt(name = "oak", about = "The `tree` command, but better.")]
+#[structopt(name = "nomad", about = "The `tree` command, but better.")]
 pub struct Args {
     #[structopt(help = "Display a tree for this directory.")]
     pub directory: Option<String>,
@@ -14,6 +14,13 @@ pub struct Args {
 
     #[structopt(long = "hidden", help = "Do not display hidden files.")]
     pub hidden: bool,
+
+    #[structopt(
+        short = "i",
+        long = "interactive",
+        help = "Initialize an interactive file/directory explorer"
+    )]
+    pub interactive: bool,
 }
 
 /// Return the `Args` struct.
