@@ -21,6 +21,13 @@ pub struct Args {
         help = "Initialize an interactive file/directory explorer"
     )]
     pub interactive: bool,
+
+    #[structopt(
+        short = "s",
+        long = "stats",
+        help = "Display directory traversal statistics after the tree is displayed"
+    )]
+    pub statistics: bool,
 }
 
 /// Return the `Args` struct.
