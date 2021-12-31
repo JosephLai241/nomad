@@ -1,6 +1,6 @@
 [package]
 authors = ["Joseph Lai"]
-description = "The tree command, but better"
+description = "Explore your filesystem"
 edition = "2021"
 keywords = ["tree"]
 name = "nomad"
