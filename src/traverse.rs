@@ -12,19 +12,32 @@ use ignore::{self, DirEntry, Walk, WalkBuilder};
 use ptree::{print_tree, TreeBuilder};
 use serde_json::json;
 
-use std::{collections::HashMap, ffi::OsStr, io::Error, path::PathBuf, time::Instant};
+use std::{
+    collections::HashMap,
+    ffi::OsStr,
+    io::{Error, ErrorKind},
+    path::{Path, PathBuf},
+    time::Instant,
+};
 
 /// Build a `Walk` object based on the client's CLI parameters.
-pub fn build_walker(args: &Args, target_directory: &str) -> Walk {
-    WalkBuilder::new(target_directory)
-        .git_exclude(!args.disrespect)
-        .git_global(!args.disrespect)
-        .git_ignore(!args.disrespect)
-        .ignore(!args.disrespect)
-        .hidden(!args.hidden)
-        .parents(!args.disrespect)
-        .sort_by_file_path(|a, b| a.cmp(b))
-        .build()
+pub fn build_walker(args: &Args, target_directory: &str) -> Result<Walk, Error> {
+    if Path::new(target_directory).is_dir() {
+        Ok(WalkBuilder::new(target_directory)
+            .git_exclude(!args.disrespect)
+            .git_global(!args.disrespect)
+            .git_ignore(!args.disrespect)
+            .ignore(!args.disrespect)
+            .hidden(!args.hidden)
+            .parents(!args.disrespect)
+            .sort_by_file_path(|a, b| a.cmp(b))
+            .build())
+    } else {
+        Err(Error::new(
+            ErrorKind::NotFound,
+            format!("Directory '{}/' does not exist!", target_directory),
+        ))
+    }
 }
 
 /// Get the absolute path of a directory.
