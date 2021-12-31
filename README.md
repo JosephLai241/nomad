@@ -56,7 +56,15 @@ nmd some_directory/
 
 ### Quick Open/Edit a File
 
-`nomad` provides a quick way to open and edit a file after displaying a directory's tree. First, run `nomad` in numbered mode:
+`nomad` provides a quick way to open and edit a file after displaying a directory's tree.
+
+It will try to open the file with your default editor by extracting the value from the `$EDITOR` environment variable. If you do not have a default editor set, the following editors are supported and will be tried in this order:
+
+1. [Neovim][Neovim]
+2. [Vim][Vim]
+3. [Nano][Nano]
+
+First, run `nomad` in numbered mode:
 
 ```
 mnd -n
@@ -77,6 +85,27 @@ nmd -o 0
 
 ## Integrated `bat`
 
+[`bat`][bat] is a *much* improved `cat` alternative and is integrated into `nomad`. You can `bat` a file by using the `-b/--bat` flag:
+
+```
+nmd -b SOME_FILE
+```
+
+The following features are integrated into `bat`:
+
+| Feature                           | Description
+|-----------------------------------|-------------------------------
+| `grid`					        | Paint a grid that separates line numbers, Git changes, and the code
+| `header`					        | Show a header with the file name
+| `line_numbers`			        | Show line numbers
+| `paging_mode` - `QuitIfOneScreen` | Use a pager if the output exceeds the current terminal's length
+| `true_color`  			        | Output 24-bit colors
+| `vcs_modification_markers`        | Show markers for VCS changes.
+| `wrapping_mode` - `Character`     | Text wrapping is enabled
+
 <!-- LINKS -->
 [bat]: https://github.com/sharkdp/bat
 [lsd]: https://github.com/Peltoche/lsd
+[Nano]: https://www.nano-editor.org/
+[Neovim]: https://github.com/neovim/neovim
+[Vim]: https://www.vim.org/
