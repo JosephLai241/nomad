@@ -11,7 +11,7 @@
 * [Features](#features)
 * [Usage](#usage)
 * [Walkthrough](#walkthrough)
-	+ [Default Behavior](#default-behavior-tree-view)
+	+ [Default Behavior (Tree View)](#default-behavior-tree-view)
 		* [Quick Open/Edit a File](#quick-openedit-a-file)
 	+ [Interactive Mode](#interactive-mode)
 	+ [Integrated `bat`](#integrated-bat)
