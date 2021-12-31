@@ -4,15 +4,22 @@ use structopt::StructOpt;
 
 /// This struct contains all flags that are used in this program.
 #[derive(Debug, PartialEq, StructOpt)]
-#[structopt(name = "nomad", about = "The `tree` command, but better.")]
+#[structopt(name = "nomad", about = "Explore your filesystem.")]
 pub struct Args {
-    #[structopt(help = "Explore this directory.")]
+    #[structopt(
+        short = "b",
+        long = "bat",
+        help = "`bat` (the Rust alternative to the `cat` command) a file"
+    )]
+    pub bat: Option<String>,
+
+    #[structopt(help = "Explore this directory")]
     pub directory: Option<String>,
 
-    #[structopt(long = "disrespect", help = "Disrespect ignore rules.")]
+    #[structopt(long = "disrespect", help = "Disrespect all ignore rules")]
     pub disrespect: bool,
 
-    #[structopt(long = "hidden", help = "Do not display hidden files.")]
+    #[structopt(long = "hidden", help = "Display hidden files")]
     pub hidden: bool,
 
     #[structopt(
@@ -32,7 +39,7 @@ pub struct Args {
     #[structopt(
         short = "o",
         long = "open",
-        help = "Open a file based on its index within the tree"
+        help = "Open a file based on its index within the tree\nThis may be used after running `nomad` in numbered mode (`-n`)"
     )]
     pub open: Option<String>,
 
