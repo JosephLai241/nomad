@@ -8,16 +8,16 @@
 # Table of Contents
 
 * [What Is `nomad` and Why?](#what-is-nomad)
-* [Available Commands](#available-commands)
+* [Usage](#usage)
 * [Walkthrough](#walkthrough)
 
 # What Is `nomad` and Why?
 
-`nomad` is an alternative `tree` command.
+The original goal of `nomad` was to create an alternative `tree` command, but its purpose has grown in scope during development.
 
-I wanted a simpler, yet more robust `tree` command, so I said fuck it and made my own version of it. That's pretty much all there is to it.
+`nomad` is primarily an alternative `tree` command, but is ultimately an improved way to traverse your filesystem.
 
-# Available Commands
+# Usage
 
 ```
 ```
