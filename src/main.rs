@@ -31,6 +31,8 @@ fn main() -> Result<()> {
 
     if args.interactive {
         unimplemented!()
+    } else if let Some(target_file) = args.open {
+        utils::open::open_file(target_file);
     } else {
         let mut walker = traverse::build_walker(&args, &target_directory);
         traverse::walk_directory(&args, &extension_icon_map, &target_directory, &mut walker)?;
