@@ -12,6 +12,8 @@ bat = "0.18.3"
 crossterm = "0.22.1"
 ignore = "0.4.18"
 ptree = "0.3.2"
+redis = "0.21.4"
 structopt = "0.3.25"
+tempfile = "3.2.0"
 tui = { version = "0.16.0", default-features = false, features = ["crossterm"] }
 
