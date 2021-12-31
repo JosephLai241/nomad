@@ -22,7 +22,12 @@ pub fn build_walker(args: &Args, target_directory: &str) -> Walk {
 }
 
 /// Format how the item will be displayed in the tree.
-fn format_item(extension_icon_map: &HashMap<&str, &str>, is_dir: bool, item: &DirEntry) -> String {
+fn format_item(
+    extension_icon_map: &HashMap<&str, &str>,
+    is_dir: bool,
+    item: &DirEntry,
+    number: Option<i32>,
+) -> String {
     let icon = if is_dir {
         &"\u{f115}"
     } else {
@@ -45,7 +50,7 @@ fn format_item(extension_icon_map: &HashMap<&str, &str>, is_dir: bool, item: &Di
         .unwrap_or("?");
 
     if is_dir {
-        return format!(
+        format!(
             "{} {}",
             icon,
             Colour::Blue.bold().paint(
@@ -55,10 +60,17 @@ fn format_item(extension_icon_map: &HashMap<&str, &str>, is_dir: bool, item: &Di
                     .to_str()
                     .unwrap_or("?")
             )
-        );
-    }
+        )
+    } else {
+        let item_string = format!("{} {}", icon, formatted_item);
 
-    format!("{} {}", icon, formatted_item)
+        if let Some(number) = number {
+            let numbered_string = format!("[{}] ", number);
+            numbered_string + &item_string
+        } else {
+            item_string
+        }
+    }
 }
 
 /// Traverse the directory and display files and directories accordingly.
@@ -96,10 +108,11 @@ pub fn walk_directory(
         }
 
         if item.path().is_dir() {
-            tree.begin_child(format_item(extension_icon_map, true, &item));
+            tree.begin_child(format_item(extension_icon_map, true, &item, None));
             num_directories += 1;
         } else if item.path().is_file() {
-            tree.add_empty_child(format_item(extension_icon_map, false, &item));
+            let number = if args.numbers { Some(num_files) } else { None };
+            tree.add_empty_child(format_item(extension_icon_map, false, &item, number));
             num_files += 1;
         }
 
