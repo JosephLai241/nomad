@@ -34,6 +34,8 @@ fn main() -> Result<()> {
         unimplemented!()
     } else if let Some(target_file) = args.open {
         utils::open::open_file(target_file)?;
+    } else if let Some(file) = args.bat {
+        utils::bat::run_bat(file)?;
     } else {
         let mut walker = traverse::build_walker(&args, &target_directory);
         traverse::walk_directory(&args, &extension_icon_map, &target_directory, &mut walker)?;
