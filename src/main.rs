@@ -37,7 +37,7 @@ fn main() -> Result<()> {
     } else if let Some(file) = args.bat {
         utils::bat::run_bat(file)?;
     } else {
-        let mut walker = traverse::build_walker(&args, &target_directory);
+        let mut walker = traverse::build_walker(&args, &target_directory)?;
         traverse::walk_directory(&args, &extension_icon_map, &target_directory, &mut walker)?;
     }
 
