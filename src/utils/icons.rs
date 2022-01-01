@@ -244,3 +244,36 @@ pub fn get_icons_by_name() -> HashMap<&'static str, &'static str> {
 
     icon_map
 }
+
+#[cfg(test)]
+mod test_icons {
+    use super::*;
+
+    #[test]
+    fn test_get_icons_by_extension_valid_key() {
+        let icons = get_icons_by_extension();
+
+        assert_eq!(icons.get("rs"), Some(&"\u{e7a8}"));
+    }
+
+    #[test]
+    fn test_get_icons_by_extension_invalid_key() {
+        let icons = get_icons_by_extension();
+
+        assert_eq!(icons.get("asdf"), None);
+    }
+
+    #[test]
+    fn test_get_icons_by_name_valid_key() {
+        let icons = get_icons_by_name();
+
+        assert_eq!(icons.get(".vimrc"), Some(&"\u{e62b}"));
+    }
+
+    #[test]
+    fn test_get_icons_by_name_invalid_key() {
+        let icons = get_icons_by_name();
+
+        assert_eq!(icons.get("asdf"), None);
+    }
+}
