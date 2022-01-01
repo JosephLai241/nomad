@@ -55,3 +55,19 @@ pub struct Args {
 pub fn get_args() -> Args {
     Args::from_args()
 }
+
+#[cfg(test)]
+mod test_cli {
+    use super::*;
+
+    use assert_cmd::Command;
+
+    #[test]
+    fn test_invalid_arg() {
+        Command::cargo_bin("ts")
+            .unwrap()
+            .arg("-q")
+            .assert()
+            .failure();
+    }
+}
