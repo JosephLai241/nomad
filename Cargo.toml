@@ -1,13 +1,23 @@
 [package]
-authors = ["Joseph Lai"]
+authors = ["Joseph Lai <joseph.lai241@protonmail.com>"]
+categories = ["tree", "directory-traversal", "file-explorer", "command-line-tool"]
 description = "Explore your filesystem"
 edition = "2021"
-keywords = ["tree"]
+homepage = "https://github.com/JosephLai241/nomad"
+keywords = ["tree", "directory traversal", "file explorer", "command-line tool"]
+license = "MIT"
 name = "nomad"
+readme = "README.md"
+repository = "https://github.com/JosephLai241/nomad"
 version = "0.1.0"
+
+#[[bin]]
+#name = "nd"
+#path = "target/release"
 
 [dependencies]
 ansi_term = "0.12.1"
+async-recursion = "1.0.0"
 bat = "0.18.3"
 crossterm = "0.22.1"
 ignore = "0.4.18"
@@ -15,6 +25,7 @@ ptree = "0.3.2"
 serde = { version = "1.0.132", features = ["derive"] }
 serde_json = "1.0.73"
 structopt = "0.3.25"
+tokio = { version = "1.15.0", features = ["full"] }
 tui = { version = "0.16.0", default-features = false, features = ["crossterm"] }
 
 [dev-dependencies]
