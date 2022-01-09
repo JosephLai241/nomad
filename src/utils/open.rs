@@ -1,7 +1,7 @@
 //! Open a file using the client's system's `$EDITOR`.
 
 use super::temp::get_json_file;
-use crate::models::Contents;
+use crate::{models::Contents, traverse::canonicalize_path};
 
 use serde_json::{self, from_str};
 
@@ -49,41 +49,45 @@ fn search_for_file(target_index: String) -> Result<Option<String>, Error> {
     }
 }
 
-/// Open the target file.
-pub fn open_file(target_index: String) -> Result<(), Error> {
-    search_for_file(target_index)?.map_or_else(
+/// Checks the input for flags that take a filename or index number (`-b` and `-o`).
+///
+/// This enables the ability to open files via its index number within the tree
+/// or directly by the filename.
+pub fn get_file(target: String) -> Result<String, Error> {
+    search_for_file(target.clone())?.map_or_else(
         || {
-            Err(Error::new(
-                ErrorKind::NotFound,
-                "That file does not reside in the current tree!",
-            ))
+            let target_file = canonicalize_path(&target)?;
+            Ok(target_file)
         },
-        |file| {
-            let editors = get_text_editors();
-            if editors.len() == 1 {
-                spawn_editor(editors[0].to_string(), file).map_or_else(
-                    |error| Err(error),
-                    |status_code| {
-                        println!("{}", status_code);
-                        Ok(())
-                    },
-                )
-            } else {
-                for editor in editors {
-                    match spawn_editor(editor, file.to_string()) {
-                        Ok(status_code) => {
-                            println!("{}", status_code);
-                            return Ok(());
-                        }
-                        Err(_) => {}
-                    };
-                }
-
-                Err(Error::new(
-                    ErrorKind::NotFound,
-                    "Could not open the file with your $EDITOR, Neovim, Vim, or Nano! Do you have one of these editors installed?",
-                ))
-            }
-        },
+        |file| Ok(file),
     )
+}
+
+/// Open the target file.
+pub fn open_file(file: String) -> Result<(), Error> {
+    let editors = get_text_editors();
+    if editors.len() == 1 {
+        spawn_editor(editors[0].to_string(), file).map_or_else(
+            |error| Err(error),
+            |status_code| {
+                println!("{}", status_code);
+                Ok(())
+            },
+        )
+    } else {
+        for editor in editors {
+            match spawn_editor(editor, file.to_string()) {
+                Ok(status_code) => {
+                    println!("{}", status_code);
+                    return Ok(());
+                }
+                Err(_) => {}
+            };
+        }
+
+        Err(Error::new(
+            ErrorKind::NotFound,
+            "Could not open the file with your $EDITOR, Neovim, Vim, or Nano! Do you have one of these editors installed?",
+        ))
+    }
 }
