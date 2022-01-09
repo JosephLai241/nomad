@@ -40,14 +40,19 @@ pub fn build_walker(args: &Args, target_directory: &str) -> Result<Walk, Error> 
     }
 }
 
+//
+// TODO: MOVE THIS TO THE UTILS FOLDER?
+//
 /// Get the absolute path of a directory.
-fn canonicalize_path(target_directory: &str) -> String {
+pub fn canonicalize_path(target_directory: &str) -> Result<String, Error> {
     PathBuf::from(target_directory)
-        .canonicalize()
-        .unwrap_or(PathBuf::from("?"))
+        .canonicalize()?
         .into_os_string()
         .into_string()
-        .unwrap_or("?".into())
+        .map_or_else(
+            |_| Err(Error::new(ErrorKind::Other, "Could not canonicalize path!")),
+            |path| Ok(path),
+        )
 }
 
 /// Format how the item will be displayed in the tree.
@@ -167,8 +172,8 @@ pub fn walk_directory(
     if args.numbers {
         create_temp_dir()?;
 
-        if should_overwrite(canonicalize_path(target_directory))? {
-            set_current_dir(canonicalize_path(target_directory))?;
+        if should_overwrite(canonicalize_path(target_directory)?)? {
+            set_current_dir(canonicalize_path(target_directory)?)?;
 
             let mut json = json!({ "items": {} });
             for item in items {
