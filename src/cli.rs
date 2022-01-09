@@ -43,6 +43,9 @@ pub struct Args {
     )]
     pub open: Option<String>,
 
+    #[structopt(short = "p", long = "permissions", help = "Show file permissions")]
+    pub permissions: bool,
+
     #[structopt(
         short = "s",
         long = "stats",
