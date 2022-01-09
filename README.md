@@ -7,7 +7,7 @@
 
 # Table of Contents
 
-* [What Is `nomad` and Why?](#what-is-nomad)
+* [What Is `nomad` and Why?](#what-is-nomad-and-why)
 * [Features](#features)
 * [Usage](#usage)
 * [Walkthrough](#walkthrough)
