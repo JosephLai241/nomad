@@ -19,17 +19,13 @@ fn spawn_editor(editor: String, file: String) -> Result<ExitStatus, Error> {
 /// Get the default text editor from the environment. If that environment variable
 /// is not set, try to open the file with Neovim, then Vim, and finally Nano.
 fn get_text_editors() -> Vec<String> {
-    let editors = var("EDITOR").map_or_else(
-        |_| {
-            vec!["nvim", "vim", "nano"]
-                .into_iter()
-                .map(|editor| editor.to_string())
-                .collect()
-        },
+    var("EDITOR").map_or(
+        vec!["nvim", "vim", "nano"]
+            .into_iter()
+            .map(|editor| editor.to_string())
+            .collect(),
         |editor| vec![editor],
-    );
-
-    editors
+    )
 }
 
 /// Search for the target file by parsing the JSON file and retrieving the value
@@ -54,18 +50,19 @@ fn search_for_file(target_index: String) -> Result<Option<String>, Error> {
 /// This enables the ability to open files via its index number within the tree
 /// or directly by the filename.
 pub fn get_file(target: String) -> Result<String, Error> {
-    search_for_file(target.clone())?.map_or_else(
-        || {
-            let target_file = canonicalize_path(&target)?;
-            Ok(target_file)
-        },
-        |file| Ok(file),
-    )
+    if let Some(file) = search_for_file(target.clone())? {
+        Ok(file)
+    } else {
+        let target_file = canonicalize_path(&target)?;
+
+        Ok(target_file)
+    }
 }
 
 /// Open the target file.
 pub fn open_file(file: String) -> Result<(), Error> {
     let editors = get_text_editors();
+
     if editors.len() == 1 {
         spawn_editor(editors[0].to_string(), file).map_or_else(
             |error| Err(error),
