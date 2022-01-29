@@ -49,8 +49,8 @@ pub fn canonicalize_path(target_directory: &str) -> Result<String, Error> {
         .canonicalize()?
         .into_os_string()
         .into_string()
-        .map_or_else(
-            |_| Err(Error::new(ErrorKind::Other, "Could not canonicalize path!")),
+        .map_or(
+            Err(Error::new(ErrorKind::Other, "Could not canonicalize path!")),
             |path| Ok(path),
         )
 }
