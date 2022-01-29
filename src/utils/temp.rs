@@ -46,8 +46,8 @@ pub fn should_overwrite(target_directory: String) -> Result<bool, Error> {
     let mut existing_dir_file = get_temp_dir_path();
     existing_dir_file.push(CURRENT);
 
-    File::open(existing_dir_file).map_or_else(
-        |_| {
+    File::open(existing_dir_file).map_or(
+        {
             set_current_dir(target_directory.clone())?;
             Ok(true)
         },
