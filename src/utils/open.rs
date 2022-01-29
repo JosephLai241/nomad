@@ -20,10 +20,7 @@ fn spawn_editor(editor: String, file: String) -> Result<ExitStatus, Error> {
 /// is not set, try to open the file with Neovim, then Vim, and finally Nano.
 fn get_text_editors() -> Vec<String> {
     var("EDITOR").map_or(
-        vec!["nvim", "vim", "nano"]
-            .into_iter()
-            .map(|editor| editor.to_string())
-            .collect(),
+        vec!["nvim".to_string(), "vim".to_string(), "nano".to_string()],
         |editor| vec![editor],
     )
 }
