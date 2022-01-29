@@ -9,7 +9,7 @@ use crate::{
 
 use ansi_term::*;
 use ignore::{self, DirEntry, Walk, WalkBuilder};
-use ptree::{print_tree, TreeBuilder};
+use ptree::{print_tree_with, Color, PrintConfig, Style, TreeBuilder};
 use serde_json::json;
 
 use std::{
@@ -107,15 +107,9 @@ fn format_item(
     }
 }
 
-/// Traverse the directory and display files and directories accordingly.
-pub fn walk_directory(
-    args: &Args,
-    extension_icon_map: &HashMap<&str, &str>,
-    target_directory: &str,
-    walker: &mut Walk,
-) -> Result<(), Error> {
-    let mut current_depth: usize = 0;
-    let mut tree = TreeBuilder::new(format!(
+/// Build a `ptree` object and set the tree's style/configuration.
+fn build_tree(target_directory: &str) -> (TreeBuilder, PrintConfig) {
+    let tree = TreeBuilder::new(format!(
         "{} {}",
         &"\u{f115}",
         Colour::Blue.bold().paint(
@@ -128,6 +122,29 @@ pub fn walk_directory(
                 .unwrap_or("?")
         )
     ));
+
+    let mut config = PrintConfig::default();
+
+    let mut branch_style = Style::default();
+    branch_style.bold = true;
+    branch_style.foreground = Some(Color::White);
+
+    config.branch = branch_style;
+    config.indent = 4;
+
+    (tree, config)
+}
+
+/// Traverse the directory and display files and directories accordingly.
+pub fn walk_directory(
+    args: &Args,
+    extension_icon_map: &HashMap<&str, &str>,
+    target_directory: &str,
+    walker: &mut Walk,
+) -> Result<(), Error> {
+    let mut current_depth: usize = 0;
+    let (mut tree, config) = build_tree(target_directory);
+
     walker.next(); // Skip the target directory.
     println!();
 
@@ -188,7 +205,7 @@ pub fn walk_directory(
         }
     }
 
-    print_tree(&tree.build())?;
+    print_tree_with(&tree.build(), &config)?;
     println!();
 
     if args.statistics {
