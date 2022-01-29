@@ -64,7 +64,7 @@ pub fn open_file(file: String) -> Result<(), Error> {
         spawn_editor(editors[0].to_string(), file).map_or_else(
             |error| Err(error),
             |status_code| {
-                println!("{}", status_code);
+                println!("{status_code}");
                 Ok(())
             },
         )
@@ -72,7 +72,7 @@ pub fn open_file(file: String) -> Result<(), Error> {
         for editor in editors {
             match spawn_editor(editor, file.to_string()) {
                 Ok(status_code) => {
-                    println!("{}", status_code);
+                    println!("{status_code}");
                     return Ok(());
                 }
                 Err(_) => {}

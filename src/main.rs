@@ -40,7 +40,7 @@ async fn main() -> Result<()> {
         let mut walker = traverse::build_walker(&args, &target_directory)?;
         let _ = spawn_terminal(&args, &target_directory, &mut walker)
             .await
-            .map_err(|error| format!("UI ERROR: {}", error));
+            .map_err(|error| format!("UI ERROR: {error}"));
     } else if let Some(target) = args.open {
         let target_file = get_file(target)?;
         utils::open::open_file(target_file)?;

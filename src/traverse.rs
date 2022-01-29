@@ -35,7 +35,7 @@ pub fn build_walker(args: &Args, target_directory: &str) -> Result<Walk, Error> 
     } else {
         Err(Error::new(
             ErrorKind::NotFound,
-            format!("Directory '{}/' does not exist!", target_directory),
+            format!("Directory '{target_directory}/' does not exist!"),
         ))
     }
 }
@@ -58,11 +58,11 @@ pub fn canonicalize_path(target_directory: &str) -> Result<String, Error> {
 /// Format how the item will be displayed in the tree.
 fn format_item(
     extension_icon_map: &HashMap<&str, &str>,
-    is_dir: bool,
+    is_directory: bool,
     item: &DirEntry,
     number: Option<i32>,
 ) -> String {
-    let icon = if is_dir {
+    let icon = if is_directory {
         &"\u{f115}" // 
     } else {
         extension_icon_map
@@ -83,23 +83,20 @@ fn format_item(
         .to_str()
         .unwrap_or("?");
 
-    if is_dir {
-        format!(
-            "{} {}",
-            icon,
-            Colour::Blue.bold().paint(
-                item.path()
-                    .file_name()
-                    .unwrap_or(OsStr::new("?"))
-                    .to_str()
-                    .unwrap_or("?")
-            )
-        )
+    if is_directory {
+        let directory_name = Colour::Blue.bold().paint(
+            item.path()
+                .file_name()
+                .unwrap_or(OsStr::new("?"))
+                .to_str()
+                .unwrap_or("?"),
+        );
+        format!("{icon} {directory_name}")
     } else {
-        let item_string = format!("{} {}", icon, formatted_item);
+        let item_string = format!("{icon} {formatted_item}");
 
         if let Some(number) = number {
-            let numbered_string = format!("[{}] ", number);
+            let numbered_string = format!("[{number}] ");
             numbered_string + &item_string
         } else {
             item_string
@@ -109,19 +106,19 @@ fn format_item(
 
 /// Build a `ptree` object and set the tree's style/configuration.
 fn build_tree(target_directory: &str) -> (TreeBuilder, PrintConfig) {
-    let tree = TreeBuilder::new(format!(
-        "{} {}",
-        &"\u{f115}",
-        Colour::Blue.bold().paint(
-            PathBuf::from(target_directory)
-                .canonicalize()
-                .unwrap_or(PathBuf::from("?"))
-                .file_name()
-                .unwrap_or(OsStr::new("?"))
-                .to_str()
-                .unwrap_or("?")
-        )
-    ));
+    let directory_icon = &"\u{f115}"; // 
+    let directory_name = Colour::Blue.bold().paint(
+        PathBuf::from(target_directory)
+            .canonicalize()
+            .unwrap_or(PathBuf::from("?"))
+            .file_name()
+            .unwrap_or(OsStr::new("?"))
+            .to_str()
+            .unwrap_or("?")
+            .to_string(),
+    );
+
+    let tree = TreeBuilder::new(format!("{directory_icon} {directory_name}"));
 
     let mut config = PrintConfig::default();
 
@@ -209,12 +206,8 @@ pub fn walk_directory(
     println!();
 
     if args.statistics {
-        println!(
-            "{} directories | {} files | {} ms\n",
-            num_directories,
-            num_files,
-            start.elapsed().as_millis()
-        );
+        let duration = start.elapsed().as_millis();
+        println!("{num_directories} directories | {num_files} files | {duration} ms\n");
     }
 
     Ok(())
