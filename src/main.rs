@@ -22,18 +22,16 @@ async fn main() -> Result<()> {
     let args = cli::get_args();
 
     // Set the target directory based on whether a directory was passed in.
-    let target_directory;
-    if let Some(ref directory) = args.directory {
-        target_directory = directory.clone();
+    let target_directory = if let Some(ref directory) = args.directory {
+        directory.clone()
     } else {
         // Get the current directory as the target if no target was entered.
-        let directory = env::current_dir()?;
-        target_directory = directory
+        env::current_dir()?
             .into_os_string()
             .into_string()
             .expect("Could not get the current directory!")
-            .clone();
-    }
+            .clone()
+    };
 
     let extension_icon_map = get_icons_by_extension();
     let name_icon_map = get_icons_by_name();
