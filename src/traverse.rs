@@ -2,9 +2,7 @@
 
 use crate::{
     cli::Args,
-    utils::temp::{
-        create_temp_dir, get_json_file, set_current_dir, should_overwrite, write_to_json,
-    },
+    utils::temp::{create_temp_dir, get_json_file, write_to_json},
 };
 
 use ansi_term::*;
@@ -142,28 +140,31 @@ pub fn walk_directory(
     let mut current_depth: usize = 0;
     let (mut tree, config) = build_tree(target_directory);
 
-    walker.next(); // Skip the target directory.
     println!();
 
     let mut num_directories = 0;
     let mut num_files = 0;
+    let mut previous_item = walker
+        .next() // Sets the first `previous_item` to the `target_directory`.
+        .unwrap_or_else(|| panic!("No items were found in this directory!"))
+        .unwrap_or_else(|error| panic!("Could not retrieve items in this directory! {error}"));
     let mut items: Vec<Vec<String>> = Vec::new();
+
     let start = Instant::now();
     while let Some(Ok(item)) = walker.next() {
         if item.depth() < current_depth {
             for _ in 0..current_depth - item.depth() {
                 tree.end_child();
             }
+        } else if item.depth() == current_depth && previous_item.path().is_dir() {
+            tree.end_child();
         }
 
         if item.path().is_dir() {
             tree.begin_child(format_item(extension_icon_map, true, &item, None));
             num_directories += 1;
         } else if item.path().is_file() {
-            let number;
-            if args.numbers {
-                number = Some(num_files);
-
+            let number = if args.numbers {
                 items.push(vec![
                     num_files.to_string(),
                     item.path()
@@ -172,34 +173,34 @@ pub fn walk_directory(
                         .into_os_string()
                         .into_string()
                         .unwrap_or("?".into()),
-                ])
+                ]);
+
+                Some(num_files)
             } else {
-                number = None;
+                None
             };
+
             tree.add_empty_child(format_item(extension_icon_map, false, &item, number));
             num_files += 1;
         }
 
         current_depth = item.depth();
+        previous_item = item;
     }
 
     if args.numbers {
         create_temp_dir()?;
 
-        if should_overwrite(canonicalize_path(target_directory)?)? {
-            set_current_dir(canonicalize_path(target_directory)?)?;
-
-            let mut json = json!({ "items": {} });
-            for item in items {
-                json["items"]
-                    .as_object_mut()
-                    .unwrap()
-                    .insert(item[0].clone(), json!(item[1]));
-            }
-
-            let mut json_file = get_json_file(false)?;
-            write_to_json(&mut json_file, json)?;
+        let mut json = json!({ "items": {} });
+        for item in items {
+            json["items"]
+                .as_object_mut()
+                .unwrap()
+                .insert(item[0].clone(), json!(item[1]));
         }
+
+        let mut json_file = get_json_file(false)?;
+        write_to_json(&mut json_file, json)?;
     }
 
     print_tree_with(&tree.build(), &config)?;
