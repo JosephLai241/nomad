@@ -7,7 +7,7 @@ use crate::{
 
 use ansi_term::*;
 use ignore::{self, DirEntry, Walk, WalkBuilder};
-use ptree::{print_tree_with, Color, PrintConfig, Style, TreeBuilder};
+use ptree::{item::StringItem, print_tree_with, Color, PrintConfig, Style, TreeBuilder};
 use serde_json::json;
 
 use std::{
@@ -136,7 +136,7 @@ pub fn walk_directory(
     extension_icon_map: &HashMap<&str, &str>,
     target_directory: &str,
     walker: &mut Walk,
-) -> Result<(), Error> {
+) -> Result<Option<StringItem>, Error> {
     let mut current_depth: usize = 0;
     let (mut tree, config) = build_tree(target_directory);
 
@@ -146,7 +146,7 @@ pub fn walk_directory(
     let mut num_files = 0;
     let mut previous_item = walker
         .next() // Sets the first `previous_item` to the `target_directory`.
-        .unwrap_or_else(|| panic!("No items were found in this directory!"))
+        .expect("No items were found in this directory!")
         .unwrap_or_else(|error| panic!("Could not retrieve items in this directory! {error}"));
     let mut items: Vec<Vec<String>> = Vec::new();
 
@@ -203,7 +203,12 @@ pub fn walk_directory(
         write_to_json(&mut json_file, json)?;
     }
 
-    print_tree_with(&tree.build(), &config)?;
+    if args.export.is_some() {
+        return Ok(Some(tree.build()));
+    } else {
+        print_tree_with(&tree.build(), &config)?;
+    }
+
     println!();
 
     if args.statistics {
@@ -211,5 +216,5 @@ pub fn walk_directory(
         println!("{num_directories} directories | {num_files} files | {duration} ms\n");
     }
 
-    Ok(())
+    Ok(None)
 }
