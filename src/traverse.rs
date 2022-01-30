@@ -153,6 +153,21 @@ pub fn walk_directory(
     let start = Instant::now();
     while let Some(Ok(item)) = walker.next() {
         if item.depth() < current_depth {
+            if previous_item.path().is_dir() {
+                let item_parent = item
+                    .path()
+                    .parent()
+                    .expect("Could not get the current item's parent!");
+                let previous_parent = previous_item
+                    .path()
+                    .parent()
+                    .expect("Could not get the previous item's parent!");
+
+                if item_parent != previous_parent {
+                    tree.end_child();
+                }
+            }
+
             for _ in 0..current_depth - item.depth() {
                 tree.end_child();
             }
