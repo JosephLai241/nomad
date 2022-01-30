@@ -4,7 +4,11 @@ use structopt::StructOpt;
 
 /// This struct contains all flags that are used in this program.
 #[derive(Debug, PartialEq, StructOpt)]
-#[structopt(name = "nomad", about = "Explore your filesystem.")]
+#[structopt(
+    name = "nomad",
+    about = "A better way to explore your filesystem.",
+    author = "Joseph Lai"
+)]
 pub struct Args {
     #[structopt(
         short = "b",
@@ -18,6 +22,12 @@ pub struct Args {
 
     #[structopt(long = "disrespect", help = "Disrespect all ignore rules")]
     pub disrespect: bool,
+
+    #[structopt(
+        long = "export",
+        help = "Export the tree to a file instead of displaying"
+    )]
+    pub export: Option<String>,
 
     #[structopt(long = "hidden", help = "Display hidden files")]
     pub hidden: bool,
