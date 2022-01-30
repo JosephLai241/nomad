@@ -118,12 +118,11 @@ fn build_tree(target_directory: &str) -> (TreeBuilder, PrintConfig) {
 
     let tree = TreeBuilder::new(format!("{directory_icon} {directory_name}"));
 
-    let mut config = PrintConfig::default();
-
     let mut branch_style = Style::default();
     branch_style.bold = true;
     branch_style.foreground = Some(Color::White);
 
+    let mut config = PrintConfig::default();
     config.branch = branch_style;
     config.indent = 4;
 
