@@ -150,6 +150,24 @@ fn build_tree(target_directory: &str) -> (TreeBuilder, PrintConfig) {
     (tree, config)
 }
 
+/// Write the directory's contents to a temporary file.
+pub fn store_directory_contents(items: Vec<Vec<String>>) -> Result<(), Error> {
+    create_temp_dir()?;
+
+    let mut json = json!({ "items": {} });
+    for item in items {
+        json["items"]
+            .as_object_mut()
+            .unwrap()
+            .insert(item[0].clone(), json!(item[1]));
+    }
+
+    let mut json_file = get_json_file(false)?;
+    write_to_json(&mut json_file, json)?;
+
+    Ok(())
+}
+
 /// Traverse the directory and display files and directories accordingly.
 pub fn walk_directory(
     args: &Args,
@@ -237,18 +255,7 @@ pub fn walk_directory(
     }
 
     if args.numbers {
-        create_temp_dir()?;
-
-        let mut json = json!({ "items": {} });
-        for item in items {
-            json["items"]
-                .as_object_mut()
-                .unwrap()
-                .insert(item[0].clone(), json!(item[1]));
-        }
-
-        let mut json_file = get_json_file(false)?;
-        write_to_json(&mut json_file, json)?;
+        store_directory_contents(items)?;
     }
 
     if args.export.is_some() {
