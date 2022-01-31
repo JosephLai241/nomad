@@ -13,6 +13,7 @@ use serde_json::json;
 use std::{
     collections::HashMap,
     ffi::OsStr,
+    fs::read_link,
     io::{Error, ErrorKind},
     path::{Path, PathBuf},
     time::Instant,
@@ -90,14 +91,32 @@ fn format_item(icon: String, is_directory: bool, item: &DirEntry, number: Option
         .unwrap_or("?");
 
     if is_directory {
-        let directory_name = Colour::Blue.bold().paint(
-            item.path()
+        let directory_label = if item.path_is_symlink() {
+            let points_to = read_link(item.path()).map_or("?".to_string(), |pathbuf_path| {
+                pathbuf_path
+                    .canonicalize()
+                    .unwrap_or(PathBuf::from("?"))
+                    .into_os_string()
+                    .into_string()
+                    .map_or("?".to_string(), |path_string| path_string)
+            });
+
+            Colour::Yellow
+                .bold()
+                .paint(format!("{formatted_item} ⇒ {points_to}"))
+        } else {
+            let directory_name = item
+                .path()
                 .file_name()
                 .unwrap_or(OsStr::new("?"))
                 .to_str()
-                .unwrap_or("?"),
-        );
-        format!("{icon} {directory_name}")
+                .unwrap_or("?")
+                .to_string();
+
+            Colour::Blue.bold().paint(format!("{directory_name}"))
+        };
+
+        format!("{icon} {directory_label}")
     } else {
         let item_string = format!("{icon} {formatted_item}");
 
