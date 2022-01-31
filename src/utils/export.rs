@@ -1,7 +1,7 @@
 //! Export a directory's tree to a file instead of saving.
 
 use ansi_term::*;
-use ptree::{item::StringItem, write_tree};
+use ptree::{item::StringItem, write_tree_with, PrintConfig};
 
 use std::{
     env,
@@ -19,11 +19,11 @@ fn get_absolute_path(file_name: &str) -> Result<String, Error> {
         .clone())
 }
 
-pub fn export_tree(file_name: String, tree: StringItem) -> Result<(), Error> {
+pub fn export_tree(config: PrintConfig, file_name: String, tree: StringItem) -> Result<(), Error> {
     let file_path = get_absolute_path(&file_name)?;
     let file = File::create(&file_path)?;
 
-    write_tree(&tree, file).map_or(
+    write_tree_with(&tree, file, &config).map_or(
         Err(Error::new(
             ErrorKind::Other,
             "Unable to export directory tree to {file_path}!",
