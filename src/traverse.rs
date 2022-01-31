@@ -55,46 +55,33 @@ pub fn canonicalize_path(target_directory: &str) -> Result<String, Error> {
 }
 
 /// Get the file's corresponding icon.
-fn get_icon(
+fn get_file_icon(
     extension_icon_map: &HashMap<&str, &str>,
-    is_directory: bool,
     item: &DirEntry,
     name_icon_map: &HashMap<&str, &str>,
 ) -> String {
-    let icon = if is_directory {
-        &"\u{f115}" // 
-    } else {
-        extension_icon_map
-            .get(
-                item.path()
-                    .extension()
-                    .unwrap_or(OsStr::new("none"))
-                    .to_str()
-                    .unwrap(),
-            )
-            .map_or_else(
-                || {
-                    name_icon_map
-                        .get(&item.file_name().to_str().unwrap())
-                        .unwrap_or(&&"\u{f016}") // 
-                },
-                |icon| icon,
-            )
-    };
+    let icon = extension_icon_map
+        .get(
+            item.path()
+                .extension()
+                .unwrap_or(OsStr::new("none"))
+                .to_str()
+                .unwrap(),
+        )
+        .map_or_else(
+            || {
+                name_icon_map
+                    .get(&item.file_name().to_str().unwrap())
+                    .unwrap_or(&&"\u{f016}") // 
+            },
+            |icon| icon,
+        );
 
     icon.to_string()
 }
 
 /// Format how the item will be displayed in the tree.
-fn format_item(
-    extension_icon_map: &HashMap<&str, &str>,
-    is_directory: bool,
-    item: &DirEntry,
-    name_icon_map: &HashMap<&str, &str>,
-    number: Option<i32>,
-) -> String {
-    let icon = get_icon(extension_icon_map, is_directory, item, name_icon_map);
-
+fn format_item(icon: String, is_directory: bool, item: &DirEntry, number: Option<i32>) -> String {
     let formatted_item = item
         .path()
         .file_name()
@@ -215,13 +202,9 @@ pub fn walk_directory(
         }
 
         if item.path().is_dir() {
-            tree.begin_child(format_item(
-                extension_icon_map,
-                true,
-                &item,
-                name_icon_map,
-                None,
-            ));
+            let icon = "\u{f115}".to_string(); // 
+            tree.begin_child(format_item(icon, true, &item, None));
+
             num_directories += 1;
         } else if item.path().is_file() {
             let number = if args.numbers {
@@ -240,13 +223,9 @@ pub fn walk_directory(
                 None
             };
 
-            tree.add_empty_child(format_item(
-                extension_icon_map,
-                false,
-                &item,
-                name_icon_map,
-                number,
-            ));
+            let icon = get_file_icon(extension_icon_map, &item, name_icon_map);
+            tree.add_empty_child(format_item(icon, false, &item, number));
+
             num_files += 1;
         }
 
