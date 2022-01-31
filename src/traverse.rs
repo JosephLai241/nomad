@@ -22,6 +22,7 @@ use std::{
 pub fn build_walker(args: &Args, target_directory: &str) -> Result<Walk, Error> {
     if Path::new(target_directory).is_dir() {
         Ok(WalkBuilder::new(target_directory)
+            .follow_links(true)
             .git_exclude(!args.disrespect)
             .git_global(!args.disrespect)
             .git_ignore(!args.disrespect)
@@ -53,12 +54,12 @@ pub fn canonicalize_path(target_directory: &str) -> Result<String, Error> {
         )
 }
 
-/// Format how the item will be displayed in the tree.
-fn format_item(
+/// Get the file's corresponding icon.
+fn get_icon(
     extension_icon_map: &HashMap<&str, &str>,
     is_directory: bool,
     item: &DirEntry,
-    number: Option<i32>,
+    name_icon_map: &HashMap<&str, &str>,
 ) -> String {
     let icon = if is_directory {
         &"\u{f115}" // 
@@ -71,8 +72,28 @@ fn format_item(
                     .to_str()
                     .unwrap(),
             )
-            .unwrap_or(&&"\u{f016}") // 
+            .map_or_else(
+                || {
+                    name_icon_map
+                        .get(&item.file_name().to_str().unwrap())
+                        .unwrap_or(&&"\u{f016}") // 
+                },
+                |icon| icon,
+            )
     };
+
+    icon.to_string()
+}
+
+/// Format how the item will be displayed in the tree.
+fn format_item(
+    extension_icon_map: &HashMap<&str, &str>,
+    is_directory: bool,
+    item: &DirEntry,
+    name_icon_map: &HashMap<&str, &str>,
+    number: Option<i32>,
+) -> String {
+    let icon = get_icon(extension_icon_map, is_directory, item, name_icon_map);
 
     let formatted_item = item
         .path()
@@ -133,9 +154,10 @@ fn build_tree(target_directory: &str) -> (TreeBuilder, PrintConfig) {
 pub fn walk_directory(
     args: &Args,
     extension_icon_map: &HashMap<&str, &str>,
+    name_icon_map: &HashMap<&str, &str>,
     target_directory: &str,
     walker: &mut Walk,
-) -> Result<Option<StringItem>, Error> {
+) -> Result<Option<(StringItem, PrintConfig)>, Error> {
     let mut current_depth: usize = 0;
     let (mut tree, config) = build_tree(target_directory);
 
@@ -175,7 +197,13 @@ pub fn walk_directory(
         }
 
         if item.path().is_dir() {
-            tree.begin_child(format_item(extension_icon_map, true, &item, None));
+            tree.begin_child(format_item(
+                extension_icon_map,
+                true,
+                &item,
+                name_icon_map,
+                None,
+            ));
             num_directories += 1;
         } else if item.path().is_file() {
             let number = if args.numbers {
@@ -194,7 +222,13 @@ pub fn walk_directory(
                 None
             };
 
-            tree.add_empty_child(format_item(extension_icon_map, false, &item, number));
+            tree.add_empty_child(format_item(
+                extension_icon_map,
+                false,
+                &item,
+                name_icon_map,
+                number,
+            ));
             num_files += 1;
         }
 
@@ -218,7 +252,7 @@ pub fn walk_directory(
     }
 
     if args.export.is_some() {
-        return Ok(Some(tree.build()));
+        return Ok(Some((tree.build(), config)));
     } else {
         print_tree_with(&tree.build(), &config)?;
     }
