@@ -147,20 +147,23 @@ fn format_item(
 }
 
 /// Build a `ptree` object and set the tree's style/configuration.
-fn build_tree(target_directory: &str) -> (TreeBuilder, PrintConfig) {
+fn build_tree(include_metadata: bool, target_directory: &DirEntry) -> (TreeBuilder, PrintConfig) {
     let directory_icon = &"\u{f115}"; // 
     let directory_name = Colour::Blue.bold().paint(
-        PathBuf::from(target_directory)
-            .canonicalize()
-            .unwrap_or(PathBuf::from("?"))
+        target_directory
             .file_name()
-            .unwrap_or(OsStr::new("?"))
             .to_str()
             .unwrap_or("?")
             .to_string(),
     );
 
-    let tree = TreeBuilder::new(format!("{directory_icon} {directory_name}"));
+    let mut tree_label = format!("{directory_icon} {directory_name}");
+    if include_metadata {
+        let metadata = get_metadata(target_directory);
+        tree_label = format!("{metadata} {tree_label}");
+    }
+
+    let tree = TreeBuilder::new(tree_label);
 
     let mut branch_style = Style::default();
     branch_style.bold = true;
@@ -196,21 +199,20 @@ pub fn walk_directory(
     args: &Args,
     extension_icon_map: &HashMap<&str, &str>,
     name_icon_map: &HashMap<&str, &str>,
-    target_directory: &str,
     walker: &mut Walk,
 ) -> Result<Option<(StringItem, PrintConfig)>, Error> {
     let mut current_depth: usize = 0;
-    let (mut tree, config) = build_tree(target_directory);
-
-    println!();
-
+    let mut items: Vec<Vec<String>> = Vec::new();
     let mut num_directories = 0;
     let mut num_files = 0;
     let mut previous_item = walker
         .next() // Sets the first `previous_item` to the `target_directory`.
         .expect("No items were found in this directory!")
         .unwrap_or_else(|error| panic!("Could not retrieve items in this directory! {error}"));
-    let mut items: Vec<Vec<String>> = Vec::new();
+
+    println!();
+
+    let (mut tree, config) = build_tree(args.metadata, &previous_item);
 
     let start = Instant::now();
     while let Some(Ok(item)) = walker.next() {
