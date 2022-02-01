@@ -2,7 +2,10 @@
 
 use crate::{
     cli::Args,
-    utils::temp::{create_temp_dir, get_json_file, write_to_json},
+    utils::{
+        meta::get_metadata,
+        temp::{create_temp_dir, get_json_file, write_to_json},
+    },
 };
 
 use ansi_term::*;
@@ -82,13 +85,21 @@ fn get_file_icon(
 }
 
 /// Format how the item will be displayed in the tree.
-fn format_item(icon: String, is_directory: bool, item: &DirEntry, number: Option<i32>) -> String {
+fn format_item(
+    icon: String,
+    is_directory: bool,
+    item: &DirEntry,
+    include_metadata: bool,
+    number: Option<i32>,
+) -> String {
     let formatted_item = item
         .path()
         .file_name()
         .unwrap_or(OsStr::new("?"))
         .to_str()
         .unwrap_or("?");
+
+    let metadata = get_metadata(item);
 
     if is_directory {
         let directory_label = if item.path_is_symlink() {
@@ -116,16 +127,22 @@ fn format_item(icon: String, is_directory: bool, item: &DirEntry, number: Option
             Colour::Blue.bold().paint(format!("{directory_name}"))
         };
 
-        format!("{icon} {directory_label}")
+        if include_metadata {
+            format!("{metadata} {icon} {directory_label}")
+        } else {
+            format!("{icon} {directory_label}")
+        }
     } else {
-        let item_string = format!("{icon} {formatted_item}");
+        let mut item_string = format!("{icon} {formatted_item}");
 
         if let Some(number) = number {
-            let numbered_string = format!("[{number}] ");
-            numbered_string + &item_string
-        } else {
-            item_string
+            item_string = format!("[{number}] {item_string}");
         }
+        if include_metadata {
+            item_string = format!("{metadata} {item_string}")
+        }
+
+        item_string
     }
 }
 
@@ -222,7 +239,7 @@ pub fn walk_directory(
 
         if item.path().is_dir() {
             let icon = "\u{f115}".to_string(); // 
-            tree.begin_child(format_item(icon, true, &item, None));
+            tree.begin_child(format_item(icon, true, &item, args.metadata, None));
 
             num_directories += 1;
         } else if item.path().is_file() {
@@ -243,7 +260,7 @@ pub fn walk_directory(
             };
 
             let icon = get_file_icon(extension_icon_map, &item, name_icon_map);
-            tree.add_empty_child(format_item(icon, false, &item, number));
+            tree.add_empty_child(format_item(icon, false, &item, args.metadata, number));
 
             num_files += 1;
         }
