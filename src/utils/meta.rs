@@ -91,7 +91,7 @@ pub fn get_metadata(item: &DirEntry) -> String {
     ));
     let mode = colorize_permission_bits(to_string(metadata.permissions().mode()));
     let last_modified = Colour::Fixed(035).paint(format!("{}", convert_time(metadata.mtime())));
-    let size = convert_bytes(metadata.size());
+    let size = Colour::Fixed(172).paint(format!("{}", convert_bytes(metadata.size())));
     let user = Colour::Fixed(194).paint(format!(
         "{}",
         get_user_by_uid(metadata.uid())
