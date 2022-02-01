@@ -1,7 +1,7 @@
 //! Retrieving metadata for files.
 
 use ansi_term::Colour;
-use chrono::{DateTime, Local, NaiveDateTime, TimeZone, Utc};
+use chrono::{DateTime, Local, TimeZone, Utc};
 use ignore::DirEntry;
 use unix_mode::to_string;
 use users::{get_group_by_gid, get_user_by_uid};
