@@ -40,6 +40,13 @@ pub struct Args {
     pub interactive: bool,
 
     #[structopt(
+        short = "m",
+        long = "metadata",
+        help = "Show item metadata such as file permissions, owner, group, file size, and last modified time"
+    )]
+    pub metadata: bool,
+
+    #[structopt(
         short = "n",
         long = "numbered",
         help = "Show directory contents with numbers"
@@ -52,9 +59,6 @@ pub struct Args {
         help = "Open a file based on its index within the tree\nThis may be used after running `nomad` in numbered mode (`-n`)"
     )]
     pub open: Option<String>,
-
-    #[structopt(short = "p", long = "permissions", help = "Show file permissions")]
-    pub permissions: bool,
 
     #[structopt(
         short = "s",
