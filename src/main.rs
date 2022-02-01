@@ -50,13 +50,8 @@ async fn main() -> Result<()> {
         utils::bat::run_bat(target_file)?;
     } else {
         let mut walker = traverse::build_walker(&args, &target_directory)?;
-        let tree_items = traverse::walk_directory(
-            &args,
-            &extension_icon_map,
-            &name_icon_map,
-            &target_directory,
-            &mut walker,
-        )?;
+        let tree_items =
+            traverse::walk_directory(&args, &extension_icon_map, &name_icon_map, &mut walker)?;
 
         if let (Some(file_name), Some((tree, config))) = (args.export, tree_items) {
             utils::export::export_tree(config, file_name, tree)?;
