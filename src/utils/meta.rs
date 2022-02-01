@@ -37,9 +37,14 @@ fn convert_bytes(bytes: u64) -> String {
 
     let final_number = if rounded_size.fract() == 0.0 {
         let int = rounded_size.round() as i64;
-        format!("{int:>4}")
+        format!("{int:>3}")
     } else {
-        format!("{:>4}", format!("{:.1}", rounded_size))
+        if rounded_size > 10.0 {
+            let floored_number = rounded_size.floor() as i64;
+            format!("{floored_number:>3}")
+        } else {
+            format!("{:>3}", format!("{:.1}", rounded_size))
+        }
     };
 
     format!("{final_number} {label:<2}")
