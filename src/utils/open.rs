@@ -1,7 +1,7 @@
 //! Open a file using the client's system's `$EDITOR`.
 
-use super::temp::get_json_file;
-use crate::{models::Contents, traverse::canonicalize_path};
+use super::{paths::canonicalize_path, temp::get_json_file};
+use crate::models::Contents;
 
 use serde_json::{self, from_str};
 

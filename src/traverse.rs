@@ -47,21 +47,6 @@ pub fn build_walker(args: &Args, target_directory: &str) -> Result<Walk, Error> 
     }
 }
 
-//
-// TODO: MOVE THIS TO THE UTILS FOLDER?
-//
-/// Get the absolute path of a directory.
-pub fn canonicalize_path(target_directory: &str) -> Result<String, Error> {
-    PathBuf::from(target_directory)
-        .canonicalize()?
-        .into_os_string()
-        .into_string()
-        .map_or(
-            Err(Error::new(ErrorKind::Other, "Could not canonicalize path!")),
-            |path| Ok(path),
-        )
-}
-
 /// Get the file's corresponding icon.
 fn get_file_icon(
     extension_icon_map: &HashMap<&str, &str>,
