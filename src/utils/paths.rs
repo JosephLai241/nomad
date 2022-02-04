@@ -3,10 +3,20 @@
 use ignore::DirEntry;
 
 use std::{
+    env,
     ffi::OsStr,
     io::{Error, ErrorKind},
     path::PathBuf,
 };
+
+/// Get the current directory.
+pub fn get_current_directory() -> Result<String, Error> {
+    Ok(env::current_dir()?
+        .into_os_string()
+        .into_string()
+        .expect("Could not get the current directory!")
+        .clone())
+}
 
 /// Get the absolute path of a directory.
 pub fn canonicalize_path(target_directory: &str) -> Result<String, Error> {
