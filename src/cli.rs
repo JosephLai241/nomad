@@ -29,6 +29,10 @@ pub struct Args {
     )]
     pub export: Option<String>,
 
+    //#[structopt(short = "g", long = "git", help = "Display Git markers for files")]
+    #[structopt(subcommand, help = "Run Git commands")]
+    pub git: Option<Git>,
+
     #[structopt(long = "hidden", help = "Display hidden files")]
     pub hidden: bool,
 
@@ -66,6 +70,23 @@ pub struct Args {
         help = "Display directory traversal statistics after the tree is displayed"
     )]
     pub statistics: bool,
+}
+
+#[derive(Debug, PartialEq, StructOpt)]
+pub enum Git {
+    /// Run commonly used Git commands.
+    Git(GitOptions),
+}
+
+/// This enum provides some commonly used Git options.
+#[derive(Debug, PartialEq, StructOpt)]
+pub enum GitOptions {
+    /// Equivalent to the `git add` command.
+    Add { file_number: i32 },
+    /// Equivalent to the `git diff` command.
+    Diff { file_number: i32 },
+    /// Equivalent to the `git status` command. Only display changed/unstaged files in the tree.
+    Status,
 }
 
 /// Return the `Args` struct.
