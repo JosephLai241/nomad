@@ -9,10 +9,9 @@ use super::paths::get_filename;
 
 /// Paint a directory.
 pub fn paint_directory(item: &DirEntry) -> String {
-    let directory_name = get_filename(item);
     Colour::Blue
         .bold()
-        .paint(format!("{directory_name}"))
+        .paint(format!("{}", get_filename(item)))
         .to_string()
 }
 
