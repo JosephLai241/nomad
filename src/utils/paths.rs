@@ -18,9 +18,9 @@ pub fn get_current_directory() -> Result<String, Error> {
         .clone())
 }
 
-/// Get the absolute path of a directory.
-pub fn canonicalize_path(target_directory: &str) -> Result<String, Error> {
-    PathBuf::from(target_directory)
+/// Get the absolute file path based for the target_string.
+pub fn canonicalize_path(target: &str) -> Result<String, Error> {
+    PathBuf::from(target)
         .canonicalize()?
         .into_os_string()
         .into_string()
