@@ -8,10 +8,7 @@ use std::collections::HashMap;
 /// Try to get Git metadata from the target directory.
 pub fn get_repo(target_directory: &str) -> Option<Repository> {
     Repository::open(target_directory).map_or_else(
-        |error| {
-            println!("\n{}", Colour::Red.bold().paint(format!("{error}")));
-            None
-        },
+        |_| None,
         |repo| {
             if repo.is_bare() {
                 println!("\n{}", Colour::Fixed(172).paint("Git repository is bare!"));
