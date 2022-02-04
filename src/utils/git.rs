@@ -5,6 +5,8 @@ use git2::{Error, Repository, Status, StatusOptions, StatusShow};
 
 use std::collections::HashMap;
 
+use super::paths::canonicalize_path;
+
 /// Try to get Git metadata from the target directory.
 pub fn get_repo(target_directory: &str) -> Option<Repository> {
     Repository::open(target_directory).map_or_else(
@@ -32,7 +34,8 @@ pub fn get_status_markers(repo: Repository) -> Result<HashMap<String, String>, E
     let mut formatted_items = HashMap::new();
 
     for repo_item in repo.statuses(Some(&mut status_options))?.iter() {
-        let item_name = repo_item.path().unwrap_or("?").to_string();
+        let item_name =
+            canonicalize_path(repo_item.path().unwrap_or("?")).unwrap_or("?".to_string());
 
         match repo_item.status() {
             s if s.contains(Status::INDEX_DELETED) => {
