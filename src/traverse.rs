@@ -20,7 +20,6 @@ use serde_json::json;
 use std::{
     collections::HashMap,
     ffi::OsStr,
-    fs::read_link,
     io::{Error, ErrorKind},
     path::{Path, PathBuf},
     time::Instant,
@@ -75,6 +74,7 @@ fn get_file_icon(
 
 /// Format how the item will be displayed in the tree.
 fn format_item(
+    git_marker: Option<String>,
     icon: String,
     is_directory: bool,
     item: &DirEntry,
@@ -99,6 +99,9 @@ fn format_item(
     } else {
         let mut item_string = format!("{icon} {filename}");
 
+        if let Some(marker) = git_marker {
+            item_string = format!("{marker} {item_string}");
+        }
         if let Some(number) = number {
             item_string = format!("[{number}] {item_string}");
         }
@@ -111,7 +114,7 @@ fn format_item(
 }
 
 /// Build a `ptree` object and set the tree's style/configuration.
-fn build_tree(include_metadata: bool, target_directory: &DirEntry) -> (TreeBuilder, PrintConfig) {
+fn build_tree(include_metadata: bool, target_directory: &DirEntry) -> (PrintConfig, TreeBuilder) {
     let directory_icon = &"\u{f115}"; // 
     let directory_name = Colour::Blue.bold().paint(
         target_directory
@@ -137,7 +140,7 @@ fn build_tree(include_metadata: bool, target_directory: &DirEntry) -> (TreeBuild
     config.branch = branch_style;
     config.indent = 4;
 
-    (tree, config)
+    (config, tree)
 }
 
 /// Write the directory's contents to a temporary file.
@@ -177,7 +180,12 @@ pub fn walk_directory(
 
     println!();
 
-    let (mut tree, config) = build_tree(args.metadata, &previous_item);
+    let git_markers = if let Some(git_repo) = repo {
+        get_status_markers(git_repo).map_or(None, |marker_map| Some(marker_map))
+    } else {
+        None
+    };
+    let (config, mut tree) = build_tree(args.metadata, &previous_item);
 
     let start = Instant::now();
     while let Some(Ok(item)) = walker.next() {
@@ -204,9 +212,24 @@ pub fn walk_directory(
             tree.end_child();
         }
 
+        let git_marker = if let Some(ref file_map) = git_markers {
+            file_map
+                .get(item.path().to_str().unwrap_or("?"))
+                .map_or(None, |marker| Some(marker.to_string()))
+        } else {
+            None
+        };
+
         if item.path().is_dir() {
             let icon = "\u{f115}".to_string(); // 
-            tree.begin_child(format_item(icon, true, &item, args.metadata, None));
+            tree.begin_child(format_item(
+                git_marker,
+                icon,
+                true,
+                &item,
+                args.metadata,
+                None,
+            ));
 
             num_directories += 1;
         } else if item.path().is_file() {
@@ -227,7 +250,14 @@ pub fn walk_directory(
             };
 
             let icon = get_file_icon(extension_icon_map, &item, name_icon_map);
-            tree.add_empty_child(format_item(icon, false, &item, args.metadata, number));
+            tree.add_empty_child(format_item(
+                git_marker,
+                icon,
+                false,
+                &item,
+                args.metadata,
+                number,
+            ));
 
             num_files += 1;
         }
