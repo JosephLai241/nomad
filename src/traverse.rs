@@ -3,12 +3,16 @@
 use crate::{
     cli::Args,
     utils::{
+        git::get_status_markers,
         meta::get_metadata,
+        paint::{paint_directory, paint_symlink_directory},
+        paths::get_filename,
         temp::{create_temp_dir, get_json_file, write_to_json},
     },
 };
 
 use ansi_term::*;
+use git2::Repository;
 use ignore::{self, DirEntry, Walk, WalkBuilder};
 use ptree::{item::StringItem, print_tree_with, Color, PrintConfig, Style, TreeBuilder};
 use serde_json::json;
@@ -92,39 +96,14 @@ fn format_item(
     include_metadata: bool,
     number: Option<i32>,
 ) -> String {
-    let formatted_item = item
-        .path()
-        .file_name()
-        .unwrap_or(OsStr::new("?"))
-        .to_str()
-        .unwrap_or("?");
-
+    let filename = get_filename(item);
     let metadata = get_metadata(item);
 
     if is_directory {
         let directory_label = if item.path_is_symlink() {
-            let points_to = read_link(item.path()).map_or("?".to_string(), |pathbuf_path| {
-                pathbuf_path
-                    .canonicalize()
-                    .unwrap_or(PathBuf::from("?"))
-                    .into_os_string()
-                    .into_string()
-                    .map_or("?".to_string(), |path_string| path_string)
-            });
-
-            Colour::Yellow
-                .bold()
-                .paint(format!("{formatted_item} ⇒ {points_to}"))
+            paint_symlink_directory(item)
         } else {
-            let directory_name = item
-                .path()
-                .file_name()
-                .unwrap_or(OsStr::new("?"))
-                .to_str()
-                .unwrap_or("?")
-                .to_string();
-
-            Colour::Blue.bold().paint(format!("{directory_name}"))
+            paint_directory(item)
         };
 
         if include_metadata {
@@ -133,7 +112,7 @@ fn format_item(
             format!("{icon} {directory_label}")
         }
     } else {
-        let mut item_string = format!("{icon} {formatted_item}");
+        let mut item_string = format!("{icon} {filename}");
 
         if let Some(number) = number {
             item_string = format!("[{number}] {item_string}");
@@ -199,6 +178,7 @@ pub fn walk_directory(
     args: &Args,
     extension_icon_map: &HashMap<&str, &str>,
     name_icon_map: &HashMap<&str, &str>,
+    repo: Option<Repository>,
     walker: &mut Walk,
 ) -> Result<Option<(StringItem, PrintConfig)>, Error> {
     let mut current_depth: usize = 0;
@@ -275,7 +255,7 @@ pub fn walk_directory(
         store_directory_contents(items)?;
     }
 
-    if args.export.is_some() {
+    if args.export.is_some() || args.interactive {
         return Ok(Some((tree.build(), config)));
     } else {
         print_tree_with(&tree.build(), &config)?;
