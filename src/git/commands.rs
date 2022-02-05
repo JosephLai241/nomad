@@ -34,12 +34,16 @@ pub fn stage_files(file_numbers: Vec<i32>, repo: &Repository) -> Result<Tree, Er
 }
 
 /// Commit the staged changes with an accompanying message if applicable (`git commit -m <MESSAGE>`).
-pub fn commit_changes(message: String, repo: &Repository, staged_tree: Tree) -> Result<(), Error> {
+pub fn commit_changes(
+    message: Option<String>,
+    repo: &Repository,
+    staged_tree: Tree,
+) -> Result<(), Error> {
     if let Ok(signature) = repo.signature() {
-        let checked_message = if message.is_empty() {
-            "Updating".to_string()
-        } else {
+        let checked_message = if let Some(message) = message {
             message
+        } else {
+            "Updating".to_string()
         };
 
         let parent_commit = get_last_commit(&repo)?;
