@@ -1,6 +1,7 @@
 //! `nomad` - The `tree` command, but better.
 
 mod cli;
+mod git;
 mod models;
 mod traverse;
 mod ui;
@@ -9,12 +10,15 @@ mod utils;
 use ansi_term::Colour;
 use tokio;
 
-use std::io::Result;
+use std::io::{Error, ErrorKind, Result};
 
 use cli::{Git, GitOptions};
+use git::{
+    commands::{commit_changes, stage_files},
+    utils::{get_last_commit, get_repo, get_repo_branch},
+};
 use ui::{spawn_terminal, utils::convert_tree};
 use utils::{
-    git::{get_repo, get_repo_branch},
     icons::{get_icons_by_extension, get_icons_by_name},
     open::get_file,
     paths::get_current_directory,
@@ -37,7 +41,7 @@ async fn main() -> Result<()> {
     let name_icon_map = get_icons_by_name();
     ///////////////////// TODO: MAKE THIS A LAZY STATIC?
 
-    let repo = Some(get_repo(&target_directory)).flatten();
+    let repository = get_repo(&target_directory);
 
     if args.interactive {
         // TODO: RESERVE FOR NOMAD V0.1.1?
@@ -59,39 +63,56 @@ async fn main() -> Result<()> {
     } else if let Some(target) = args.bat {
         let target_file = get_file(target)?;
         utils::bat::run_bat(target_file)?;
-    } else if args.git.is_some() {
-        //
-        //
-        // TODO: REFACTOR?
-        //
-        //
-        // ALLOW THIS TO RUN EVEN IF THE TOP DIR ISN'T A GIT REPOSITORIES
-        //    IE. IF ANY OF THE NESTED DIRECTORIES ARE GIT REPOSITORIES
-        //
-        //
-        if repo.is_some() {
-            if let Some(branch_name) = get_repo_branch(&repo.unwrap()) {
+    } else if let Some(sub_command) = args.git {
+        if let Some(repo) = repository {
+            if let Some(branch_name) = get_repo_branch(&repo) {
                 println!(
                     "\nOn branch: {}\n",
                     Colour::Green.bold().paint(format!("{branch_name}"))
                 );
             }
 
-            if let Some(sub_command) = args.git {
-                match sub_command {
-                    Git::Git(git_command) => match git_command {
-                        GitOptions::Add { file_number } => {
-                            let target_file = get_file(file_number.to_string())?;
-                            println!("\nTARGET FILE FROM GIT ADD IS: {target_file}\n");
-                            // TODO: ADD METHOD TO DO A `git add <file_number>`
+            match sub_command {
+                Git::Git(git_command) => match git_command {
+                    GitOptions::Add { file_numbers } => {
+                        if let Err(error) = stage_files(file_numbers, &repo) {
+                            return Err(Error::new(
+                                ErrorKind::Other,
+                                format!("Unable to stage files! {error}"),
+                            ));
                         }
-                        GitOptions::Diff { file_number } => {
-                            let target_file = get_file(file_number.to_string())?;
-                            utils::bat::run_bat(target_file)?;
+                    }
+                    GitOptions::Commit { message } => {
+                        if let Ok(parent_commit) = get_last_commit(&repo) {
+                            if let Ok(staged_tree) = repo.find_tree(parent_commit.id()) {
+                                if let Err(error) = commit_changes(message, &repo, staged_tree) {
+                                    return Err(Error::new(
+                                        ErrorKind::Other,
+                                        format!("Unable to commit staged items! {error}"),
+                                    ));
+                                }
+                            } else {
+                                return Err(Error::new(
+                                    ErrorKind::Other,
+                                    format!("Unable to retrieve staged changes from this Git repository!"),
+                                ));
+                            }
+                        } else {
+                            return Err(Error::new(
+                                ErrorKind::Other,
+                                "Unable to retrieve the most recent commit from this Git repository!",
+                            ));
                         }
-                        _ => {}
-                    },
-                }
+                    }
+                    GitOptions::Diff { file_number } => {
+                        let target_file = get_file(file_number.to_string())?;
+                        utils::bat::run_bat(target_file)?;
+                    }
+                    GitOptions::Status => {
+                        // TODO: CREATE A TREE THAT ONLY CONTAINS ITEMS IN THE WORKING
+                        // DIRECTORY/INDEX.
+                    }
+                },
             }
         } else {
             println!(
