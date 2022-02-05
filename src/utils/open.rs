@@ -86,7 +86,7 @@ pub fn open_file(file: String) -> Result<(), Error> {
 
         Err(Error::new(
             ErrorKind::NotFound,
-            "Could not open the file with your $EDITOR, Neovim, Vim, or Nano! Do you have one of these editors installed?",
+            "Could not open the file with your $EDITOR, Neovim, Vim, Vi, or Nano! Do you have one of these editors installed?",
         ))
     }
 }
