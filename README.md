@@ -3,7 +3,7 @@
     | | | |  |  | | | |     |  |  |
     |_|___|_____|_|_|_|__|__|____/
 
-> Explore your filesystem.
+> The next gen `tree` command.
 
 # Table of Contents
 
@@ -19,6 +19,7 @@
 	+ [Numbered Mode](#numbered-mode)
 		* [Available Flags](#available-flags)
 	+ [Git Integration](#git-integration)
+		* [Color Code/Status Marker Key](#color-codestatus-marker-key)
 		* [Available Subcommands](#available-subcommands)
 		* [`git status`](#git-status)
 		* [`git add`](#git-add)
@@ -36,7 +37,7 @@
 
 I often use the `tree` command whenever I am programming. I think it is a very clever tool but unfortunately a bit outdated by today's standards. I wanted to write my own new-gen `tree` command, so I did just that.
 
-This project is largely inspired by [`lsd`][lsd]'s colorization and icons. `lsd` is an improved `ls` alternative written in Rust.
+This project is inspired by [`lsd`][lsd]'s colorization and icons. `lsd` is an improved `ls` alternative written in Rust.
 
 # Features
 
@@ -127,7 +128,7 @@ git diff <file_number>
 
 Git status markers appear next to any item within any Git repository that is present in the tree. In other words, any nested Git repositories will recieve this treatment.
 
-### Color Code Key
+### Color Code/Status Marker Key
 
 Here is a key for the colors/Git markers that may appear in the tree:
 
@@ -138,9 +139,9 @@ Here is a key for the colors/Git markers that may appear in the tree:
 
 ```
 git
-	add
-	diff
-	status
+    add
+    diff
+    status
 ```
 
 ### `git status`
