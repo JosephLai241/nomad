@@ -40,12 +40,15 @@ This project is largely inspired by [`lsd`][lsd]'s colorization and icons. `lsd`
 
 # Features
 
-`nomad` displays a stylized directory tree which integrates icons and colors by default, but it offers additional functionality such as:
+At its core, `nomad` is, again, an alternative/upgraded `tree` command with the following differences:
 
+* Displays a stylized tree which integrates icons and colors.
 * Git integration
-	+ Display Git status markers next to items within a Git repository. This is also enabled by default.
-	+ Quickly point Git commands such as `git add/diff` to a file within the tree.
-	+ Restrict the tree to only display files that have been modified. Think `git status` in tree form.
+	+ Respect `.gitignore` and rules defined in similar `.ignore`-type files. This is enabled by default.
+	+ Display Git status markers next to items within a Git repository. This is enabled by default.
+	+ Integrated Git commands
+		+ Quickly point Git commands such as `git add/diff` to a file within the tree. This allows you to add files or view diffs without needing to type out the entire path to the file.
+		+ Restrict the tree to only display files that have been modified. Think `git status` in tree form.
 * Display file metadata such as file permissions, owner, group, file size, and last modified time.
 * Quick open/edit of a file wtihin the directory (after running `nomad` in numbered mode (`-n`)).
 * Built-in [`bat`][bat], a `cat` alternative written in Rust, to quickly view a file within the tree.
@@ -89,18 +92,6 @@ SUBCOMMANDS:
 
 # Walkthrough
 
-**TIP:** Any options that require a target file requires `nomad` to be run in numbered mode prior to using that command. You can do this by including the `-n` flag.
-
-The options that require numbered mode before running are:
-
-```
--b, --bat <file_number>
--o, --open <file_number>
-
-git add <file_number>
-git diff <file_number>
-```
-
 ## Default Behavior (Stylized Tree View)
 
 You can display a tree for your current directory just by running `nd` after `cd`ing into that directory:
@@ -118,13 +109,30 @@ nd some_directory/
 
 ## Numbered Mode
 
-### Available Flags
+Any options that require a target file requires `nomad` to be run in numbered mode prior to using that command. You can do this by including the `-n` flag.
+
+The options that require numbered mode before running are:
 
 ```
--n
+-b, --bat <file_number>
+-o, --open <file_number>
+
+git add <file_number>
+git diff <file_number>
 ```
 
 ## Git Integration
+
+`nomad` respects rules specified in `.ignore`-type files by default, which includes `.gitignore`s.
+
+Git status markers appear next to any item within any Git repository that is present in the tree. In other words, any nested Git repositories will recieve this treatment.
+
+### Color Code Key
+
+Here is a key for the colors/Git markers that may appear in the tree:
+
+| Marker | Description | Color |
+|--------|-------------|-------|
 
 ### Available Subcommands
 
@@ -137,9 +145,21 @@ git
 
 ### `git status`
 
+This subcommand restricts the tree to only display files that have been modified. Think `git status` in tree form.
+
 ### `git add`
 
+> ***NOTE:*** Requires running in numbered mode beforehand.
+
+Quickly run a `git add` for a file without the burden of typing out the entire file path.
+
 ### `git diff`
+
+> ***NOTE:*** Requires running in numbered mode beforehand.
+
+Quickly run a `git diff` for a file without the burden of typing out the entire file path.
+
+This command will use the built-in `bat` to display the target file's diff.
 
 ## Quick Open/Edit a File
 
