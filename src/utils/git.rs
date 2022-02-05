@@ -75,16 +75,17 @@ pub fn get_status_markers(
 
         match repo_item.status() {
             s if s.contains(Status::INDEX_DELETED) => {
-                formatted_items.insert(item_name, Colour::Red.bold().paint("D").to_string());
+                formatted_items.insert(item_name, Colour::Red.bold().paint("SD").to_string());
             }
             s if s.contains(Status::INDEX_MODIFIED) => {
-                formatted_items.insert(item_name, Colour::Purple.bold().paint("M").to_string());
+                formatted_items.insert(item_name, Colour::Yellow.bold().paint("SM").to_string());
             }
             s if s.contains(Status::INDEX_NEW) => {
-                formatted_items.insert(item_name, Colour::Green.bold().paint("A").to_string());
+                formatted_items.insert(item_name, Colour::Green.bold().paint("SA").to_string());
             }
             s if s.contains(Status::INDEX_RENAMED) => {
-                formatted_items.insert(item_name, Colour::Fixed(172).bold().paint("R").to_string());
+                formatted_items
+                    .insert(item_name, Colour::Fixed(172).bold().paint("SR").to_string());
             }
             s if s.contains(Status::WT_DELETED) => {
                 formatted_items.insert(item_name, Colour::Red.bold().paint("D").to_string());
@@ -99,7 +100,7 @@ pub fn get_status_markers(
                 formatted_items.insert(item_name, Colour::Fixed(172).bold().paint("R").to_string());
             }
             s if s.contains(Status::CONFLICTED) => {
-                formatted_items.insert(item_name, Colour::Red.bold().paint("!").to_string());
+                formatted_items.insert(item_name, Colour::Red.bold().paint("CONFLICT").to_string());
             }
             _ => {}
         }
