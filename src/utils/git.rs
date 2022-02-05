@@ -39,30 +39,31 @@ pub fn get_status_markers(repo: Repository) -> Result<HashMap<String, String>, E
 
         match repo_item.status() {
             s if s.contains(Status::INDEX_DELETED) => {
-                formatted_items.insert(item_name, Colour::Red.bold().paint("ID").to_string());
+                formatted_items.insert(item_name, Colour::Red.bold().paint("D").to_string());
             }
             s if s.contains(Status::INDEX_MODIFIED) => {
-                formatted_items
-                    .insert(item_name, Colour::Fixed(172).bold().paint("IM").to_string());
+                formatted_items.insert(item_name, Colour::Yellow.bold().paint("M").to_string());
             }
             s if s.contains(Status::INDEX_NEW) => {
-                formatted_items.insert(item_name, Colour::Green.bold().paint("IU").to_string());
+                formatted_items.insert(item_name, Colour::Green.bold().paint("A").to_string());
             }
             s if s.contains(Status::INDEX_RENAMED) => {
-                formatted_items.insert(item_name, Colour::Red.bold().paint("IR").to_string());
+                formatted_items.insert(item_name, Colour::Fixed(172).bold().paint("R").to_string());
             }
             s if s.contains(Status::WT_DELETED) => {
-                formatted_items.insert(item_name, Colour::Red.bold().paint("WD").to_string());
+                formatted_items.insert(item_name, Colour::Red.bold().paint("D").to_string());
             }
             s if s.contains(Status::WT_MODIFIED) => {
-                formatted_items
-                    .insert(item_name, Colour::Fixed(172).bold().paint("WM").to_string());
+                formatted_items.insert(item_name, Colour::Blue.bold().paint("M").to_string());
             }
             s if s.contains(Status::WT_NEW) => {
-                formatted_items.insert(item_name, Colour::Green.bold().paint("WU").to_string());
+                formatted_items.insert(item_name, Colour::Green.bold().paint("U").to_string());
             }
             s if s.contains(Status::WT_RENAMED) => {
-                formatted_items.insert(item_name, Colour::Red.bold().paint("WR").to_string());
+                formatted_items.insert(item_name, Colour::Fixed(172).bold().paint("R").to_string());
+            }
+            s if s.contains(Status::CONFLICTED) => {
+                formatted_items.insert(item_name, Colour::Red.bold().paint("!").to_string());
             }
             _ => {}
         }
