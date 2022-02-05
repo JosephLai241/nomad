@@ -25,7 +25,7 @@
 
 I often use the `tree` command whenever I am programming. I think it is a very clever tool but unfortunately a bit outdated by today's standards. I wanted to write my own new-gen `tree` command, so I did just that.
 
-This project is largely inspired by [`lsd`'s][lsd] colorization and icons. `lsd` is an improved `ls` alternative written in Rust.
+This project is largely inspired by [`lsd`][lsd]'s colorization and icons. `lsd` is an improved `ls` alternative written in Rust.
 
 # Features
 
