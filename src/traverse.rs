@@ -2,8 +2,8 @@
 
 use crate::{
     cli::Args,
+    git::markers::extend_marker_map,
     utils::{
-        git::extend_marker_map,
         meta::get_metadata,
         paint::{paint_directory, paint_symlink_directory},
         paths::{canonicalize_path, get_filename},
