@@ -18,6 +18,11 @@
 	+ [Default Behavior (Stylized Tree View)](#default-behavior-stylized-tree-view)
 	+ [Numbered Mode](#numbered-mode)
 		* [Available Flags](#available-flags)
+	+ [Git Integration](#git-integration)
+		* [Available Subcommands](#available-subcommands)
+		* [`git status`](#git-status)
+		* [`git add`](#git-add)
+		* [`git diff`](#git-diff)
 	* [Quick Open/Edit a File](#quick-openedit-a-file)
 	+ [Interactive Mode](#interactive-mode)
 	+ [Integrated `bat`](#integrated-bat)
@@ -63,7 +68,7 @@ FLAGS:
     -h, --help           Prints help information
         --hidden         Display hidden files
     -i, --interactive    Initialize an interactive file/directory explorer
-    -m, --metadata       Show item metadata such as file permissions, owner, group, file size, and last modified time 
+    -m, --metadata       Show item metadata such as file permissions, owner, group, file size, and last modified time  
     -n, --numbered       Show directory contents with numbers
     -s, --stats          Display directory traversal statistics after the tree is displayed
     -V, --version        Prints version information
@@ -118,6 +123,23 @@ nd some_directory/
 ```
 -n
 ```
+
+## Git Integration
+
+### Available Subcommands
+
+```
+git
+	add
+	diff
+	status
+```
+
+### `git status`
+
+### `git add`
+
+### `git diff`
 
 ## Quick Open/Edit a File
 
