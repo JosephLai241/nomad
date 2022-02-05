@@ -6,7 +6,7 @@ use structopt::StructOpt;
 #[derive(Debug, PartialEq, StructOpt)]
 #[structopt(
     name = "nomad",
-    about = "A better way to explore your filesystem.",
+    about = "The next gen tree command",
     author = "Joseph Lai"
 )]
 pub struct Args {
