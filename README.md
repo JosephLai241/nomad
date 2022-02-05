@@ -59,7 +59,7 @@ At its core, `nomad` is, again, an alternative/upgraded `tree` command with the 
 
 `nomad` requires a [NerdFont][NerdFont] to correctly display the icons. Install a NerdFont before installing `nomad`, otherwise you will be very sad when you see what the tree looks like without a NerdFont.
 
-Follow the [NerdFont installation guide][NerdFont Installation] for instructions on how to do so.
+Follow the [NerdFont installation guide][NerdFont Installation] for instructions on how to do so for your system.
 
 # Usage
 
