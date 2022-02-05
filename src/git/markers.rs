@@ -1,49 +1,12 @@
-//! Providing Git functionality in tree form.
+//! Set Git status markers for items within the tree.
+
+use super::utils::get_repo;
+use crate::utils::paths::canonicalize_path;
 
 use ansi_term::Colour;
-use git2::{Branch, Error, Repository, Status, StatusOptions, StatusShow};
+use git2::{Error, Repository, Status, StatusOptions, StatusShow};
 
 use std::collections::HashMap;
-
-use super::paths::canonicalize_path;
-
-/// Try to get Git metadata from the target directory.
-pub fn get_repo(target_directory: &str) -> Option<Repository> {
-    if let Ok(repo) = Repository::open(target_directory) {
-        if repo.is_bare() {
-            println!("\n{}", Colour::Fixed(172).paint("Git repository is bare!"));
-            None
-        } else {
-            Some(repo)
-        }
-    } else {
-        None
-    }
-}
-
-/// Try to get the current Git branch's name.
-pub fn get_repo_branch(repo: &Repository) -> Option<String> {
-    if let Ok(reference) = repo.head() {
-        if let Ok(Some(name)) = Branch::wrap(reference).name() {
-            let branch_name = name.to_string();
-            Some(branch_name)
-        } else {
-            println!(
-                "\n{}\n",
-                Colour::Red
-                    .bold()
-                    .paint("Could not get the current Git branch name!")
-            );
-            None
-        }
-    } else {
-        println!(
-            "\n{}\n",
-            Colour::Red.bold().paint("Could not get repository HEAD!")
-        );
-        None
-    }
-}
 
 /// Try to extend the `HashMap` containing status markers and their corresponding
 /// filenames with new Git repository items.
