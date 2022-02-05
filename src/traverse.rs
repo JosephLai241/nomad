@@ -93,11 +93,42 @@ fn format_item(
             format!("{icon} {directory_label}")
         }
     } else {
-        let mut item_string = format!("{icon} {filename}");
+        let mut item_string = if let Some(marker) = git_marker {
+            let staged_deleted = Colour::Red.bold().paint("SD").to_string();
+            let staged_modified = Colour::Yellow.bold().paint("SM").to_string();
+            let staged_new = Colour::Green.bold().paint("SA").to_string();
+            let staged_renamed = Colour::Fixed(172).bold().paint("SR").to_string();
+            let conflicted = Colour::Red.bold().paint("CONFLICT").to_string();
 
-        if let Some(marker) = git_marker {
-            item_string = format!("{marker} {item_string}");
-        }
+            let formatted_filename = match marker {
+                _ if marker == staged_deleted => Colour::Red
+                    .bold()
+                    .strikethrough()
+                    .paint(format!("{filename}"))
+                    .to_string(),
+                _ if marker == staged_modified => Colour::Yellow
+                    .bold()
+                    .paint(format!("{filename}"))
+                    .to_string(),
+                _ if marker == staged_new => Colour::Green
+                    .bold()
+                    .paint(format!("{filename}"))
+                    .to_string(),
+                _ if marker == staged_renamed => Colour::Fixed(172)
+                    .bold()
+                    .paint(format!("{filename}"))
+                    .to_string(),
+                _ if marker == conflicted => {
+                    Colour::Red.bold().paint(format!("{filename}")).to_string()
+                }
+                _ => filename,
+            };
+
+            format!("{marker} {icon} {formatted_filename}")
+        } else {
+            format!("{icon} {filename}")
+        };
+
         if let Some(number) = number {
             item_string = format!("[{number}] {item_string}");
         }
