@@ -51,24 +51,21 @@ fn get_file_icon(
     item: &DirEntry,
     name_icon_map: &HashMap<&str, &str>,
 ) -> String {
-    let icon = extension_icon_map
-        .get(
-            item.path()
-                .extension()
-                .unwrap_or(OsStr::new("none"))
-                .to_str()
-                .unwrap(),
-        )
-        .map_or_else(
-            || {
-                name_icon_map
-                    .get(&item.file_name().to_str().unwrap())
-                    .unwrap_or(&&"\u{f016}") // 
-            },
-            |icon| icon,
-        );
-
-    icon.to_string()
+    if let Some(icon) = extension_icon_map.get(
+        item.path()
+            .extension()
+            .unwrap_or(OsStr::new("none"))
+            .to_str()
+            .unwrap(),
+    ) {
+        icon.to_string()
+    } else {
+        if let Some(icon) = name_icon_map.get(&item.file_name().to_str().unwrap()) {
+            icon.to_string()
+        } else {
+            "\u{f016}".to_string() // 
+        }
+    }
 }
 
 /// Format how the item will be displayed in the tree.
