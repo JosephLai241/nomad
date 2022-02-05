@@ -7,6 +7,9 @@
 
 # Table of Contents
 
+<!--TODO: FIX LINKS TO "AVAILABLE FLAGS"-->
+<!--TODO: FIX LINKS TO "AVAILABLE FLAGS"-->
+
 * [What Is `nomad` and Why?](#what-is-nomad-and-why)
 * [Features](#features)
 * [Prerequisite Setup](#prerequisite-setup)
@@ -20,6 +23,9 @@
 	+ [Integrated `bat`](#integrated-bat)
 	+ [Display Metadata and Traversal Statistics](#display-metadata-and-traversal-statistics)
 		* [Available Flags](#available-flags)
+
+<!--TODO: FIX LINKS TO "AVAILABLE FLAGS"-->
+<!--TODO: FIX LINKS TO "AVAILABLE FLAGS"-->
 
 # What Is `nomad` and Why?
 
@@ -57,7 +63,7 @@ FLAGS:
     -h, --help           Prints help information
         --hidden         Display hidden files
     -i, --interactive    Initialize an interactive file/directory explorer
-    -m, --metadata       Show item metadata such as file permissions, owner, group, file size, and last modified time
+    -m, --metadata       Show item metadata such as file permissions, owner, group, file size, and last modified time 
     -n, --numbered       Show directory contents with numbers
     -s, --stats          Display directory traversal statistics after the tree is displayed
     -V, --version        Prints version information
