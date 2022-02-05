@@ -14,7 +14,7 @@ use std::io::Result;
 use cli::{Git, GitOptions};
 use ui::{spawn_terminal, utils::convert_tree};
 use utils::{
-    git::get_repo,
+    git::{get_repo, get_repo_branch},
     icons::{get_icons_by_extension, get_icons_by_name},
     open::get_file,
     paths::get_current_directory,
@@ -32,8 +32,10 @@ async fn main() -> Result<()> {
         get_current_directory().unwrap_or("?".to_string())
     };
 
+    ///////////////////// TODO: MAKE THIS A LAZY STATIC?
     let extension_icon_map = get_icons_by_extension();
     let name_icon_map = get_icons_by_name();
+    ///////////////////// TODO: MAKE THIS A LAZY STATIC?
 
     let repo = Some(get_repo(&target_directory)).flatten();
 
@@ -41,13 +43,8 @@ async fn main() -> Result<()> {
         // TODO: RESERVE FOR NOMAD V0.1.1?
 
         let mut walker = traverse::build_walker(&args, &target_directory)?;
-        let tree_items = traverse::walk_directory(
-            &args,
-            &extension_icon_map,
-            &name_icon_map,
-            repo,
-            &mut walker,
-        )?;
+        let tree_items =
+            traverse::walk_directory(&args, &extension_icon_map, &name_icon_map, &mut walker)?;
         if let Some((tree, config)) = tree_items {
             let tree_parts = convert_tree(config, tree);
             println!("{:?}", tree_parts);
@@ -63,8 +60,23 @@ async fn main() -> Result<()> {
         let target_file = get_file(target)?;
         utils::bat::run_bat(target_file)?;
     } else if args.git.is_some() {
-        ////////////////// TODO: REFACTOR?
+        //
+        //
+        // TODO: REFACTOR?
+        //
+        //
+        // ALLOW THIS TO RUN EVEN IF THE TOP DIR ISN'T A GIT REPOSITORIES
+        //    IE. IF ANY OF THE NESTED DIRECTORIES ARE GIT REPOSITORIES
+        //
+        //
         if repo.is_some() {
+            if let Some(branch_name) = get_repo_branch(&repo.unwrap()) {
+                println!(
+                    "\nOn branch: {}\n",
+                    Colour::Green.bold().paint(format!("{branch_name}"))
+                );
+            }
+
             if let Some(sub_command) = args.git {
                 match sub_command {
                     Git::Git(git_command) => match git_command {
@@ -91,13 +103,8 @@ async fn main() -> Result<()> {
         }
     } else {
         let mut walker = traverse::build_walker(&args, &target_directory)?;
-        let tree_items = traverse::walk_directory(
-            &args,
-            &extension_icon_map,
-            &name_icon_map,
-            repo,
-            &mut walker,
-        )?;
+        let tree_items =
+            traverse::walk_directory(&args, &extension_icon_map, &name_icon_map, &mut walker)?;
 
         if let (Some(file_name), Some((tree, config))) = (args.export, tree_items) {
             utils::export::export_tree(config, file_name, tree)?;
