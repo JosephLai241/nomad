@@ -3,16 +3,15 @@
 use crate::{
     cli::Args,
     utils::{
-        git::get_status_markers,
+        git::extend_marker_map,
         meta::get_metadata,
         paint::{paint_directory, paint_symlink_directory},
-        paths::get_filename,
+        paths::{canonicalize_path, get_filename},
         temp::{create_temp_dir, get_json_file, write_to_json},
     },
 };
 
 use ansi_term::*;
-use git2::Repository;
 use ignore::{self, DirEntry, Walk, WalkBuilder};
 use ptree::{item::StringItem, print_tree_with, Color, PrintConfig, Style, TreeBuilder};
 use serde_json::json;
@@ -166,7 +165,6 @@ pub fn walk_directory(
     args: &Args,
     extension_icon_map: &HashMap<&str, &str>,
     name_icon_map: &HashMap<&str, &str>,
-    repo: Option<Repository>,
     walker: &mut Walk,
 ) -> Result<Option<(StringItem, PrintConfig)>, Error> {
     let mut current_depth: usize = 0;
@@ -180,11 +178,12 @@ pub fn walk_directory(
 
     println!();
 
-    let git_markers = if let Some(git_repo) = repo {
-        get_status_markers(git_repo).map_or(None, |marker_map| Some(marker_map))
-    } else {
-        None
-    };
+    let mut git_markers: HashMap<String, String> = HashMap::new();
+
+    extend_marker_map(
+        &mut git_markers,
+        previous_item.path().to_str().unwrap_or("?"),
+    );
     let (config, mut tree) = build_tree(args.metadata, &previous_item);
 
     let start = Instant::now();
@@ -212,15 +211,13 @@ pub fn walk_directory(
             tree.end_child();
         }
 
-        let git_marker = if let Some(ref file_map) = git_markers {
-            file_map
-                .get(item.path().to_str().unwrap_or("?"))
-                .map_or(None, |marker| Some(marker.to_string()))
-        } else {
-            None
-        };
+        let git_marker = git_markers
+            .get(&canonicalize_path(item.path().to_str().unwrap_or("?")).unwrap_or("?".to_string()))
+            .map_or(None, |marker| Some(marker.to_string()));
 
         if item.path().is_dir() {
+            extend_marker_map(&mut git_markers, item.path().to_str().unwrap_or("?"));
+
             let icon = "\u{f115}".to_string(); // 
             tree.begin_child(format_item(
                 git_marker,
