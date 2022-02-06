@@ -141,7 +141,10 @@ fn format_item(
 }
 
 /// Build a `ptree` object and set the tree's style/configuration.
-fn build_tree(include_metadata: bool, target_directory: &DirEntry) -> (PrintConfig, TreeBuilder) {
+pub fn build_tree(
+    include_metadata: bool,
+    target_directory: &DirEntry,
+) -> (PrintConfig, TreeBuilder) {
     let directory_icon = &"\u{f115}"; // 
     let directory_name = Colour::Blue.bold().paint(
         target_directory
@@ -168,6 +171,37 @@ fn build_tree(include_metadata: bool, target_directory: &DirEntry) -> (PrintConf
     config.indent = 4;
 
     (config, tree)
+}
+
+/// Run checks to ensure tree nesting is correct. Make any corrections if applicable.
+pub fn check_nesting(
+    current_depth: usize,
+    item: &DirEntry,
+    previous_item: DirEntry,
+    tree: &mut TreeBuilder,
+) {
+    if item.depth() < current_depth {
+        if previous_item.path().is_dir() {
+            let item_parent = item
+                .path()
+                .parent()
+                .expect("Could not get the current item's parent!");
+            let previous_parent = previous_item
+                .path()
+                .parent()
+                .expect("Could not get the previous item's parent!");
+
+            if item_parent != previous_parent {
+                tree.end_child();
+            }
+        }
+
+        for _ in 0..current_depth - item.depth() {
+            tree.end_child();
+        }
+    } else if item.depth() == current_depth && previous_item.path().is_dir() {
+        tree.end_child();
+    }
 }
 
 /// Write the directory's contents to a temporary file.
@@ -216,28 +250,7 @@ pub fn walk_directory(
 
     let start = Instant::now();
     while let Some(Ok(item)) = walker.next() {
-        if item.depth() < current_depth {
-            if previous_item.path().is_dir() {
-                let item_parent = item
-                    .path()
-                    .parent()
-                    .expect("Could not get the current item's parent!");
-                let previous_parent = previous_item
-                    .path()
-                    .parent()
-                    .expect("Could not get the previous item's parent!");
-
-                if item_parent != previous_parent {
-                    tree.end_child();
-                }
-            }
-
-            for _ in 0..current_depth - item.depth() {
-                tree.end_child();
-            }
-        } else if item.depth() == current_depth && previous_item.path().is_dir() {
-            tree.end_child();
-        }
+        check_nesting(current_depth, &item, previous_item, &mut tree);
 
         let git_marker = git_markers
             .get(&canonicalize_path(item.path().to_str().unwrap_or("?")).unwrap_or("?".to_string()))
