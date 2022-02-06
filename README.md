@@ -150,6 +150,12 @@ Changes that are staged (after running `nd git add`) are marked/colorized as suc
 | `SU`   | Untracked   | Green  |
 | `SR`   | Renamed     | Orange |
 
+Conflicts are marked/colorized as such:
+
+| Marker     | Description      | Color  |
+|------------|------------------|--------|
+| `CONFLICT` | Conflicting file | Red    |
+
 ### Available Subcommands
 
 ```
