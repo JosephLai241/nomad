@@ -40,7 +40,7 @@ pub fn build_walker(args: &Args, target_directory: &str) -> Result<Walk, Error> 
     } else {
         Err(Error::new(
             ErrorKind::NotFound,
-            format!("Directory '{target_directory}/' does not exist!"),
+            format!("Directory '{target_directory}' does not exist!"),
         ))
     }
 }

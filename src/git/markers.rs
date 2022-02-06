@@ -12,7 +12,7 @@ use std::collections::HashMap;
 /// filenames with new Git repository items.
 pub fn extend_marker_map(git_markers: &mut HashMap<String, String>, target_directory: &str) {
     if let Some(repo) = get_repo(target_directory) {
-        if let Ok(top_level_map) = get_status_markers(repo, target_directory) {
+        if let Ok(top_level_map) = get_status_markers(&repo, target_directory) {
             git_markers.extend(top_level_map);
         }
     }
@@ -21,7 +21,7 @@ pub fn extend_marker_map(git_markers: &mut HashMap<String, String>, target_direc
 /// Get the status markers (colored initials) that correspond with the Git status
 /// of tracked files in the repository.
 pub fn get_status_markers(
-    repo: Repository,
+    repo: &Repository,
     target_directory: &str,
 ) -> Result<HashMap<String, String>, Error> {
     let mut status_options = StatusOptions::new();
