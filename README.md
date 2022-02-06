@@ -130,10 +130,25 @@ Git status markers appear next to any item within any Git repository that is pre
 
 ### Color Code/Status Marker Key
 
-Here is a key for the colors/Git markers that may appear in the tree:
+Here are some keys detailing the colors/Git markers that may appear in the tree.
 
-| Marker | Description | Color |
-|--------|-------------|-------|
+Changes in the working directory are marked/colorized as such:
+
+| Marker | Description | Color  |
+|--------|-------------|--------|
+| `D`    | Deleted     | Red    |
+| `M`    | Modified    | Yellow |
+| `U`    | Untracked   | Green  |
+| `R`    | Renamed     | Orange |
+
+Changes that are staged (after running `nd git add`) are marked/colorized as such:
+
+| Marker | Description | Color  |
+|--------|-------------|--------|
+| `SD`   | Deleted     | Red    |
+| `SM`   | Modified    | Yellow |
+| `SU`   | Untracked   | Green  |
+| `SR`   | Renamed     | Orange |
 
 ### Available Subcommands
 
@@ -152,7 +167,19 @@ This subcommand restricts the tree to only display files that have been modified
 
 > ***NOTE:*** Requires running in numbered mode beforehand.
 
-Quickly run a `git add` for a file without the burden of typing out the entire file path.
+Quickly run a `git add` for a file without the burden of typing out the entire file path. Pass in the number that corresponds with the file you want to stage.
+
+```
+nd git add 12    // Stages the 12th file in the tree.
+```
+
+You can stage multiple items at once by delimiting numbers with a space like so:
+
+```
+nd git add 3 5 12 16    // Stages the 3rd, 5th, 12th, and 16th file in the tree.
+```
+
+If you run `nomad` again, the files that are staged will be colorized depending on its Git status.
 
 ### `git diff`
 
@@ -161,6 +188,10 @@ Quickly run a `git add` for a file without the burden of typing out the entire f
 Quickly run a `git diff` for a file without the burden of typing out the entire file path.
 
 This command will use the built-in `bat` to display the target file's diff.
+
+```
+nd git diff 2    // View the diff for the 2nd file in the tree.
+```
 
 ## Quick Open/Edit a File
 
