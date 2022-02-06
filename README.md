@@ -14,6 +14,8 @@
 * [Features](#features)
 * [Prerequisite Setup](#prerequisite-setup)
 * [Usage](#usage)
+	+ [Main Usage](#main-usage)
+	+ [Git Usage](#git-usage)
 * [Walkthrough](#walkthrough)
 	+ [Default Behavior (Stylized Tree View)](#default-behavior-stylized-tree-view)
 	+ [Numbered Mode](#numbered-mode)
@@ -27,7 +29,7 @@
 		* [`git status`](#git-status)
 	* [Quick Open/Edit a File](#quick-openedit-a-file)
 	+ [Interactive Mode](#interactive-mode)
-	+ [Integrated `bat`](#integrated-bat)
+	+ [`bat` Integration](#bat-integration)
 	+ [Display Metadata and Traversal Statistics](#display-metadata-and-traversal-statistics)
 		* [Available Flags](#available-flags)
 
@@ -64,6 +66,8 @@ Follow the [NerdFont installation guide][NerdFont Installation] for instructions
 
 # Usage
 
+## Main Usage
+
 ```
 USAGE:
     nd [FLAGS] [OPTIONS] [directory] [SUBCOMMAND]
@@ -90,6 +94,25 @@ ARGS:
 SUBCOMMANDS:
     git     Run commonly used Git commands
     help    Prints this message or the help of the given subcommand(s)
+```
+
+## Git Usage
+
+```
+USAGE:
+    nomad git <SUBCOMMAND>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+SUBCOMMANDS:
+    add       Equivalent to the `git add` command
+    commit    Equivalent to the `git commit` command. Optionally include a message after the command, ie. `git commit "YOUR MESSAGE HERE"`  
+              The default commit message is "Updating" if no message is included
+    diff      Equivalent to the `git diff` command
+    help      Prints this message or the help of the given subcommand(s)
+    status    Equivalent to the `git status` command. Only display changed/unstaged files in the tree
 ```
 
 # Walkthrough
@@ -119,7 +142,7 @@ The options that require numbered mode before running are:
 -b, --bat <file_number>
 -o, --open <file_number>
 
-git add <file_number>
+git add <file_number(s)>
 git diff <file_number>
 ```
 
@@ -127,13 +150,13 @@ git diff <file_number>
 
 `nomad` respects rules specified in `.ignore`-type files by default, which includes `.gitignore`s.
 
-Git status markers appear next to any item within any Git repository that is present in the tree. In other words, any nested Git repositories will recieve this treatment.
+Git status markers appear next to any changed item within a Git repository that is present in the tree. In other words, any nested Git repositories will receive this treatment.
 
 ### Color Code/Status Marker Key
 
 Here are some keys detailing the colors/Git markers that may appear in the tree.
 
-Changes in the working directory are marked/colorized as such:
+Changes in the **working directory** are marked/colorized as such:
 
 | Marker | Description | Color  |
 |--------|-------------|--------|
@@ -142,7 +165,7 @@ Changes in the working directory are marked/colorized as such:
 | `U`    | Untracked   | Green  |
 | `R`    | Renamed     | Orange |
 
-Changes that are staged (after running `nd git add`) are marked/colorized as such:
+Changes that are **staged** (after running `nd git add`) are marked/colorized as such:
 
 | Marker | Description | Color  |
 |--------|-------------|--------|
@@ -151,7 +174,7 @@ Changes that are staged (after running `nd git add`) are marked/colorized as suc
 | `SU`   | Untracked   | Green  |
 | `SR`   | Renamed     | Orange |
 
-Conflicts are marked/colorized as such:
+**Conflicts** are marked/colorized as such:
 
 | Marker     | Description      | Color  |
 |------------|------------------|--------|
@@ -199,7 +222,7 @@ You can optionally include a commit message following the command like so:
 nd git commit "Your commit message here"
 ```
 
-The default commit message is "Updating" if no commit message is provided.
+The default commit message is `"Updating"` if no commit message is provided.
 
 ### `git diff`
 
@@ -219,6 +242,8 @@ This subcommand restricts the tree to only display files that have been modified
 
 ## Quick Open/Edit a File
 
+> ***NOTE:*** Requires running in numbered mode beforehand.
+
 `nomad` provides a quick way to open and edit a file after displaying a directory's tree.
 
 It will try to open the file with your default editor by extracting the value from the `$EDITOR` environment variable. If you do not have a default editor set, the following editors are supported and will be tried in this order:
@@ -228,7 +253,7 @@ It will try to open the file with your default editor by extracting the value fr
 3. [Vi][Vi]
 4. [Nano][Nano]
 
-Run `nomad` in numbered mode, then pass the file's number with the `-o` flag to open that file with your default text editor:
+Pass the file's number with the `-o` flag to open that file with your default text editor:
 
 ```
 nd -o <file_number>
@@ -236,11 +261,13 @@ nd -o <file_number>
 
 ## Interactive Mode
 
-## Integrated `bat`
+## `bat` Integration
+
+> ***NOTE:*** Requires running in numbered mode beforehand.
 
 [`bat`][bat] is a *much* improved `cat` alternative and is integrated into `nomad`.
 
-Run `nomad` in numbered mode, then pass the file's number with the `-b` flag to `bat` a file:
+Quickly `bat` a file by passing the file's number with the `-b` flag:
 
 ```
 nd -b <file_number>
