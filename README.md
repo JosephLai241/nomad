@@ -21,9 +21,10 @@
 	+ [Git Integration](#git-integration)
 		* [Color Code/Status Marker Key](#color-codestatus-marker-key)
 		* [Available Subcommands](#available-subcommands)
-		* [`git status`](#git-status)
 		* [`git add`](#git-add)
+		* [`git commit`](#git-commit)
 		* [`git diff`](#git-diff)
+		* [`git status`](#git-status)
 	* [Quick Open/Edit a File](#quick-openedit-a-file)
 	+ [Interactive Mode](#interactive-mode)
 	+ [Integrated `bat`](#integrated-bat)
@@ -161,13 +162,10 @@ Conflicts are marked/colorized as such:
 ```
 git
     add
+    commit
     diff
     status
 ```
-
-### `git status`
-
-This subcommand restricts the tree to only display files that have been modified. Think `git status` in tree form.
 
 ### `git add`
 
@@ -187,6 +185,22 @@ nd git add 3 5 12 16    // Stages the 3rd, 5th, 12th, and 16th file in the tree.
 
 If you run `nomad` again, the files that are staged will be colorized depending on its Git status.
 
+### `git commit`
+
+You can run `git commit` via `nomad` by prepending `nd`:
+
+```
+nd git commit
+```
+
+You can optionally include a commit message following the command like so:
+
+```
+nd git commit "Your commit message here"
+```
+
+The default commit message is "Updating" if no commit message is provided.
+
 ### `git diff`
 
 > ***NOTE:*** Requires running in numbered mode beforehand.
@@ -198,6 +212,10 @@ This command will use the built-in `bat` to display the target file's diff.
 ```
 nd git diff 2    // View the diff for the 2nd file in the tree.
 ```
+
+### `git status`
+
+This subcommand restricts the tree to only display files that have been modified. Think `git status` in tree form.
 
 ## Quick Open/Edit a File
 
@@ -232,11 +250,11 @@ The following features are integrated into `bat`:
 
 | Feature                           | Description
 |-----------------------------------|-------------------------------
-| `grid`					        | Paint a grid that separates line numbers, Git changes, and the code
-| `header`					        | Show a header with the file name
-| `line_numbers`			        | Show line numbers
+| `grid`                            | Paint a grid that separates line numbers, Git changes, and the code
+| `header`                          | Show a header with the file name
+| `line_numbers`                    | Show line numbers
 | `paging_mode` - `QuitIfOneScreen` | Use a pager if the output exceeds the current terminal's length
-| `true_color`  			        | Output 24-bit colors
+| `true_color`                      | Output 24-bit colors
 | `vcs_modification_markers`        | Show markers for VCS changes.
 | `wrapping_mode` - `Character`     | Text wrapping is enabled
 
