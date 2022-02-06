@@ -49,7 +49,7 @@ At its core, `nomad` is, again, an alternative/upgraded `tree` command with the 
 	+ Display Git status markers next to items within a Git repository. This is enabled by default.
 	+ Integrated Git commands
 		+ Quickly point Git commands such as `git add/diff` to a file within the tree. This allows you to add files or view diffs without needing to type out the entire path to the file.
-		+ Restrict the tree to only display files that have been modified. Think `git status` in tree form.
+		+ `git status` in tree form.
 * Display file metadata such as file permissions, owner, group, file size, and last modified time.
 * Quick open/edit of a file wtihin the directory (after running `nomad` in numbered mode (`-n`)).
 * Built-in [`bat`][bat], a `cat` alternative written in Rust, to quickly view a file within the tree.
@@ -102,7 +102,7 @@ cd some_directory/
 nd
 ```
 
-Alternatively, pass in the name of the directory you wish to display a tree:
+Alternatively, pass in the name of the directory you wish to target:
 
 ```
 nd some_directory/
@@ -110,7 +110,7 @@ nd some_directory/
 
 ## Numbered Mode
 
-Any options that require a target file requires `nomad` to be run in numbered mode prior to using that command. You can do this by including the `-n` flag.
+**Any options that require a target file argument requires `nomad` to be run in numbered mode prior to using that command. You can do this by including the `-n` flag.**
 
 The options that require numbered mode before running are:
 
