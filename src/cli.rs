@@ -29,7 +29,6 @@ pub struct Args {
     )]
     pub export: Option<String>,
 
-    //#[structopt(short = "g", long = "git", help = "Display Git markers for files")]
     #[structopt(subcommand, help = "Run Git commands")]
     pub git: Option<Git>,
 
