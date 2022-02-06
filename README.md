@@ -38,7 +38,7 @@
 
 # What Is `nomad` and Why?
 
-I often use the `tree` command whenever I am programming. I think it is a very clever tool but unfortunately a bit outdated by today's standards. I wanted to write my own new-gen `tree` command, so I did just that.
+I often use the `tree` command whenever I am programming. I think it is a very clever tool but unfortunately a bit outdated by today's standards. I wanted to write my own next gen `tree` command, so I did just that.
 
 This project is inspired by [`lsd`][lsd]'s colorization and icons. `lsd` is an improved `ls` alternative written in Rust.
 
@@ -53,6 +53,7 @@ At its core, `nomad` is, again, an alternative/upgraded `tree` command with the 
 	+ Integrated Git commands
 		+ Quickly point Git commands such as `git add/diff` to a file within the tree. This allows you to add files or view diffs without needing to type out the entire path to the file.
 		+ `git status` in tree form.
+		+ `git commit <"OPTIONAL_MESSAGE">` integration.
 * Display file metadata such as file permissions, owner, group, file size, and last modified time.
 * Quick open/edit of a file wtihin the directory (after running `nomad` in numbered mode (`-n`)).
 * Built-in [`bat`][bat], a `cat` alternative written in Rust, to quickly view a file within the tree.
@@ -156,7 +157,7 @@ Git status markers appear next to any changed item within a Git repository that 
 
 Here are some keys detailing the colors/Git markers that may appear in the tree.
 
-Changes in the **working directory** are marked/colorized as such:
+Changes in the **working directory** are stylized like so:
 
 | Marker | Description | Color  |
 |--------|-------------|--------|
@@ -165,7 +166,7 @@ Changes in the **working directory** are marked/colorized as such:
 | `U`    | Untracked   | Green  |
 | `R`    | Renamed     | Orange |
 
-Changes that are **staged** (after running `nd git add`) are marked/colorized as such:
+Changes that are **staged** (after running `nd git add`) are stylized like so:
 
 | Marker | Description | Color  |
 |--------|-------------|--------|
@@ -174,7 +175,14 @@ Changes that are **staged** (after running `nd git add`) are marked/colorized as
 | `SU`   | Untracked   | Green  |
 | `SR`   | Renamed     | Orange |
 
-**Conflicts** are marked/colorized as such:
+Filenames will also be stylized if they are staged. They are stylized like so:
+
+File name styles are stylized like so:
+
+| Status | Style |
+|--------|-------|
+
+**Conflicts** are stylized like so:
 
 | Marker     | Description      | Color  |
 |------------|------------------|--------|
@@ -206,11 +214,11 @@ You can stage multiple items at once by delimiting numbers with a space like so:
 nd git add 3 5 12 16    // Stages the 3rd, 5th, 12th, and 16th file in the tree.
 ```
 
-If you run `nomad` again, the files that are staged will be colorized depending on its Git status.
+The files that are staged will be colorized depending on its Git status.
 
 ### `git commit`
 
-You can run `git commit` via `nomad` by prepending `nd`:
+You can run `git commit` via `nomad`:
 
 ```
 nd git commit
