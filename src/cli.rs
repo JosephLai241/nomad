@@ -84,7 +84,7 @@ pub enum GitOptions {
     /// Equivalent to the `git add` command.
     Add { file_numbers: Vec<i32> },
     /// Equivalent to the `git commit` command.
-    /// Optionally include a message after the command, ie. `git commit "YOUR MESSAGE HERE"`.
+    /// Optionally include a message after the command, ie. `git commit "YOUR MESSAGE HERE"`
     /// The default commit message is "Updating" if no message is included.
     Commit { message: Option<String> },
     /// Equivalent to the `git diff` command.
