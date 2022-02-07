@@ -7,7 +7,7 @@ use crate::{
         meta::get_metadata,
         paint::{paint_directory, paint_symlink_directory},
         paths::{canonicalize_path, get_filename},
-        temp::{create_temp_dir, get_json_file, write_to_json},
+        temp::{create_temp_dir, get_json_file, write_to_json, JSONTarget},
     },
 };
 
@@ -68,76 +68,104 @@ fn get_file_icon(
     }
 }
 
-/// Format how the item will be displayed in the tree.
-fn format_item(
+/// Format how directories are displayed in the tree.
+fn format_directory(
     git_marker: Option<String>,
     icon: String,
-    is_directory: bool,
+    label: Option<String>,
     item: &DirEntry,
     include_metadata: bool,
+    mute_icons: bool,
+) -> String {
+    let metadata = get_metadata(item);
+
+    let directory_label = if item.path_is_symlink() {
+        paint_symlink_directory(item)
+    } else {
+        paint_directory(item)
+    };
+
+    let mut formatted = if mute_icons {
+        format!("{directory_label}")
+    } else {
+        format!("{icon} {directory_label}")
+    };
+
+    if let Some(label) = label {
+        formatted = format!("[{label}] {formatted}");
+    }
+
+    if include_metadata {
+        return format!("{metadata} {formatted}");
+    }
+
+    formatted
+}
+
+/// Format how directory contents are displayed in the tree.
+fn format_content(
+    git_marker: Option<String>,
+    icon: String,
+    item: &DirEntry,
+    include_metadata: bool,
+    mute_icons: bool,
     number: Option<i32>,
 ) -> String {
     let filename = get_filename(item);
     let metadata = get_metadata(item);
 
-    if is_directory {
-        let directory_label = if item.path_is_symlink() {
-            paint_symlink_directory(item)
-        } else {
-            paint_directory(item)
+    let mut item_string = if let Some(marker) = git_marker {
+        let staged_deleted = Colour::Red.bold().paint("SD").to_string();
+        let staged_modified = Colour::Yellow.bold().paint("SM").to_string();
+        let staged_new = Colour::Green.bold().paint("SA").to_string();
+        let staged_renamed = Colour::Fixed(172).bold().paint("SR").to_string();
+        let conflicted = Colour::Red.bold().paint("CONFLICT").to_string();
+
+        let formatted_filename = match marker {
+            _ if marker == staged_deleted => Colour::Red
+                .bold()
+                .strikethrough()
+                .paint(format!("{filename}"))
+                .to_string(),
+            _ if marker == staged_modified => Colour::Yellow
+                .bold()
+                .paint(format!("{filename}"))
+                .to_string(),
+            _ if marker == staged_new => Colour::Green
+                .bold()
+                .paint(format!("{filename}"))
+                .to_string(),
+            _ if marker == staged_renamed => Colour::Fixed(172)
+                .bold()
+                .paint(format!("{filename}"))
+                .to_string(),
+            _ if marker == conflicted => {
+                Colour::Red.bold().paint(format!("{filename}")).to_string()
+            }
+            _ => filename,
         };
 
-        if include_metadata {
-            format!("{metadata} {icon} {directory_label}")
+        if mute_icons {
+            format!("{marker} {formatted_filename}")
         } else {
-            format!("{icon} {directory_label}")
+            format!("{marker} {icon} {formatted_filename}")
         }
     } else {
-        let mut item_string = if let Some(marker) = git_marker {
-            let staged_deleted = Colour::Red.bold().paint("SD").to_string();
-            let staged_modified = Colour::Yellow.bold().paint("SM").to_string();
-            let staged_new = Colour::Green.bold().paint("SA").to_string();
-            let staged_renamed = Colour::Fixed(172).bold().paint("SR").to_string();
-            let conflicted = Colour::Red.bold().paint("CONFLICT").to_string();
-
-            let formatted_filename = match marker {
-                _ if marker == staged_deleted => Colour::Red
-                    .bold()
-                    .strikethrough()
-                    .paint(format!("{filename}"))
-                    .to_string(),
-                _ if marker == staged_modified => Colour::Yellow
-                    .bold()
-                    .paint(format!("{filename}"))
-                    .to_string(),
-                _ if marker == staged_new => Colour::Green
-                    .bold()
-                    .paint(format!("{filename}"))
-                    .to_string(),
-                _ if marker == staged_renamed => Colour::Fixed(172)
-                    .bold()
-                    .paint(format!("{filename}"))
-                    .to_string(),
-                _ if marker == conflicted => {
-                    Colour::Red.bold().paint(format!("{filename}")).to_string()
-                }
-                _ => filename,
-            };
-
-            format!("{marker} {icon} {formatted_filename}")
+        if mute_icons {
+            format!("{filename}")
         } else {
             format!("{icon} {filename}")
-        };
-
-        if let Some(number) = number {
-            item_string = format!("[{number}] {item_string}");
         }
-        if include_metadata {
-            item_string = format!("{metadata} {item_string}")
-        }
+    };
 
-        item_string
+    if let Some(number) = number {
+        item_string = format!("[{number}] {item_string}");
     }
+    if include_metadata {
+        item_string = format!("{metadata} {item_string}")
+    }
+
+    item_string
 }
 
 /// Build a `ptree` object and set the tree's style/configuration.
@@ -204,19 +232,22 @@ pub fn check_nesting(
     }
 }
 
-/// Write the directory's contents to a temporary file.
-pub fn store_directory_contents(items: Vec<Vec<String>>) -> Result<(), Error> {
+/// Write the labeled directories or numbered directory contents to a temporary file.
+pub fn store_directory_contents(
+    items: HashMap<String, String>,
+    json_target: JSONTarget,
+) -> Result<(), Error> {
     create_temp_dir()?;
 
     let mut json = json!({ "items": {} });
-    for item in items {
+    for (key, value) in items.iter() {
         json["items"]
             .as_object_mut()
             .unwrap()
-            .insert(item[0].clone(), json!(item[1]));
+            .insert(key.clone(), json!(value.clone()));
     }
 
-    let mut json_file = get_json_file(false)?;
+    let mut json_file = get_json_file(json_target, false)?;
     write_to_json(&mut json_file, json)?;
 
     Ok(())
@@ -230,7 +261,6 @@ pub fn walk_directory(
     walker: &mut Walk,
 ) -> Result<Option<(StringItem, PrintConfig)>, Error> {
     let mut current_depth: usize = 0;
-    let mut items: Vec<Vec<String>> = Vec::new();
     let mut num_directories = 0;
     let mut num_files = 0;
     let mut previous_item = walker
@@ -248,6 +278,9 @@ pub fn walk_directory(
     );
     let (config, mut tree) = build_tree(args.metadata, &previous_item);
 
+    let mut numbered_items: HashMap<String, String> = HashMap::new();
+    let mut labeled_items: HashMap<String, String> = HashMap::new();
+
     let start = Instant::now();
     while let Some(Ok(item)) = walker.next() {
         check_nesting(current_depth, &item, previous_item, &mut tree);
@@ -259,28 +292,41 @@ pub fn walk_directory(
         if item.path().is_dir() {
             extend_marker_map(&mut git_markers, item.path().to_str().unwrap_or("?"));
 
+            let label = if args.label_directories {
+                //labeled_items.insert();
+                //
+                // TODO: Calculate the label here
+                //      If label reaches "z", label becomes double the character, ie. "aa" comes
+                //      after "z".
+
+                let temp_label = "a".to_string();
+                Some(temp_label)
+            } else {
+                None
+            };
+
             let icon = "\u{f115}".to_string(); // 
-            tree.begin_child(format_item(
+            tree.begin_child(format_directory(
                 git_marker,
                 icon,
-                true,
+                label,
                 &item,
                 args.metadata,
-                None,
+                args.mute_icons,
             ));
 
             num_directories += 1;
         } else if item.path().is_file() {
             let number = if args.numbers {
-                items.push(vec![
-                    num_files.to_string(),
+                numbered_items.insert(
+                    format!("{num_files}"),
                     item.path()
                         .canonicalize()
                         .unwrap_or(PathBuf::from("?"))
                         .into_os_string()
                         .into_string()
                         .unwrap_or("?".into()),
-                ]);
+                );
 
                 Some(num_files)
             } else {
@@ -288,12 +334,12 @@ pub fn walk_directory(
             };
 
             let icon = get_file_icon(extension_icon_map, &item, name_icon_map);
-            tree.add_empty_child(format_item(
+            tree.add_empty_child(format_content(
                 git_marker,
                 icon,
-                false,
                 &item,
                 args.metadata,
+                args.mute_icons,
                 number,
             ));
 
@@ -305,7 +351,10 @@ pub fn walk_directory(
     }
 
     if args.numbers {
-        store_directory_contents(items)?;
+        store_directory_contents(numbered_items, JSONTarget::Contents)?;
+    }
+    if args.label_directories {
+        store_directory_contents(labeled_items, JSONTarget::Directories)?;
     }
 
     if args.export.is_some() || args.interactive {
