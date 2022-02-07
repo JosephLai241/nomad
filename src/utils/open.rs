@@ -1,6 +1,9 @@
 //! Open a file using the client's system's `$EDITOR`.
 
-use super::{paths::canonicalize_path, temp::get_json_file};
+use super::{
+    paths::canonicalize_path,
+    temp::{get_json_file, JSONTarget},
+};
 use crate::models::Contents;
 
 use serde_json::{self, from_str};
@@ -33,7 +36,7 @@ fn get_text_editors() -> Vec<String> {
 /// Search for the target file by parsing the JSON file and retrieving the value
 /// associated with the target index that was passed in.
 fn search_for_file(target_index: String) -> Result<Option<String>, Error> {
-    let mut file = get_json_file(true)?;
+    let mut file = get_json_file(JSONTarget::Contents, true)?;
     let mut data = String::new();
     file.read_to_string(&mut data)?;
 

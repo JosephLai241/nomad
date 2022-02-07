@@ -11,7 +11,9 @@ use serde_json::Value;
 
 /// Directory name within the system's temporary directory to store `nomad` metadata.
 static DIRECTORY: &str = "nomad";
-/// The JSON file that stores directory `Item`s for quick access.
+/// The JSON file that stores labeled directories.
+static LABELED_FILE: &str = "labels.json";
+/// The JSON file that stores numbered directory contents.
 static NUMBERED_FILE: &str = "items.json";
 
 /// Get the path to the temporary directory to store `nomad` metadata.
@@ -28,10 +30,21 @@ pub fn create_temp_dir() -> Result<(), Error> {
     Ok(())
 }
 
-/// Return the `items.json` `File` object in write/overwrite or read-only mode.
-pub fn get_json_file(read_only: bool) -> Result<File, Error> {
+/// Contains options for JSON file access.
+pub enum JSONTarget {
+    /// Get the JSON file that contains numbered directory contents.
+    Contents,
+    /// Get the JSON file that contains labeled directories.
+    Directories,
+}
+
+/// Return a JSON `File` object in write/overwrite or read-only mode.
+pub fn get_json_file(json_target: JSONTarget, read_only: bool) -> Result<File, Error> {
     let mut items_json = get_temp_dir_path();
-    items_json.push(NUMBERED_FILE);
+    items_json.push(match json_target {
+        JSONTarget::Contents => NUMBERED_FILE,
+        JSONTarget::Directories => LABELED_FILE,
+    });
 
     let file = if read_only {
         File::open(items_json)?
