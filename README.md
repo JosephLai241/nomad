@@ -175,12 +175,15 @@ Changes that are **staged** (after running `nd git add`) are stylized like so:
 | `SU`   | Untracked   | Green  |
 | `SR`   | Renamed     | Orange |
 
-Filenames will also be stylized if they are staged. They are stylized like so:
+Filenames will also be stylized if they are staged:
 
-File name styles are stylized like so:
-
-| Status | Style |
-|--------|-------|
+| Status        | Style              |
+|---------------|--------------------|
+| Deleted       | Red, strikethrough |
+| Modified      | Yellow             |
+| Untracked/New | Green              |
+| Renamed       | Orange             |
+| Conflicting   | Red                |
 
 **Conflicts** are stylized like so:
 
