@@ -65,34 +65,39 @@ At its core, `nomad` is, again, an alternative/upgraded `tree` command with the 
 
 Follow the [NerdFont installation guide][NerdFont Installation] for instructions on how to do so for your system.
 
+If you do not want a crispy looking tree, you can include the `--mute-icons` flag to disable icons.
+
 # Usage
 
 ## Main Usage
 
 ```
 USAGE:
-    nd [FLAGS] [OPTIONS] [directory] [SUBCOMMAND]
+    nomad [FLAGS] [OPTIONS] [directory] [SUBCOMMAND]
 
 FLAGS:
-        --disrespect     Disrespect all ignore rules
-    -h, --help           Prints help information
-        --hidden         Display hidden files
-    -i, --interactive    Initialize an interactive file/directory explorer
-    -m, --metadata       Show item metadata such as file permissions, owner, group, file size, and last modified time  
-    -n, --numbered       Show directory contents with numbers
-    -s, --stats          Display directory traversal statistics after the tree is displayed
-    -V, --version        Prints version information
+        --disrespect           Disrespect all ignore rules
+    -h, --help                 Prints help information
+        --hidden               Display hidden files
+    -i, --interactive          Initialize an interactive file/directory explorer
+    -l, --label-directories    Label directories with characters
+    -m, --metadata             Show item metadata such as file permissions, owner, group, file size, and last modified time  
+        --mute-icons           Do not display icons
+    -n, --numbered             Show directory contents with numbers
+    -s, --stats                Display directory traversal statistics after the tree is displayed
+    -V, --version              Prints version information
 
 OPTIONS:
     -b, --bat <bat>          `bat` (the Rust alternative to the `cat` command) a file
         --export <export>    Export the tree to a file instead of displaying
     -o, --open <open>        Open a file based on its index within the tree
-                             This may be used after running `nomad` in numbered mode (`-n`)
+                             This may be used after running nomad in numbered mode
 
 ARGS:
     <directory>    Explore this directory
 
 SUBCOMMANDS:
+    cd      Change the current working directory. This may be used after running nomad with labeled directories
     git     Run commonly used Git commands
     help    Prints this message or the help of the given subcommand(s)
 ```
