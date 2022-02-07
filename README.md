@@ -113,12 +113,12 @@ FLAGS:
     -V, --version    Prints version information
 
 SUBCOMMANDS:
-    add       Equivalent to the `git add` command
-    commit    Equivalent to the `git commit` command. Optionally include a message after the command, ie. `git commit "YOUR MESSAGE HERE"`  
-              The default commit message is "Updating" if no message is included
-    diff      Equivalent to the `git diff` command
+    add       The `git add` command. This may be used after running nomad in numbered mode or with labeled directories
+    commit    The `git commit` command. Optionally include a message after the command, ie. `git commit "YOUR MESSAGE HERE"` The default  
+              commit message is "Updating" if no message is included
+    diff      The `git diff` command. This may be used after running nomad in numbered mode or with labeled directories
     help      Prints this message or the help of the given subcommand(s)
-    status    Equivalent to the `git status` command. Only display changed/unstaged files in the tree
+    status    The `git status` command. Only display changed/unstaged files in the tree
 ```
 
 # Walkthrough
