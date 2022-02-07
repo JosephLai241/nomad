@@ -29,8 +29,12 @@ pub struct Args {
     )]
     pub export: Option<String>,
 
-    #[structopt(subcommand, help = "Run Git commands")]
-    pub git: Option<Git>,
+    #[structopt(
+        short = "l",
+        long = "label-directories",
+        help = "Label directories with characters"
+    )]
+    pub label_directories: bool,
 
     #[structopt(long = "hidden", help = "Display hidden files")]
     pub hidden: bool,
@@ -49,6 +53,9 @@ pub struct Args {
     )]
     pub metadata: bool,
 
+    #[structopt(long = "mute-icons", help = "Do not display icons")]
+    pub mute_icons: bool,
+
     #[structopt(
         short = "n",
         long = "numbered",
@@ -59,7 +66,7 @@ pub struct Args {
     #[structopt(
         short = "o",
         long = "open",
-        help = "Open a file based on its index within the tree\nThis may be used after running `nomad` in numbered mode (`-n`)"
+        help = "Open a file based on its index within the tree\nThis may be used after running nomad in numbered mode"
     )]
     pub open: Option<String>,
 
@@ -69,10 +76,16 @@ pub struct Args {
         help = "Display directory traversal statistics after the tree is displayed"
     )]
     pub statistics: bool,
+
+    #[structopt(subcommand, help = "Run sub-commands")]
+    pub sub_commands: Option<SubCommands>,
 }
 
 #[derive(Debug, PartialEq, StructOpt)]
-pub enum Git {
+pub enum SubCommands {
+    /// Change the current working directory.
+    /// This may be used after running nomad with labeled directories.
+    Cd { directory_label: String },
     /// Run commonly used Git commands.
     Git(GitOptions),
 }
@@ -80,15 +93,17 @@ pub enum Git {
 /// This enum provides some commonly used Git options.
 #[derive(Debug, PartialEq, StructOpt)]
 pub enum GitOptions {
-    /// Equivalent to the `git add` command.
+    /// The `git add` command.
+    /// This may be used after running nomad in numbered mode or with labeled directories.
     Add { file_numbers: Vec<i32> },
-    /// Equivalent to the `git commit` command.
+    /// The `git commit` command.
     /// Optionally include a message after the command, ie. `git commit "YOUR MESSAGE HERE"`
     /// The default commit message is "Updating" if no message is included.
     Commit { message: Option<String> },
-    /// Equivalent to the `git diff` command.
+    /// The `git diff` command.
+    /// This may be used after running nomad in numbered mode or with labeled directories.
     Diff { file_number: i32 },
-    /// Equivalent to the `git status` command. Only display changed/unstaged files in the tree.
+    /// The `git status` command. Only display changed/unstaged files in the tree.
     Status,
 }
 
