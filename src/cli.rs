@@ -10,24 +10,11 @@ use structopt::StructOpt;
     author = "Joseph Lai"
 )]
 pub struct Args {
-    #[structopt(
-        short = "b",
-        long = "bat",
-        help = "`bat` (the Rust alternative to the `cat` command) a file"
-    )]
-    pub bat: Option<String>,
-
     #[structopt(help = "Explore this directory")]
     pub directory: Option<String>,
 
     #[structopt(long = "disrespect", help = "Disrespect all ignore rules")]
     pub disrespect: bool,
-
-    #[structopt(
-        long = "export",
-        help = "Export the tree to a file instead of displaying"
-    )]
-    pub export: Option<String>,
 
     #[structopt(
         short = "l",
@@ -64,28 +51,29 @@ pub struct Args {
     pub numbers: bool,
 
     #[structopt(
-        short = "o",
-        long = "open",
-        help = "Open a file based on its index within the tree\nThis may be used after running nomad in numbered mode"
-    )]
-    pub open: Option<String>,
-
-    #[structopt(
         short = "s",
         long = "stats",
         help = "Display directory traversal statistics after the tree is displayed"
     )]
     pub statistics: bool,
 
-    #[structopt(subcommand, help = "Run sub-commands")]
+    #[structopt(subcommand)]
     pub sub_commands: Option<SubCommands>,
 }
 
 #[derive(Debug, PartialEq, StructOpt)]
 pub enum SubCommands {
+    ///`bat` (the Rust alternative to the `cat` command) a file.
+    /// This may be used after running nomad in numbered mode.
+    Bat { file_number: i32 },
     /// Change the current working directory.
     /// This may be used after running nomad with labeled directories.
     Cd { directory_label: String },
+    /// Edit a file with your default $EDITOR or with Neovim, Vim, Vi, or Nano.
+    /// This may be used after running nomad in numbered mode.
+    Edit { file_number: i32 },
+    /// Export the tree to a file instead of displaying.
+    Export { filename: String },
     /// Run commonly used Git commands.
     Git(GitOptions),
 }
@@ -95,6 +83,7 @@ pub enum SubCommands {
 pub enum GitOptions {
     /// The `git add` command.
     /// This may be used after running nomad in numbered mode or with labeled directories.
+    /// Enter a single digit or a list of digits delimited by a space.
     Add { file_numbers: Vec<i32> },
     /// The `git commit` command.
     /// Optionally include a message after the command, ie. `git commit "YOUR MESSAGE HERE"`
