@@ -46,7 +46,7 @@ pub fn build_walker(args: &Args, target_directory: &str) -> Result<Walk, Error> 
 }
 
 /// Get the file's corresponding icon.
-fn get_file_icon(
+pub fn get_file_icon(
     extension_icon_map: &HashMap<&str, &str>,
     item: &DirEntry,
     name_icon_map: &HashMap<&str, &str>,
@@ -69,7 +69,7 @@ fn get_file_icon(
 }
 
 /// Format how directories are displayed in the tree.
-fn format_directory(
+pub fn format_directory(
     git_marker: Option<String>,
     icon: String,
     label: Option<String>,
@@ -103,7 +103,7 @@ fn format_directory(
 }
 
 /// Format how directory contents are displayed in the tree.
-fn format_content(
+pub fn format_content(
     git_marker: Option<String>,
     icon: String,
     item: &DirEntry,
@@ -259,7 +259,7 @@ pub fn walk_directory(
     extension_icon_map: &HashMap<&str, &str>,
     name_icon_map: &HashMap<&str, &str>,
     walker: &mut Walk,
-) -> Result<Option<(StringItem, PrintConfig)>, Error> {
+) -> Result<(StringItem, PrintConfig), Error> {
     let mut current_depth: usize = 0;
     let mut num_directories = 0;
     let mut num_files = 0;
@@ -357,12 +357,7 @@ pub fn walk_directory(
         store_directory_contents(labeled_items, JSONTarget::Directories)?;
     }
 
-    if args.export.is_some() || args.interactive {
-        return Ok(Some((tree.build(), config)));
-    } else {
-        print_tree_with(&tree.build(), &config)?;
-    }
-
+    print_tree_with(&tree.build(), &config)?;
     println!();
 
     if args.statistics {
@@ -370,5 +365,5 @@ pub fn walk_directory(
         println!("{num_directories} directories | {num_files} files | {duration} ms\n");
     }
 
-    Ok(None)
+    Ok((tree.build(), config))
 }
