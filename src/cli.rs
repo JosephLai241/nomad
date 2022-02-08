@@ -27,13 +27,6 @@ pub struct Args {
     pub hidden: bool,
 
     #[structopt(
-        short = "i",
-        long = "interactive",
-        help = "Initialize an interactive file/directory explorer"
-    )]
-    pub interactive: bool,
-
-    #[structopt(
         short = "m",
         long = "metadata",
         help = "Show item metadata such as file permissions, owner, group, file size, and last modified time"
