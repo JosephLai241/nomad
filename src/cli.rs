@@ -67,6 +67,8 @@ pub enum SubCommands {
     Edit { file_number: i32 },
     /// Export the tree to a file instead of displaying.
     Export { filename: String },
+    /// Filter results by filetype.
+    FileType(FileTypeOptions),
     /// Run commonly used Git commands.
     Git(GitOptions),
 }
@@ -87,6 +89,18 @@ pub enum GitOptions {
     Diff { file_number: i32 },
     /// The `git status` command. Only display changed/unstaged files in the tree.
     Status,
+}
+
+/// This enum provides pattern matching options.
+#[derive(Debug, PartialEq, StructOpt)]
+pub enum FileTypeOptions {
+    /// Only display files matching this filetype. ie. `nd filetype match rust`.
+    Match { filetype: String },
+    /// Do not display files that match this filetype. ie. `nd filetype negate c`.
+    Negate { filetype: String },
+    /// List the current set of filetype definitions. Optionally search for a filetype. ie. `nd
+    /// filetype options rust`.
+    Options { filetype: Option<String> },
 }
 
 /// Return the `Args` struct.

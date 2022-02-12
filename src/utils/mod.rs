@@ -7,4 +7,5 @@ pub mod meta;
 pub mod open;
 pub mod paint;
 pub mod paths;
+pub mod table;
 pub mod temp;
