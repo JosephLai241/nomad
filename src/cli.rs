@@ -44,6 +44,13 @@ pub struct Args {
     pub numbers: bool,
 
     #[structopt(
+        short = "p",
+        long = "pattern",
+        help = "Only display files matching this pattern. Supports regex expressions"
+    )]
+    pub pattern: Option<String>,
+
+    #[structopt(
         short = "s",
         long = "stats",
         help = "Display directory traversal statistics after the tree is displayed"
@@ -94,12 +101,16 @@ pub enum GitOptions {
 /// This enum provides pattern matching options.
 #[derive(Debug, PartialEq, StructOpt)]
 pub enum FileTypeOptions {
-    /// Only display files matching this filetype. ie. `nd filetype match rust`.
-    Match { filetype: String },
-    /// Do not display files that match this filetype. ie. `nd filetype negate c`.
-    Negate { filetype: String },
-    /// List the current set of filetype definitions. Optionally search for a filetype. ie. `nd
-    /// filetype options rust`.
+    /// Only display files matching this filetype. Enter a single filetype or a
+    /// list of filetypes delimited by a space.
+    /// ie. `nd filetype match rust py go vim`.
+    Match { filetypes: Vec<String> },
+    /// Do not display files that match this filetype. Enter a single filetype or
+    /// a list of filetypes delimited by a space.
+    /// ie. `nd filetype negate c cpp java r`.
+    Negate { filetypes: Vec<String> },
+    /// List the current set of filetype definitions. Optionally search for a filetype.
+    /// ie. `nd filetype options rust`.
     Options { filetype: Option<String> },
 }
 
