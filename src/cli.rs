@@ -16,6 +16,9 @@ pub struct Args {
     #[structopt(long = "disrespect", help = "Disrespect all ignore rules")]
     pub disrespect: bool,
 
+    #[structopt(long = "export", help = "Export the tree to a file")]
+    pub export: Option<String>,
+
     #[structopt(
         short = "l",
         long = "label-directories",
@@ -72,8 +75,6 @@ pub enum SubCommands {
     /// Edit a file with your default $EDITOR or with Neovim, Vim, Vi, or Nano.
     /// This may be used after running nomad in numbered mode.
     Edit { file_number: i32 },
-    /// Export the tree to a file instead of displaying.
-    Export { filename: String },
     /// Filter results by filetype.
     FileType(FileTypeOptions),
     /// Run commonly used Git commands.

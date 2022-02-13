@@ -81,17 +81,6 @@ fn main() -> Result<(), NomadError> {
                     let target_file = get_file(file_number.to_string())?;
                     utils::open::open_file(target_file)?;
                 }
-                SubCommands::Export { filename } => {
-                    let mut walker = build_walker(&args, &target_directory, None)?;
-                    let (tree, config) = traverse::walk_directory(
-                        &args,
-                        &EXTENSION_ICON_MAP,
-                        &NAME_ICON_MAP,
-                        &mut walker,
-                    )?;
-
-                    utils::export::export_tree(config, filename, tree)?;
-                }
                 SubCommands::FileType(filetype_option) => {
                     let mut type_matcher = TypesBuilder::new();
                     type_matcher.add_defaults();
@@ -174,8 +163,12 @@ fn main() -> Result<(), NomadError> {
         } else {
             // Run `nomad` in normal mode.
             let mut walker = build_walker(&args, &target_directory, None)?;
-            let _ =
+            let (tree, config) =
                 traverse::walk_directory(&args, &EXTENSION_ICON_MAP, &NAME_ICON_MAP, &mut walker)?;
+
+            if let Some(filename) = args.export {
+                utils::export::export_tree(config, &filename, tree)?;
+            }
         }
     }
 
