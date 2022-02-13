@@ -3,11 +3,14 @@
 use std::{
     env::temp_dir,
     fs::{create_dir_all, File},
-    io::{Error, Write},
+    io::Write,
     path::PathBuf,
 };
 
+use anyhow::Result;
 use serde_json::Value;
+
+use crate::errors::NomadError;
 
 /// Directory name within the system's temporary directory to store `nomad` metadata.
 static DIRECTORY: &str = "nomad";
@@ -25,7 +28,7 @@ pub fn get_temp_dir_path() -> PathBuf {
 }
 
 /// Create a temporary directory to store `nomad` metadata.
-pub fn create_temp_dir() -> Result<(), Error> {
+pub fn create_temp_dir() -> Result<(), NomadError> {
     create_dir_all(get_temp_dir_path())?;
     Ok(())
 }
@@ -39,7 +42,7 @@ pub enum JSONTarget {
 }
 
 /// Return a JSON `File` object in write/overwrite or read-only mode.
-pub fn get_json_file(json_target: JSONTarget, read_only: bool) -> Result<File, Error> {
+pub fn get_json_file(json_target: JSONTarget, read_only: bool) -> Result<File, NomadError> {
     let mut items_json = get_temp_dir_path();
     items_json.push(match json_target {
         JSONTarget::Contents => NUMBERED_FILE,
@@ -56,7 +59,7 @@ pub fn get_json_file(json_target: JSONTarget, read_only: bool) -> Result<File, E
 }
 
 /// Write JSON string to `items.json`.
-pub fn write_to_json(json_file: &mut File, values: Value) -> Result<(), Error> {
+pub fn write_to_json(json_file: &mut File, values: Value) -> Result<(), NomadError> {
     json_file.write_all(serde_json::to_string(&values)?.as_bytes())?;
 
     Ok(())

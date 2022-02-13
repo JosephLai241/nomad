@@ -1,17 +1,16 @@
 //! Miscellaneous utilities for dealing with file paths.
 
+use anyhow::{Context, Result};
 use ignore::DirEntry;
 
-use std::{
-    env,
-    ffi::OsStr,
-    io::{Error, ErrorKind},
-    path::PathBuf,
-};
+use std::{env, ffi::OsStr, path::PathBuf};
+
+use crate::errors::NomadError;
 
 /// Get the current directory.
-pub fn get_current_directory() -> Result<String, Error> {
-    Ok(env::current_dir()?
+pub fn get_current_directory() -> Result<String, NomadError> {
+    Ok(env::current_dir()
+        .with_context(|| "Could not get the current directory!")?
         .into_os_string()
         .into_string()
         .expect("Could not get the current directory!")
@@ -19,13 +18,16 @@ pub fn get_current_directory() -> Result<String, Error> {
 }
 
 /// Get the absolute file path based for the target_string.
-pub fn canonicalize_path(target: &str) -> Result<String, Error> {
+pub fn canonicalize_path(target: &str) -> Result<String, NomadError> {
     PathBuf::from(target)
-        .canonicalize()?
+        .canonicalize()
+        .with_context(|| format!("\"{target}\" is not a directory!"))?
         .into_os_string()
         .into_string()
         .map_or(
-            Err(Error::new(ErrorKind::Other, "Could not canonicalize path!")),
+            Err(NomadError::PathError(format!(
+                "Could not canonicalize path to {target}"
+            ))),
             |path| Ok(path),
         )
 }

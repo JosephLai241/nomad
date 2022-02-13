@@ -4,19 +4,26 @@ use super::{
     paths::canonicalize_path,
     temp::{get_json_file, JSONTarget},
 };
-use crate::models::Contents;
+use crate::{errors::NomadError, models::Contents};
 
+use anyhow::{anyhow, Result};
 use serde_json::{self, from_str};
 
 use std::{
     env::var,
-    io::{Error, ErrorKind, Read},
+    io::Read,
     process::{Command, ExitStatus},
 };
 
 /// Open the target file with an editor.
-fn spawn_editor(editor: String, file: String) -> Result<ExitStatus, Error> {
-    Command::new(editor).arg(&file).status()
+fn spawn_editor(editor: String, file: String) -> Result<ExitStatus, NomadError> {
+    Command::new(editor.clone())
+        .arg(&file)
+        .status()
+        .map_err(|error| NomadError::EditorError {
+            editor,
+            reason: error,
+        })
 }
 
 /// Get the default text editor from the environment. If that environment variable
@@ -35,7 +42,7 @@ fn get_text_editors() -> Vec<String> {
 
 /// Search for the target file by parsing the JSON file and retrieving the value
 /// associated with the target index that was passed in.
-fn search_for_file(target_index: String) -> Result<Option<String>, Error> {
+fn search_for_file(target_index: String) -> Result<Option<String>, NomadError> {
     let mut file = get_json_file(JSONTarget::Contents, true)?;
     let mut data = String::new();
     file.read_to_string(&mut data)?;
@@ -54,7 +61,7 @@ fn search_for_file(target_index: String) -> Result<Option<String>, Error> {
 ///
 /// This enables the ability to open files via its index number within the tree
 /// or directly by the filename.
-pub fn get_file(target: String) -> Result<String, Error> {
+pub fn get_file(target: String) -> Result<String, NomadError> {
     if let Some(file) = search_for_file(target.clone())? {
         Ok(file)
     } else {
@@ -65,7 +72,7 @@ pub fn get_file(target: String) -> Result<String, Error> {
 }
 
 /// Open the target file.
-pub fn open_file(file: String) -> Result<(), Error> {
+pub fn open_file(file: String) -> Result<(), NomadError> {
     let editors = get_text_editors();
 
     if editors.len() == 1 {
@@ -87,9 +94,6 @@ pub fn open_file(file: String) -> Result<(), Error> {
             };
         }
 
-        Err(Error::new(
-            ErrorKind::NotFound,
-            "Could not open the file with your $EDITOR, Neovim, Vim, Vi, or Nano! Do you have one of these editors installed?",
-        ))
+        Err(NomadError::Error(anyhow!("Could not open the file with your $EDITOR, Neovim, Vim, Vi, or Nano!\nDo you have one of these editors installed?")))
     }
 }

@@ -97,8 +97,8 @@ fn main() -> Result<(), NomadError> {
                     type_matcher.add_defaults();
 
                     match filetype_option {
-                        FileTypeOptions::Match { filetype } => {
-                            let types = build_types(filetype, type_matcher, TypeOption::Match)?;
+                        FileTypeOptions::Match { filetypes } => {
+                            let types = build_types(filetypes, type_matcher, TypeOption::Match)?;
                             let mut walker = build_walker(&args, &target_directory, Some(types))?;
                             let _ = traverse::walk_directory(
                                 &args,
@@ -107,8 +107,8 @@ fn main() -> Result<(), NomadError> {
                                 &mut walker,
                             )?;
                         }
-                        FileTypeOptions::Negate { filetype } => {
-                            let types = build_types(filetype, type_matcher, TypeOption::Negate)?;
+                        FileTypeOptions::Negate { filetypes } => {
+                            let types = build_types(filetypes, type_matcher, TypeOption::Negate)?;
                             let mut walker = build_walker(&args, &target_directory, Some(types))?;
                             let _ = traverse::walk_directory(
                                 &args,

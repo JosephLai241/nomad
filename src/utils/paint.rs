@@ -5,7 +5,14 @@ use ignore::DirEntry;
 
 use std::{fs::read_link, path::PathBuf};
 
+use crate::errors::NomadError;
+
 use super::paths::get_filename;
+
+/// Format and display a `NomadError`.
+pub fn paint_error(error: NomadError) {
+    println!("\n{}\n", Colour::Red.bold().paint(error.to_string()));
+}
 
 /// Paint a directory.
 pub fn paint_directory(item: &DirEntry) -> String {

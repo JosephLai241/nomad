@@ -1,12 +1,13 @@
 //! Set Git status markers for items within the tree.
 
 use super::utils::get_repo;
-use crate::utils::paths::canonicalize_path;
+use crate::errors::NomadError;
 
 use ansi_term::Colour;
-use git2::{Error, Repository, Status, StatusOptions, StatusShow};
+use anyhow::Result;
+use git2::{Repository, Status, StatusOptions, StatusShow};
 
-use std::collections::HashMap;
+use std::{collections::HashMap, path::Path};
 
 /// Try to extend the `HashMap` containing status markers and their corresponding
 /// filenames with new Git repository items.
@@ -23,7 +24,7 @@ pub fn extend_marker_map(git_markers: &mut HashMap<String, String>, target_direc
 pub fn get_status_markers(
     repo: &Repository,
     target_directory: &str,
-) -> Result<HashMap<String, String>, Error> {
+) -> Result<HashMap<String, String>, NomadError> {
     let mut status_options = StatusOptions::new();
     status_options
         .show(StatusShow::IndexAndWorkdir)
@@ -33,8 +34,11 @@ pub fn get_status_markers(
     let mut formatted_items = HashMap::new();
 
     for repo_item in repo.statuses(Some(&mut status_options))?.iter() {
-        let item_path = format!("{target_directory}/{}", repo_item.path().unwrap_or("?"));
-        let item_name = canonicalize_path(&item_path).unwrap_or("?".to_string());
+        let item_name = Path::new(target_directory)
+            .join(Path::new(repo_item.path().unwrap_or("?")))
+            .to_str()
+            .unwrap_or("?")
+            .to_string();
 
         match repo_item.status() {
             s if s.contains(Status::INDEX_DELETED) => {
