@@ -1,9 +1,6 @@
 //! Open a file using the client's system's `$EDITOR`.
 
-use super::{
-    paths::canonicalize_path,
-    temp::{get_json_file, JSONTarget},
-};
+use super::temp::{get_json_file, JSONTarget};
 use crate::{errors::NomadError, models::Contents};
 
 use anyhow::{anyhow, Result};
@@ -42,32 +39,29 @@ fn get_text_editors() -> Vec<String> {
 
 /// Search for the target file by parsing the JSON file and retrieving the value
 /// associated with the target index that was passed in.
-fn search_for_file(target_index: String) -> Result<Option<String>, NomadError> {
+fn search_for_file(file_number: i32) -> Result<Option<String>, NomadError> {
     let mut file = get_json_file(JSONTarget::Contents, true)?;
     let mut data = String::new();
     file.read_to_string(&mut data)?;
 
     let json: Contents = from_str(&data)?;
-    if !json.items.contains_key(&target_index) {
+    if !json.items.contains_key(&file_number.to_string()) {
         Ok(None)
     } else {
         json.items
-            .get(&target_index)
+            .get(&file_number.to_string())
             .map_or(Ok(None), |file_path| Ok(Some(file_path.into())))
     }
 }
 
-/// Checks the input for flags that take a filename or index number (`-b` and `-o`).
-///
-/// This enables the ability to open files via its index number within the tree
-/// or directly by the filename.
-pub fn get_file(target: String) -> Result<String, NomadError> {
-    if let Some(file) = search_for_file(target.clone())? {
+/// Checks the JSON file for a filepath that corresponds with the entered file number.
+pub fn get_file(file_number: i32) -> Result<String, NomadError> {
+    if let Some(file) = search_for_file(file_number.clone())? {
         Ok(file)
     } else {
-        let target_file = canonicalize_path(&target)?;
-
-        Ok(target_file)
+        Err(NomadError::Error(anyhow!(
+            "File #{file_number} is not in the tree!\nRun nomad in numbered mode and try again."
+        )))
     }
 }
 
