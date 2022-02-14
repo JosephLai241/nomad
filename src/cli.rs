@@ -78,8 +78,8 @@ pub enum SubCommands {
     /// Edit a file with your default $EDITOR or with Neovim, Vim, Vi, or Nano.
     /// This may be used after running nomad in numbered mode.
     Edit { file_number: i32 },
-    /// Filter results by filetype.
-    FileType(FileTypeOptions),
+    /// Filter directory items by filetype.
+    Filetype(FileTypeOptions),
     /// Run commonly used Git commands.
     Git(GitOptions),
 }
