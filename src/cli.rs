@@ -36,6 +36,9 @@ pub struct Args {
     )]
     pub metadata: bool,
 
+    #[structopt(long = "mute-git", help = "Do not display Git status markers")]
+    pub mute_git: bool,
+
     #[structopt(long = "mute-icons", help = "Do not display icons")]
     pub mute_icons: bool,
 
