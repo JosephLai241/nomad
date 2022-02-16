@@ -4,23 +4,21 @@ mod cli;
 mod errors;
 mod git;
 mod models;
+mod releases;
 mod traverse;
 mod utils;
 
-use std::{collections::HashMap, env::set_current_dir, path::Path};
-
-use ansi_term::Colour;
-use anyhow::{anyhow, Result};
-use errors::NomadError;
-use ignore::types::TypesBuilder;
-use lazy_static::lazy_static;
-
-use cli::{FileTypeOptions, GitOptions, SubCommands};
+use cli::{FileTypeOptions, GitOptions, ReleaseOptions, SubCommands};
 use git::{
-    commands::{commit_changes, display_status_tree, stage_files},
+    commit::commit_changes,
+    stage::stage_files,
+    status::display_status_tree,
     utils::{get_repo, get_repo_branch},
 };
-use traverse::utils::{build_types, build_walker, TypeOption};
+use traverse::{
+    modes::TraversalMode,
+    utils::{build_types, build_walker, TypeOption},
+};
 use utils::{
     icons::{get_icons_by_extension, get_icons_by_name},
     open::get_file,
@@ -29,6 +27,14 @@ use utils::{
     table::display_filetype_definitions,
     temp::JSONTarget,
 };
+
+use ansi_term::Colour;
+use anyhow::{anyhow, Result};
+use errors::NomadError;
+use ignore::types::TypesBuilder;
+use lazy_static::lazy_static;
+
+use std::collections::HashMap;
 
 lazy_static! {
     /// The alphabet in `char`s.
@@ -99,8 +105,8 @@ fn main() -> Result<(), NomadError> {
                                         build_walker(&args, &target_directory, Some(types))?;
                                     let _ = traverse::walk_directory(
                                         &args,
-                                        &EXTENSION_ICON_MAP,
-                                        &NAME_ICON_MAP,
+                                        &target_directory,
+                                        TraversalMode::Filetype,
                                         &mut walker,
                                     )?;
                                 }
@@ -114,8 +120,8 @@ fn main() -> Result<(), NomadError> {
                                         build_walker(&args, &target_directory, Some(types))?;
                                     let _ = traverse::walk_directory(
                                         &args,
-                                        &EXTENSION_ICON_MAP,
-                                        &NAME_ICON_MAP,
+                                        &target_directory,
+                                        TraversalMode::Filetype,
                                         &mut walker,
                                     )?;
                                 }
@@ -162,26 +168,35 @@ fn main() -> Result<(), NomadError> {
                                 }
 
                                 let mut walker = build_walker(&args, &target_directory, None)?;
-                                display_status_tree(
-                                    &args,
-                                    &EXTENSION_ICON_MAP,
-                                    &NAME_ICON_MAP,
-                                    &repo,
-                                    &target_directory,
-                                    &mut walker,
-                                )?;
+                                display_status_tree(&args, &repo, &target_directory, &mut walker)?;
                             }
                         }
                     } else {
                         paint_error(NomadError::Error(anyhow!("Cannot run Git commands here!\nThe directory does not contain a Git repository.")));
                     }
                 }
+                SubCommands::Releases(release_option) => match release_option {
+                    ReleaseOptions::All => {
+                        // TODO: FETCH ALL RELEASES AND THEIR ACCOMPANYING INFO.
+                    }
+                    ReleaseOptions::Info { release_version } => {
+                        // TODO: FETCH ALL INFO FOR THIS RELEASE VERSION.
+                    }
+                },
+                SubCommands::Update => {
+                    // TODO: IMPLEMENT THE self_update CRATE
+                }
             }
         } else {
             // Run `nomad` in normal mode.
             let mut walker = build_walker(&args, &target_directory, None)?;
+            let traversal_mode = if args.pattern.is_some() {
+                TraversalMode::Regex
+            } else {
+                TraversalMode::Normal
+            };
             let (tree, config) =
-                traverse::walk_directory(&args, &EXTENSION_ICON_MAP, &NAME_ICON_MAP, &mut walker)?;
+                traverse::walk_directory(&args, &target_directory, traversal_mode, &mut walker)?;
 
             if let Some(filename) = args.export {
                 utils::export::export_tree(config, &filename, tree)?;
