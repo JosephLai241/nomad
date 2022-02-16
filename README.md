@@ -15,7 +15,7 @@
 * [Prerequisite Setup](#prerequisite-setup)
 	+ [Installing a NerdFont on MacOS](#installing-a-nerdfont-on-macos)
 	+ [Installing a NerdFont on Other Systems](#installing-a-nerdfont-on-other-systems)
-	+ [I Don't Want to Install a NerdFont](#i-dont-want-to-install-a-nerdfont)
+	+ ["I don't want to install a NerdFont"](#i-dont-want-to-install-a-nerdfont)
 * [Usage](#usage)
 	+ [Main Usage](#main-usage)
 	+ [Git Usage](#git-usage)
@@ -86,7 +86,7 @@ iTerm2 -> Preferences -> Profiles tab -> Text tab -> Font dropdown -> Hack Nerd 
 
 Follow the [NerdFont installation guide][NerdFont Installation] for instructions on how to do so for your system.
 
-## "I Don't Want to Install a NerdFont"
+## "I don't want to install a NerdFont"
 
 If you do not want a crispy looking tree, you can include the `--mute-icons` flag to disable icons.
 
