@@ -51,19 +51,33 @@ At its core, `nomad` is, again, an alternative/upgraded `tree` command with the 
 	+ Respect `.gitignore` and rules defined in similar `.ignore`-type files. This is enabled by default.
 	+ Display Git status markers next to items within a Git repository. This is enabled by default.
 	+ Integrated Git commands
-		+ Quickly point Git commands such as `git add/diff` to a file within the tree. This allows you to add files or view diffs without needing to type out the entire path to the file.
+		+ Quickly point Git commands such as `git add/diff/unstage` to a file within the tree. This allows you to add files or view diffs without needing to type out the entire path to the file.
 		+ `git status` in tree form.
 		+ `git commit <"OPTIONAL_MESSAGE">` integration.
 * Display file metadata such as file permissions, owner, group, file size, and last modified time.
 * Quick open/edit of a file wtihin the directory (after running `nomad` in numbered mode (`-n`)).
 * Built-in [`bat`][bat], a `cat` alternative written in Rust, to quickly view a file within the tree.
-<!--* Interactive TUI where you can navigate through directories and see a preview of a selected file.-->
 
 # Prerequisite Setup
 
 `nomad` requires a [NerdFont][NerdFont] to correctly display the icons. Install a NerdFont before installing `nomad`, otherwise you will be very sad when you see what the tree looks like without a NerdFont.
 
-Follow the [NerdFont installation guide][NerdFont Installation] for instructions on how to do so for your system.
+Installing a NerdFont on **MacOS** is particularly easy because NerdFonts are available via [Homebrew][Homebrew].
+
+To install the Hack NerdFont, for example, run these commands:
+
+```
+brew tap homebrew/cask-fonts
+brew install --cask font-hack-nerd-font
+```
+
+Then go to your terminal's preferences and set the font to the newly installed NerdFont. If you're using [iTerm2][iTerm2], this is located at:
+
+```
+iTerm2 -> Preferences -> Profiles tab -> Text tab -> Font dropdown -> Hack Nerd Font Mono
+```
+
+Follow the [NerdFont installation guide][NerdFont Installation] for instructions on how to do so for other systems.
 
 If you do not want a crispy looking tree, you can include the `--mute-icons` flag to disable icons.
 
@@ -316,6 +330,8 @@ To display traversal statistics such as the number of directories and files in t
 
 <!-- LINKS -->
 [bat]: https://github.com/sharkdp/bat
+[Homebrew]: https://brew.sh/
+[iTerm2]: https://iterm2.com/
 [lsd]: https://github.com/Peltoche/lsd
 [Nano]: https://www.nano-editor.org/
 [NerdFont]: https://www.nerdfonts.com/
