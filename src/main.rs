@@ -7,7 +7,7 @@ mod models;
 mod traverse;
 mod utils;
 
-use std::collections::HashMap;
+use std::{collections::HashMap, env::set_current_dir, path::Path};
 
 use ansi_term::Colour;
 use anyhow::{anyhow, Result};
@@ -27,9 +27,15 @@ use utils::{
     paint::paint_error,
     paths::{canonicalize_path, get_current_directory},
     table::display_filetype_definitions,
+    temp::JSONTarget,
 };
 
 lazy_static! {
+    /// The alphabet in `char`s.
+    static ref ALPHABET: Vec<char> = vec![
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+        'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+    ];
     /// A HashMap containing file extensions with a corresponding icon.
     static ref EXTENSION_ICON_MAP: HashMap<&'static str, &'static str> = get_icons_by_extension();
     /// A HashMap containing file names with a corresponding icon.
@@ -62,49 +68,59 @@ fn main() -> Result<(), NomadError> {
         if let Some(sub_command) = &args.sub_commands {
             match sub_command {
                 SubCommands::Bat { file_number } => {
-                    let target_file = get_file(file_number.to_string())?;
-                    if let Err(error) = utils::bat::run_bat(target_file) {
-                        paint_error(error);
+                    match get_file(file_number.to_string(), JSONTarget::Contents) {
+                        Ok(target_file) => {
+                            if let Err(error) = utils::bat::run_bat(target_file) {
+                                paint_error(error);
+                            }
+                        }
+                        Err(error) => paint_error(error),
                     }
                 }
-                SubCommands::Cd { directory_label } => {
-                    println!("CHANGING DIRECTORY TO: {directory_label}");
-                    // TODO:
-                    //  Write to another JSON file(?) containing directory labels
-                    //  Refactor the function that pulls from the JSON files to take either
-                    //  JSON file?
-                    //  Return the filename and then call the function below.
-
-                    //set_current_dir(&Path::new(&directory_name))?;
-                }
                 SubCommands::Edit { file_number } => {
-                    let target_file = get_file(file_number.to_string())?;
-                    utils::open::open_file(target_file)?;
+                    match get_file(file_number.to_string(), JSONTarget::Contents) {
+                        Ok(target_file) => {
+                            if let Err(error) = utils::open::open_file(target_file) {
+                                paint_error(error);
+                            }
+                        }
+                        Err(error) => paint_error(error),
+                    }
                 }
-                SubCommands::FileType(filetype_option) => {
+                SubCommands::Filetype(filetype_option) => {
                     let mut type_matcher = TypesBuilder::new();
                     type_matcher.add_defaults();
 
                     match filetype_option {
                         FileTypeOptions::Match { filetypes } => {
-                            let types = build_types(filetypes, type_matcher, TypeOption::Match)?;
-                            let mut walker = build_walker(&args, &target_directory, Some(types))?;
-                            let _ = traverse::walk_directory(
-                                &args,
-                                &EXTENSION_ICON_MAP,
-                                &NAME_ICON_MAP,
-                                &mut walker,
-                            )?;
+                            match build_types(filetypes, type_matcher, TypeOption::Match) {
+                                Ok(types) => {
+                                    let mut walker =
+                                        build_walker(&args, &target_directory, Some(types))?;
+                                    let _ = traverse::walk_directory(
+                                        &args,
+                                        &EXTENSION_ICON_MAP,
+                                        &NAME_ICON_MAP,
+                                        &mut walker,
+                                    )?;
+                                }
+                                Err(error) => paint_error(error),
+                            }
                         }
                         FileTypeOptions::Negate { filetypes } => {
-                            let types = build_types(filetypes, type_matcher, TypeOption::Negate)?;
-                            let mut walker = build_walker(&args, &target_directory, Some(types))?;
-                            let _ = traverse::walk_directory(
-                                &args,
-                                &EXTENSION_ICON_MAP,
-                                &NAME_ICON_MAP,
-                                &mut walker,
-                            )?;
+                            match build_types(filetypes, type_matcher, TypeOption::Negate) {
+                                Ok(types) => {
+                                    let mut walker =
+                                        build_walker(&args, &target_directory, Some(types))?;
+                                    let _ = traverse::walk_directory(
+                                        &args,
+                                        &EXTENSION_ICON_MAP,
+                                        &NAME_ICON_MAP,
+                                        &mut walker,
+                                    )?;
+                                }
+                                Err(error) => paint_error(error),
+                            }
                         }
                         FileTypeOptions::Options { filetype } => {
                             display_filetype_definitions(
@@ -133,7 +149,8 @@ fn main() -> Result<(), NomadError> {
                                 }
                             }
                             GitOptions::Diff { file_number } => {
-                                let target_file = get_file(file_number.to_string())?;
+                                let target_file =
+                                    get_file(file_number.to_string(), JSONTarget::Contents)?;
                                 utils::bat::run_bat(target_file)?;
                             }
                             GitOptions::Status => {
