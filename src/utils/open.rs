@@ -39,29 +39,34 @@ fn get_text_editors() -> Vec<String> {
 
 /// Search for the target file by parsing the JSON file and retrieving the value
 /// associated with the target index that was passed in.
-fn search_for_file(file_number: i32) -> Result<Option<String>, NomadError> {
-    let mut file = get_json_file(JSONTarget::Contents, true)?;
+fn search_for_file(target: String, json_target: JSONTarget) -> Result<Option<String>, NomadError> {
+    let mut file = get_json_file(json_target, true)?;
     let mut data = String::new();
     file.read_to_string(&mut data)?;
 
     let json: Contents = from_str(&data)?;
-    if !json.items.contains_key(&file_number.to_string()) {
+    if !json.items.contains_key(&target) {
         Ok(None)
     } else {
         json.items
-            .get(&file_number.to_string())
+            .get(&target)
             .map_or(Ok(None), |file_path| Ok(Some(file_path.into())))
     }
 }
 
 /// Checks the JSON file for a filepath that corresponds with the entered file number.
-pub fn get_file(file_number: i32) -> Result<String, NomadError> {
-    if let Some(file) = search_for_file(file_number.clone())? {
+pub fn get_file(target: String, json_target: JSONTarget) -> Result<String, NomadError> {
+    if let Some(file) = search_for_file(target.clone(), json_target)? {
         Ok(file)
     } else {
-        Err(NomadError::Error(anyhow!(
-            "File #{file_number} is not in the tree!\nRun nomad in numbered mode and try again."
-        )))
+        match json_target {
+            JSONTarget::Contents => Err(NomadError::Error(anyhow!(
+                "File #{target} is not in the tree!\nRun nomad in numbered mode and try again."
+            ))),
+            JSONTarget::Directories => Err(NomadError::Error(anyhow!(
+                "Directory {target} is not in the tree!\nRun nomad in labeled directories mode and try again."
+            )))
+        }
     }
 }
 
