@@ -10,9 +10,6 @@ use structopt::StructOpt;
     author = "Joseph Lai"
 )]
 pub struct Args {
-    #[structopt(long = "depth", help = "Set the maximum depth to recurse")]
-    pub depth: Option<usize>,
-
     #[structopt(help = "Display a tree for this directory")]
     pub directory: Option<String>,
 
@@ -35,6 +32,15 @@ pub struct Args {
     #[structopt(long = "hidden", help = "Display hidden files")]
     pub hidden: bool,
 
+    #[structopt(long = "max-depth", help = "Set the maximum depth to recurse")]
+    pub max_depth: Option<usize>,
+
+    #[structopt(
+        long = "max-filesize",
+        help = "Set the maximum filesize (in bytes) to include in the tree"
+    )]
+    pub max_filesize: Option<u64>,
+
     #[structopt(
         short = "m",
         long = "metadata",
@@ -42,11 +48,11 @@ pub struct Args {
     )]
     pub metadata: bool,
 
-    #[structopt(long = "mute-git", help = "Do not display Git status markers")]
-    pub mute_git: bool,
+    #[structopt(long = "no-git", help = "Do not display Git status markers")]
+    pub no_git: bool,
 
-    #[structopt(long = "mute-icons", help = "Do not display icons")]
-    pub mute_icons: bool,
+    #[structopt(long = "no-icons", help = "Do not display icons")]
+    pub no_icons: bool,
 
     #[structopt(
         short = "n",
@@ -91,6 +97,10 @@ pub enum SubCommands {
     Filetype(FileTypeOptions),
     /// Run commonly used Git commands.
     Git(GitOptions),
+    /// Retrieve releases for this program (retrieved from GitHub).
+    Releases(ReleaseOptions),
+    /// Update `nomad`.
+    Update,
 }
 
 /// This enum provides some commonly used Git options.
@@ -114,17 +124,26 @@ pub enum GitOptions {
 /// This enum provides pattern matching options.
 #[derive(Debug, PartialEq, StructOpt)]
 pub enum FileTypeOptions {
-    /// Only display files matching this filetype. Enter a single filetype or a
-    /// list of filetypes delimited by a space.
+    /// Only display files matching this filetype.
+    /// Enter a single filetype or a list of filetypes delimited by a space.
     /// ie. `nd filetype match rust py go vim`.
     Match { filetypes: Vec<String> },
-    /// Do not display files that match this filetype. Enter a single filetype or
-    /// a list of filetypes delimited by a space.
+    /// Do not display files that match this filetype.
+    /// Enter a single filetype or a list of filetypes delimited by a space.
     /// ie. `nd filetype negate c cpp java r`.
     Negate { filetypes: Vec<String> },
     /// List the current set of filetype definitions. Optionally search for a filetype.
     /// ie. `nd filetype options rust`.
     Options { filetype: Option<String> },
+}
+
+/// This enum provides interactions with releases.
+#[derive(Debug, PartialEq, StructOpt)]
+pub enum ReleaseOptions {
+    /// List all releases.
+    All,
+    /// Display information for a release version.
+    Info { release_version: Option<String> },
 }
 
 /// Return the `Args` struct.
