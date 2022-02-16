@@ -63,6 +63,10 @@ pub enum NomadError {
     #[error("Regex error: {0}")]
     RegexError(#[from] regex::Error),
 
+    /// Something went wrong when self-updating.
+    #[error("Self-update error: {0}")]
+    SelfUpdateError(#[from] self_update::errors::Error),
+
     /// Something went wrong when doing something with Serde JSON.
     #[error("Serde JSON error: {0}")]
     SerdeJSONError(#[from] serde_json::Error),
