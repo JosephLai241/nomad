@@ -34,6 +34,7 @@ pub fn create_temp_dir() -> Result<(), NomadError> {
 }
 
 /// Contains options for JSON file access.
+#[derive(Copy, Clone)]
 pub enum JSONTarget {
     /// Get the JSON file that contains numbered directory contents.
     Contents,

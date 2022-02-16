@@ -58,7 +58,8 @@ fn colorize_permission_bits(permissions: String) -> String {
         colored_chars.push(match character {
             'd' => Colour::Blue.paint(format!("{character}")).to_string(),
             'r' => Colour::Yellow.paint(format!("{character}")).to_string(),
-            's' | 'T' => Colour::Purple.paint(format!("{character}")).to_string(),
+            's' | 'S' => Colour::Purple.paint(format!("{character}")).to_string(),
+            't' | 'T' => Colour::Purple.paint(format!("{character}")).to_string(),
             'w' => Colour::Fixed(172).paint(format!("{character}")).to_string(), // Orange.
             'x' => Colour::Red.paint(format!("{character}")).to_string(),
             _ => Colour::White
@@ -75,12 +76,12 @@ fn colorize_permission_bits(permissions: String) -> String {
 ///
 /// This is only compiled when on UNIX systems.
 #[cfg(target_family = "unix")]
-pub fn get_metadata(item: &DirEntry) -> String {
+pub fn get_metadata(item: &DirEntry, plain: bool) -> String {
     let metadata = item
         .metadata()
         .expect("Could not retrieve metadata for a directory item!");
 
-    let group = Colour::Fixed(193).paint(format!(
+    let plain_group = format!(
         "{}",
         get_group_by_gid(metadata.gid())
             .expect("None")
@@ -88,11 +89,45 @@ pub fn get_metadata(item: &DirEntry) -> String {
             .to_str()
             .expect("None")
             .to_string()
-    ));
-    let mode = colorize_permission_bits(to_string(metadata.permissions().mode()));
-    let last_modified = Colour::Fixed(035).paint(format!("{}", convert_time(metadata.mtime())));
-    let size = Colour::Fixed(172).paint(format!("{}", convert_bytes(metadata.size())));
-    let user = Colour::Fixed(194).paint(format!(
+    );
+    let group = if plain {
+        plain_group
+    } else {
+        Colour::Fixed(193)
+            .paint(format!(
+                "{}",
+                get_group_by_gid(metadata.gid())
+                    .expect("None")
+                    .name()
+                    .to_str()
+                    .expect("None")
+                    .to_string()
+            ))
+            .to_string()
+    };
+
+    let plain_mode = to_string(metadata.permissions().mode());
+    let mode = if plain {
+        plain_mode
+    } else {
+        colorize_permission_bits(plain_mode)
+    };
+
+    let plain_last_modified = format!("{}", convert_time(metadata.mtime()));
+    let last_modified = if plain {
+        plain_last_modified
+    } else {
+        Colour::Fixed(035).paint(plain_last_modified).to_string()
+    };
+
+    let plain_size = format!("{}", convert_bytes(metadata.size()));
+    let size = if plain {
+        plain_size
+    } else {
+        Colour::Fixed(172).paint(plain_size).to_string()
+    };
+
+    let plain_user = format!(
         "{}",
         get_user_by_uid(metadata.uid())
             .expect("None")
@@ -100,7 +135,12 @@ pub fn get_metadata(item: &DirEntry) -> String {
             .to_str()
             .expect("None")
             .to_string()
-    ));
+    );
+    let user = if plain {
+        plain_user
+    } else {
+        Colour::Fixed(194).paint(plain_user).to_string()
+    };
 
     format!("{mode} {user} {group} {size} {last_modified}")
 }
