@@ -13,6 +13,9 @@
 * [What Is `nomad` and Why?](#what-is-nomad-and-why)
 * [Features](#features)
 * [Prerequisite Setup](#prerequisite-setup)
+	+ [Installing a NerdFont on MacOS](#installing-a-nerdfont-on-macos)
+	+ [Installing a NerdFont on Other Systems](#installing-a-nerdfont-on-other-systems)
+	+ [I Don't Want to Install a NerdFont](#i-dont-want-to-install-a-nerdfont)
 * [Usage](#usage)
 	+ [Main Usage](#main-usage)
 	+ [Git Usage](#git-usage)
@@ -62,6 +65,8 @@ At its core, `nomad` is, again, an alternative/upgraded `tree` command with the 
 
 `nomad` requires a [NerdFont][NerdFont] to correctly display the icons. Install a NerdFont before installing `nomad`, otherwise you will be very sad when you see what the tree looks like without a NerdFont.
 
+## Installing a NerdFont on MacOS
+
 Installing a NerdFont on **MacOS** is particularly easy because NerdFonts are available via [Homebrew][Homebrew].
 
 To install the Hack NerdFont, for example, run these commands:
@@ -77,7 +82,11 @@ Then go to your terminal's preferences and set the font to the newly installed N
 iTerm2 -> Preferences -> Profiles tab -> Text tab -> Font dropdown -> Hack Nerd Font Mono
 ```
 
-Follow the [NerdFont installation guide][NerdFont Installation] for instructions on how to do so for other systems.
+## Installing a NerdFont on Other Systems
+
+Follow the [NerdFont installation guide][NerdFont Installation] for instructions on how to do so for your system.
+
+## "I Don't Want to Install a NerdFont"
 
 If you do not want a crispy looking tree, you can include the `--mute-icons` flag to disable icons.
 
