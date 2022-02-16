@@ -10,6 +10,9 @@ use structopt::StructOpt;
     author = "Joseph Lai"
 )]
 pub struct Args {
+    #[structopt(long = "depth", help = "Set the maximum depth to recurse")]
+    pub depth: Option<usize>,
+
     #[structopt(help = "Display a tree for this directory")]
     pub directory: Option<String>,
 
