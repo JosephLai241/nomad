@@ -9,7 +9,7 @@ use ptree::{print_tree, TreeBuilder};
 
 use crate::{
     cli::Args, errors::NomadError, traverse::utils::store_directory_contents,
-    utils::temp::JSONTarget,
+    utils::temp::JSONTarget, EXTENSION_ICON_MAP, NAME_ICON_MAP,
 };
 
 use super::{
@@ -20,8 +20,6 @@ use super::{
 /// Build a tree that only contains items that are tracked in Git.
 pub fn display_status_tree(
     args: &Args,
-    extension_icon_map: &HashMap<&str, &str>,
-    name_icon_map: &HashMap<&str, &str>,
     repo: &Repository,
     target_directory: &str,
     walker: &mut Walk,
@@ -46,14 +44,7 @@ pub fn display_status_tree(
             } else {
                 let sliced_markers = strip_prefixes(&target_directory, marker_map);
 
-                build_status_tree(
-                    args,
-                    extension_icon_map,
-                    name_icon_map,
-                    sliced_markers,
-                    target_directory,
-                    walker,
-                )?;
+                build_status_tree(args, sliced_markers, target_directory, walker)?;
 
                 Ok(())
             }
@@ -64,8 +55,6 @@ pub fn display_status_tree(
 /// Traverse the repo and build the status tree.
 fn build_status_tree(
     args: &Args,
-    extension_icon_map: &HashMap<&str, &str>,
-    name_icon_map: &HashMap<&str, &str>,
     mut sliced_markers: HashMap<String, String>,
     target_directory: &str,
     walker: &mut Walk,
