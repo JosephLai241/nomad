@@ -10,8 +10,11 @@ use structopt::StructOpt;
     author = "Joseph Lai"
 )]
 pub struct Args {
-    #[structopt(help = "Explore this directory")]
+    #[structopt(help = "Display a tree for this directory")]
     pub directory: Option<String>,
+
+    #[structopt(long = "dirs", help = "Only display directories")]
+    pub dirs: bool,
 
     #[structopt(long = "disrespect", help = "Disrespect all ignore rules")]
     pub disrespect: bool,
@@ -57,6 +60,12 @@ pub struct Args {
     pub pattern: Option<String>,
 
     #[structopt(
+        long = "plain",
+        help = "Mute icons, Git markers, and colors to display a plain tree"
+    )]
+    pub plain: bool,
+
+    #[structopt(
         short = "s",
         long = "stats",
         help = "Display directory traversal statistics after the tree is displayed"
@@ -72,9 +81,6 @@ pub enum SubCommands {
     ///`bat` (the Rust alternative to the `cat` command) a file.
     /// This may be used after running nomad in numbered mode.
     Bat { file_number: i32 },
-    /// Change the current working directory.
-    /// This may be used after running nomad with labeled directories.
-    Cd { directory_label: String },
     /// Edit a file with your default $EDITOR or with Neovim, Vim, Vi, or Nano.
     /// This may be used after running nomad in numbered mode.
     Edit { file_number: i32 },
