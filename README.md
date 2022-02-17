@@ -56,8 +56,7 @@ This project is inspired by [`lsd`][lsd]'s colorization and icons. `lsd` is an i
 		+ Quickly point Git commands such as `git add/diff/unstage` to a file within the tree. This allows you to add files or view diffs without needing to type out the entire path to the file.
 		+ `git status` in tree form.
 		+ `git commit <"OPTIONAL_MESSAGE">` integration.
-* Filter directory items by filetype.
-* Filter directory items by a pattern.
+* Filter directory items by filetype or by a pattern.
 * Quick edit/open of a file wtihin the directory (after running `nomad` in numbered mode (`-n`)).
 * Built-in [`bat`][bat], a `cat` alternative written in Rust, to quickly view a file within the tree.
 * Display releases without the need to go on GitHub.
