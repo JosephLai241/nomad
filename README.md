@@ -59,7 +59,7 @@ This project is inspired by [`lsd`][lsd]'s colorization and icons. `lsd` is an i
 * Filter directory items by filetype or by a pattern.
 * Quick edit/open of a file wtihin the directory (after running `nomad` in numbered mode (`-n`)).
 * Built-in [`bat`][bat], a `cat` alternative written in Rust, to quickly view a file within the tree.
-* Display releases without the need to go on GitHub.
+* Display releases without going on GitHub.
 * Can update itself!
 * Display file metadata such as file permissions, owner, group, file size, and last modified time.
 
