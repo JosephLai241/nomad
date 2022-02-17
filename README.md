@@ -7,8 +7,7 @@
 
 # Table of Contents
 
-* [What Is `nomad` and Why?](#what-is-nomad-and-why)
-* [Features](#features)
+* [Introduction](#introduction)
 * [Prerequisite Setup](#prerequisite-setup)
 	+ [Installing a NerdFont on MacOS](#installing-a-nerdfont-on-macos)
 	+ [Installing a NerdFont on Other Systems](#installing-a-nerdfont-on-other-systems)
@@ -41,17 +40,15 @@
 			+ [`releases info`](#releases-info)
 		* [Update `nomad`](#update-nomad)
 
-# What Is `nomad` and Why?
+# Introduction
 
 I often use the `tree` command whenever I am programming. I think it is a very clever tool but unfortunately a bit outdated by today's standards. I wanted to write my own next gen `tree` command, so I did just that.
 
 This project is inspired by [`lsd`][lsd]'s colorization and icons. `lsd` is an improved `ls` alternative written in Rust.
 
-# Features
+`nomad` is a command-line tool that:
 
-At its core, `nomad` is, again, an alternative/upgraded `tree` command with the following differences:
-
-* Displays a stylized tree which integrates icons and colors.
+* Can display a stylized tree which integrates icons and colors.
 * Git integration
 	+ Respect `.gitignore` and rules defined in similar `.ignore`-type files. This is enabled by default.
 	+ Display Git status markers next to items within a Git repository. This is enabled by default.
@@ -59,9 +56,13 @@ At its core, `nomad` is, again, an alternative/upgraded `tree` command with the 
 		+ Quickly point Git commands such as `git add/diff/unstage` to a file within the tree. This allows you to add files or view diffs without needing to type out the entire path to the file.
 		+ `git status` in tree form.
 		+ `git commit <"OPTIONAL_MESSAGE">` integration.
-* Display file metadata such as file permissions, owner, group, file size, and last modified time.
-* Quick open/edit of a file wtihin the directory (after running `nomad` in numbered mode (`-n`)).
+* Filter directory items by filetype.
+* Filter directory items by a pattern.
+* Quick edit/open of a file wtihin the directory (after running `nomad` in numbered mode (`-n`)).
 * Built-in [`bat`][bat], a `cat` alternative written in Rust, to quickly view a file within the tree.
+* Display releases without the need to go on GitHub.
+* Can update itself!
+* Display file metadata such as file permissions, owner, group, file size, and last modified time.
 
 # Prerequisite Setup
 
