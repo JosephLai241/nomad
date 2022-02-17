@@ -102,14 +102,30 @@ fn main() -> Result<(), NomadError> {
                         FileTypeOptions::Match { filetypes } => {
                             match build_types(filetypes, type_matcher, TypeOption::Match) {
                                 Ok(types) => {
-                                    let mut walker =
-                                        build_walker(&args, &target_directory, Some(types))?;
-                                    let _ = traverse::walk_directory(
-                                        &args,
-                                        &target_directory,
-                                        TraversalMode::Filetype,
-                                        &mut walker,
-                                    )?;
+                                    match build_walker(&args, &target_directory, Some(types)) {
+                                        Ok(mut walker) => {
+                                            match traverse::walk_directory(
+                                                &args,
+                                                &target_directory,
+                                                TraversalMode::Filetype,
+                                                &mut walker,
+                                            ) {
+                                                Ok((tree, config)) => {
+                                                    if let Some(filename) = args.export {
+                                                        if let Err(error) =
+                                                            utils::export::export_tree(
+                                                                config, &filename, tree,
+                                                            )
+                                                        {
+                                                            paint_error(error);
+                                                        }
+                                                    }
+                                                }
+                                                Err(error) => paint_error(error),
+                                            }
+                                        }
+                                        Err(error) => paint_error(error),
+                                    }
                                 }
                                 Err(error) => paint_error(error),
                             }
@@ -117,14 +133,30 @@ fn main() -> Result<(), NomadError> {
                         FileTypeOptions::Negate { filetypes } => {
                             match build_types(filetypes, type_matcher, TypeOption::Negate) {
                                 Ok(types) => {
-                                    let mut walker =
-                                        build_walker(&args, &target_directory, Some(types))?;
-                                    let _ = traverse::walk_directory(
-                                        &args,
-                                        &target_directory,
-                                        TraversalMode::Filetype,
-                                        &mut walker,
-                                    )?;
+                                    match build_walker(&args, &target_directory, Some(types)) {
+                                        Ok(mut walker) => {
+                                            match traverse::walk_directory(
+                                                &args,
+                                                &target_directory,
+                                                TraversalMode::Filetype,
+                                                &mut walker,
+                                            ) {
+                                                Ok((tree, config)) => {
+                                                    if let Some(filename) = args.export {
+                                                        if let Err(error) =
+                                                            utils::export::export_tree(
+                                                                config, &filename, tree,
+                                                            )
+                                                        {
+                                                            paint_error(error);
+                                                        }
+                                                    }
+                                                }
+                                                Err(error) => paint_error(error),
+                                            }
+                                        }
+                                        Err(error) => paint_error(error),
+                                    }
                                 }
                                 Err(error) => paint_error(error),
                             }
@@ -157,9 +189,14 @@ fn main() -> Result<(), NomadError> {
                                 }
                             }
                             GitOptions::Diff { file_number } => {
-                                let target_file =
-                                    get_file(file_number.to_string(), JSONTarget::Contents)?;
-                                utils::bat::run_bat(target_file)?;
+                                match get_file(file_number.to_string(), JSONTarget::Contents) {
+                                    Ok(target_file) => {
+                                        if let Err(error) = utils::bat::run_bat(target_file) {
+                                            paint_error(error);
+                                        }
+                                    }
+                                    Err(error) => paint_error(error),
+                                }
                             }
                             GitOptions::Status => {
                                 if let Some(branch_name) = get_repo_branch(&repo) {
@@ -169,8 +206,19 @@ fn main() -> Result<(), NomadError> {
                                     );
                                 }
 
-                                let mut walker = build_walker(&args, &target_directory, None)?;
-                                display_status_tree(&args, &repo, &target_directory, &mut walker)?;
+                                match build_walker(&args, &target_directory, None) {
+                                    Ok(mut walker) => {
+                                        if let Err(error) = display_status_tree(
+                                            &args,
+                                            &repo,
+                                            &target_directory,
+                                            &mut walker,
+                                        ) {
+                                            paint_error(error);
+                                        }
+                                    }
+                                    Err(error) => paint_error(error),
+                                }
                             }
                         }
                     } else {
@@ -219,17 +267,33 @@ fn main() -> Result<(), NomadError> {
             }
         } else {
             // Run `nomad` in normal mode.
-            let mut walker = build_walker(&args, &target_directory, None)?;
-            let traversal_mode = if args.pattern.is_some() {
-                TraversalMode::Regex
-            } else {
-                TraversalMode::Normal
-            };
-            let (tree, config) =
-                traverse::walk_directory(&args, &target_directory, traversal_mode, &mut walker)?;
+            match build_walker(&args, &target_directory, None) {
+                Ok(mut walker) => {
+                    let traversal_mode = if args.pattern.is_some() {
+                        TraversalMode::Regex
+                    } else {
+                        TraversalMode::Normal
+                    };
 
-            if let Some(filename) = args.export {
-                utils::export::export_tree(config, &filename, tree)?;
+                    match traverse::walk_directory(
+                        &args,
+                        &target_directory,
+                        traversal_mode,
+                        &mut walker,
+                    ) {
+                        Ok((tree, config)) => {
+                            if let Some(filename) = args.export {
+                                if let Err(error) =
+                                    utils::export::export_tree(config, &filename, tree)
+                                {
+                                    paint_error(error);
+                                }
+                            }
+                        }
+                        Err(error) => paint_error(error),
+                    }
+                }
+                Err(error) => paint_error(error),
             }
         }
     }
