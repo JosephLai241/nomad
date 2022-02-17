@@ -15,7 +15,7 @@ use git::{
     status::display_status_tree,
     utils::{get_repo, get_repo_branch},
 };
-use releases::build_release_list;
+use releases::{build_release_list, update_self};
 use traverse::{
     modes::TraversalMode,
     utils::{build_types, build_walker, TypeOption},
@@ -212,7 +212,9 @@ fn main() -> Result<(), NomadError> {
                     },
                 },
                 SubCommands::Update => {
-                    // TODO: IMPLEMENT THE self_update CRATE
+                    if let Err(error) = update_self() {
+                        paint_error(error);
+                    }
                 }
             }
         } else {
