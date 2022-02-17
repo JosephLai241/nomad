@@ -15,7 +15,7 @@ use git::{
     status::display_status_tree,
     utils::{get_repo, get_repo_branch},
 };
-use releases::utils::build_release_list;
+use releases::build_release_list;
 use traverse::{
     modes::TraversalMode,
     utils::{build_types, build_walker, TypeOption},
