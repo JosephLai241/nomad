@@ -15,6 +15,7 @@ use git::{
     status::display_status_tree,
     utils::{get_repo, get_repo_branch},
 };
+use releases::utils::build_release_list;
 use traverse::{
     modes::TraversalMode,
     utils::{build_types, build_walker, TypeOption},
@@ -24,7 +25,7 @@ use utils::{
     open::get_file,
     paint::paint_error,
     paths::{canonicalize_path, get_current_directory},
-    table::display_filetype_definitions,
+    table::{TableView, TabledItems},
     temp::JSONTarget,
 };
 
@@ -128,12 +129,13 @@ fn main() -> Result<(), NomadError> {
                                 Err(error) => paint_error(error),
                             }
                         }
-                        FileTypeOptions::Options { filetype } => {
-                            display_filetype_definitions(
-                                type_matcher.definitions(),
-                                filetype.to_owned(),
-                            );
-                        }
+                        FileTypeOptions::Options { filetype } => TabledItems::new(
+                            type_matcher.definitions(),
+                            vec!["Name".into(), "Globs".into()],
+                            120,
+                            filetype.to_owned(),
+                        )
+                        .display_table(),
                     }
                 }
                 SubCommands::Git(git_command) => {
@@ -176,12 +178,38 @@ fn main() -> Result<(), NomadError> {
                     }
                 }
                 SubCommands::Releases(release_option) => match release_option {
-                    ReleaseOptions::All => {
-                        // TODO: FETCH ALL RELEASES AND THEIR ACCOMPANYING INFO.
-                    }
-                    ReleaseOptions::Info { release_version } => {
-                        // TODO: FETCH ALL INFO FOR THIS RELEASE VERSION.
-                    }
+                    ReleaseOptions::All => match build_release_list() {
+                        Ok(releases) => TabledItems::new(
+                            releases,
+                            vec![
+                                "Name".into(),
+                                "Version".into(),
+                                "Release Date".into(),
+                                "Description".into(),
+                                "Assets".into(),
+                            ],
+                            180,
+                            None,
+                        )
+                        .display_table(),
+                        Err(error) => paint_error(error),
+                    },
+                    ReleaseOptions::Info { release_version } => match build_release_list() {
+                        Ok(releases) => TabledItems::new(
+                            releases,
+                            vec![
+                                "Name".into(),
+                                "Version".into(),
+                                "Release Date".into(),
+                                "Description".into(),
+                                "Assets".into(),
+                            ],
+                            180,
+                            release_version.to_owned(),
+                        )
+                        .display_table(),
+                        Err(error) => paint_error(error),
+                    },
                 },
                 SubCommands::Update => {
                     // TODO: IMPLEMENT THE self_update CRATE
