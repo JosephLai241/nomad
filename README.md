@@ -7,9 +7,6 @@
 
 # Table of Contents
 
-<!--TODO: FIX LINKS TO "AVAILABLE FLAGS"-->
-<!--TODO: FIX LINKS TO "AVAILABLE FLAGS"-->
-
 * [What Is `nomad` and Why?](#what-is-nomad-and-why)
 * [Features](#features)
 * [Prerequisite Setup](#prerequisite-setup)
@@ -18,26 +15,31 @@
 	+ ["I don't want to install a NerdFont"](#i-dont-want-to-install-a-nerdfont)
 * [Usage](#usage)
 	+ [Main Usage](#main-usage)
+	+ [Filetype Usage](#filetype-usage)
 	+ [Git Usage](#git-usage)
+	+ [Releases Usage](#releases-usage)
 * [Walkthrough](#walkthrough)
 	+ [Default Behavior (Stylized Tree View)](#default-behavior-stylized-tree-view)
 	+ [Numbered Mode](#numbered-mode)
-		* [Available Flags](#available-flags)
-	+ [Git Integration](#git-integration)
-		* [Color Code/Status Marker Key](#color-codestatus-marker-key)
-		* [Available Subcommands](#available-subcommands)
-		* [`git add`](#git-add)
-		* [`git commit`](#git-commit)
-		* [`git diff`](#git-diff)
-		* [`git status`](#git-status)
-	* [Quick Open/Edit a File](#quick-openedit-a-file)
-	+ [Interactive Mode](#interactive-mode)
-	+ [`bat` Integration](#bat-integration)
-	+ [Display Metadata and Traversal Statistics](#display-metadata-and-traversal-statistics)
-		* [Available Flags](#available-flags)
-
-<!--TODO: FIX LINKS TO "AVAILABLE FLAGS"-->
-<!--TODO: FIX LINKS TO "AVAILABLE FLAGS"-->
+	+ [Labeled Directories Mode](#labeled-directories-mode)
+	+ [Subcommands](#subcommands)
+		* [`bat` Integration](#bat-integration)
+		* [Quick Edit/Open a File](#quick-editopen-a-file)
+		* [Filetype Filters](#filetype-filters)
+			+ [`match`](#match)
+			+ [`negate`](#negate)
+			+ [`options`](#options)
+		* [Git Integration](#git-integration)
+			+ [Color Code/Status Marker Key](#color-codestatus-marker-key)
+			+ [Available Subcommands](#available-subcommands)
+			+ [`git add`](#git-add)
+			+ [`git commit`](#git-commit)
+			+ [`git diff`](#git-diff)
+			+ [`git status`](#git-status)
+		* [View Releases](#view-releases)
+			+ [`all`](#all)
+			+ [`info`](#info)
+		* [Update `nomad`](#update-nomad)
 
 # What Is `nomad` and Why?
 
@@ -99,30 +101,56 @@ USAGE:
     nomad [FLAGS] [OPTIONS] [directory] [SUBCOMMAND]
 
 FLAGS:
+        --dirs                 Only display directories
         --disrespect           Disrespect all ignore rules
     -h, --help                 Prints help information
         --hidden               Display hidden files
-    -i, --interactive          Initialize an interactive file/directory explorer
     -l, --label-directories    Label directories with characters
-    -m, --metadata             Show item metadata such as file permissions, owner, group, file size, and last modified time  
-        --mute-icons           Do not display icons
+    -m, --metadata             Show item metadata such as file permissions, owner, group, file size, and last modified time
+        --no-git               Do not display Git status markers
+        --no-icons             Do not display icons
     -n, --numbered             Show directory contents with numbers
+        --plain                Mute icons, Git markers, and colors to display a plain tree
     -s, --stats                Display directory traversal statistics after the tree is displayed
     -V, --version              Prints version information
 
 OPTIONS:
-    -b, --bat <bat>          `bat` (the Rust alternative to the `cat` command) a file
-        --export <export>    Export the tree to a file instead of displaying
-    -o, --open <open>        Open a file based on its index within the tree
-                             This may be used after running nomad in numbered mode
+        --export <export>                Export the tree to a file
+        --max-depth <max-depth>          Set the maximum depth to recurse
+        --max-filesize <max-filesize>    Set the maximum filesize (in bytes) to include in the tree
+    -p, --pattern <pattern>              Only display files matching this pattern. Supports regex expressions
 
 ARGS:
-    <directory>    Explore this directory
+    <directory>    Display a tree for this directory
 
 SUBCOMMANDS:
-    cd      Change the current working directory. This may be used after running nomad with labeled directories
-    git     Run commonly used Git commands
-    help    Prints this message or the help of the given subcommand(s)
+    bat         `bat` (the Rust alternative to the `cat` command) a file. This may be used after running nomad in numbered mode  
+    edit        Edit a file with your default $EDITOR or with Neovim, Vim, Vi, or Nano. This may be used after running nomad in  
+                numbered mode
+    filetype    Filter directory items by filetype
+    git         Run commonly used Git commands
+    help        Prints this message or the help of the given subcommand(s)
+    releases    Retrieve releases for this program (retrieved from GitHub)
+    update      Update `nomad`
+```
+
+## Filetype Usage
+
+```
+USAGE:
+    nomad filetype <SUBCOMMAND>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+SUBCOMMANDS:
+    help       Prints this message or the help of the given subcommand(s)
+    match      Only display files matching this filetype. Enter a single filetype or a list of filetypes delimited by a space. ie.  
+               `nd filetype match rust py go vim`
+    negate     Do not display files that match this filetype. Enter a single filetype or a list of filetypes delimited by a space.  
+               ie. `nd filetype negate c cpp java r`
+    options    List the current set of filetype definitions. Optionally search for a filetype. ie. `nd filetype options rust`
 ```
 
 ## Git Usage
@@ -142,6 +170,22 @@ SUBCOMMANDS:
     diff      The `git diff` command. This may be used after running nomad in numbered mode or with labeled directories
     help      Prints this message or the help of the given subcommand(s)
     status    The `git status` command. Only display changed/unstaged files in the tree
+```
+
+## Releases Usage
+
+```
+USAGE:
+    nomad releases <SUBCOMMAND>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+SUBCOMMANDS:
+    all     List all releases
+    help    Prints this message or the help of the given subcommand(s)
+    info    Display information for a release version. Optionally search for a release version  
 ```
 
 # Walkthrough
@@ -168,11 +212,110 @@ nd some_directory/
 The options that require numbered mode before running are:
 
 ```
--b, --bat <file_number>
--o, --open <file_number>
+bat <file_number>
+edit <file_number>
 
 git add <file_number(s)>
 git diff <file_number>
+```
+
+## Labeled Directories Mode
+
+You can run `nomad` in labeled directories mode by including the `-l` flag.
+
+This mode is useful when using the `git add` subcommand - you can quickly add all modified or new files within a directory.
+
+---
+
+# Subcommands
+
+## `bat` Integration
+
+> ***NOTE:*** Requires running in numbered mode beforehand.
+
+[`bat`][bat] is a *much* improved `cat` alternative and is integrated into `nomad`.
+
+Quickly `bat` a file by passing the file's number with the `bat` subcommand:
+
+```
+nd -b <file_number>
+```
+
+The following features are integrated into `bat`:
+
+| Feature                           | Description                                                         |
+|-----------------------------------|---------------------------------------------------------------------|
+| `grid`                            | Paint a grid that separates line numbers, Git changes, and the code |
+| `header`                          | Show a header with the file name                                    |
+| `line_numbers`                    | Show line numbers                                                   |
+| `paging_mode` - `QuitIfOneScreen` | Use a pager if the output exceeds the current terminal's length     |
+| `true_color`                      | Output 24-bit colors                                                |
+| `vcs_modification_markers`        | Show markers for VCS changes.                                       |
+| `wrapping_mode` - `Character`     | Text wrapping is enabled                                            |
+
+## Quick Edit/Open a File
+
+> ***NOTE:*** Requires running in numbered mode beforehand.
+
+`nomad` provides a quick way to open and edit a file after displaying a directory's tree.
+
+It will try to open the file with your default editor by extracting the value from the `$EDITOR` environment variable. If you do not have a default editor set, the following editors are supported and will be tried in this order:
+
+1. [Neovim][Neovim]
+2. [Vim][Vim]
+3. [Vi][Vi]
+4. [Nano][Nano]
+
+Quickly edit/open a file by passing the file's number with the `edit` subcommand:
+
+```
+nd edit <file_number>
+```
+
+## Filetype Filters
+
+You can filter directory items by filetype(s) by using the `filetype` subcommand followed by what you would like to do.
+
+### `match`
+
+If the `filetype` subcommand is followed by `match`, the tree will only display directory items that match the filetype. For example, if you only want to display Rust filetypes, you would run:
+
+```
+nd filetype match rust
+```
+
+You can specify multiple filetypes delimited by a space. For example, to only display Rust, Python, Go, and Vim filetypes in the tree, you would run:
+
+```
+nd filetype match rust py go vim
+```
+
+### `negate`
+
+If the `filetype` subcommand is followed by `negate`, the tree will ignore directory items that match the filetype. For example, if you want to exclude C filetypes, you would run:
+
+```
+nd filetype negate c
+```
+
+Like `match`, you can specify multiple filetypes delimited by a space. For example, to exclude C, C++, Java, and R filetypes, you would run:
+
+```
+nd filetype negate c cpp java r
+```
+
+### `options`
+
+If you want to see all the filetype globs, use `options` to display a list of filetypes and their corresponding globs:
+
+```
+nd filetype options
+```
+
+You can optionally search for a specific filetype. Simply include the filetype after `options`. For example, if you want to search for globs corresponding to Rust files, you would run:
+
+```
+nd filetype options rust
 ```
 
 ## Git Integration
@@ -279,63 +422,48 @@ nd git diff 2    // View the diff for the 2nd file in the tree.
 
 This subcommand restricts the tree to only display files that have been modified. Think `git status` in tree form.
 
-## Quick Open/Edit a File
+## View Releases
 
-> ***NOTE:*** Requires running in numbered mode beforehand.
+You can view releases for `nomad` directory from `nomad` itself. This can be achieved by using the `releases` subcommand.
 
-`nomad` provides a quick way to open and edit a file after displaying a directory's tree.
+### `all`
 
-It will try to open the file with your default editor by extracting the value from the `$EDITOR` environment variable. If you do not have a default editor set, the following editors are supported and will be tried in this order:
-
-1. [Neovim][Neovim]
-2. [Vim][Vim]
-3. [Vi][Vi]
-4. [Nano][Nano]
-
-Pass the file's number with the `-o` flag to open that file with your default text editor:
+You can view all releases by using `all`.
 
 ```
-nd -o <file_number>
+nd releases all
 ```
 
-## Interactive Mode
+This will display a table containing the following information for each release:
 
-## `bat` Integration
+* Release name
+* Version number
+* Release date
+* Description
+* \*Assets
 
-> ***NOTE:*** Requires running in numbered mode beforehand.
+\* Assets is a nested table that includes the following information:
 
-[`bat`][bat] is a *much* improved `cat` alternative and is integrated into `nomad`.
+* Asset name
+* Download URL
 
-Quickly `bat` a file by passing the file's number with the `-b` flag:
+### `info`
 
-```
-nd -b <file_number>
-```
-
-The following features are integrated into `bat`:
-
-| Feature                           | Description
-|-----------------------------------|-------------------------------
-| `grid`                            | Paint a grid that separates line numbers, Git changes, and the code
-| `header`                          | Show a header with the file name
-| `line_numbers`                    | Show line numbers
-| `paging_mode` - `QuitIfOneScreen` | Use a pager if the output exceeds the current terminal's length
-| `true_color`                      | Output 24-bit colors
-| `vcs_modification_markers`        | Show markers for VCS changes.
-| `wrapping_mode` - `Character`     | Text wrapping is enabled
-
-## Display Metadata and Traversal Statistics
-
-### Available Flags
+`info` behaves similarly to `all`. It will display the information for your current version/release in a table with the same attributes as `all`.
 
 ```
--m
--s
+nd releases info
 ```
 
-To display file metadata such as file permissions, owner, group, file size, and last modified time by including the `-m` flag.
+You can optionally search for a specific version number by including it after `info`:
 
-To display traversal statistics such as the number of directories and files in the tree, as well as the time it took to traverse the directory, include the `-s` flag.
+```
+nd releases info 1.0.0
+```
+
+## Update `nomad`
+
+Yes, **`nomad` can update itself**. Simply run `nd update` and you are all set! No hassle.
 
 <!-- LINKS -->
 [bat]: https://github.com/sharkdp/bat
@@ -343,8 +471,8 @@ To display traversal statistics such as the number of directories and files in t
 [iTerm2]: https://iterm2.com/
 [lsd]: https://github.com/Peltoche/lsd
 [Nano]: https://www.nano-editor.org/
+[Neovim]: https://github.com/neovim/neovim
 [NerdFont]: https://www.nerdfonts.com/
 [NerdFont Installation]: https://github.com/ryanoasis/nerd-fonts#font-installation
-[Neovim]: https://github.com/neovim/neovim
 [Vi]: http://ex-vi.sourceforge.net/
 [Vim]: https://www.vim.org/
