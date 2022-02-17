@@ -238,7 +238,7 @@ This mode is useful when using the `git add` subcommand - you can quickly add al
 Quickly `bat` a file by passing the file's number with the `bat` subcommand:
 
 ```
-nd -b <file_number>
+nd bat <file_number>
 ```
 
 The following features are integrated into `bat`:
