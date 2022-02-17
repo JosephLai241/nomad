@@ -108,6 +108,11 @@ impl TableView for TabledItems<Release> {
             if let Some(ref version) = self.target {
                 if version == &release.version {
                     let mut assets_table = Table::new();
+                    assets_table.add_row(Row::new(vec![
+                        TableCell::new("Asset Name"),
+                        TableCell::new("Download URL"),
+                    ]));
+
                     for asset in release.assets {
                         assets_table.add_row(Row::new(vec![TableCell::new(asset.name)]));
                         assets_table.add_row(Row::new(vec![TableCell::new(asset.download_url)]));
