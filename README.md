@@ -26,9 +26,9 @@
 		* [`bat` Integration](#bat-integration)
 		* [Quick Edit/Open a File](#quick-editopen-a-file)
 		* [Filetype Filters](#filetype-filters)
-			+ [`match`](#match)
-			+ [`negate`](#negate)
-			+ [`options`](#options)
+			+ [`filetype match`](#filetype-match)
+			+ [`filetype negate`](#filetype-negate)
+			+ [`filetype options`](#filetype-options)
 		* [Git Integration](#git-integration)
 			+ [Color Code/Status Marker Key](#color-codestatus-marker-key)
 			+ [Available Subcommands](#available-subcommands)
@@ -37,8 +37,8 @@
 			+ [`git diff`](#git-diff)
 			+ [`git status`](#git-status)
 		* [View Releases](#view-releases)
-			+ [`all`](#all)
-			+ [`info`](#info)
+			+ [`releases all`](#releases-all)
+			+ [`releases info`](#releases-info)
 		* [Update `nomad`](#update-nomad)
 
 # What Is `nomad` and Why?
@@ -276,7 +276,7 @@ nd edit <file_number>
 
 You can filter directory items by filetype(s) by using the `filetype` subcommand followed by what you would like to do.
 
-### `match`
+### `filetype match`
 
 If the `filetype` subcommand is followed by `match`, the tree will only display directory items that match the filetype. For example, if you only want to display Rust filetypes, you would run:
 
@@ -290,7 +290,7 @@ You can specify multiple filetypes delimited by a space. For example, to only di
 nd filetype match rust py go vim
 ```
 
-### `negate`
+### `filetype negate`
 
 If the `filetype` subcommand is followed by `negate`, the tree will ignore directory items that match the filetype. For example, if you want to exclude C filetypes, you would run:
 
@@ -304,7 +304,7 @@ Like `match`, you can specify multiple filetypes delimited by a space. For examp
 nd filetype negate c cpp java r
 ```
 
-### `options`
+### `filetype options`
 
 If you want to see all the filetype globs, use `options` to display a list of filetypes and their corresponding globs:
 
@@ -426,7 +426,7 @@ This subcommand restricts the tree to only display files that have been modified
 
 You can view releases for `nomad` directory from `nomad` itself. This can be achieved by using the `releases` subcommand.
 
-### `all`
+### `releases all`
 
 You can view all releases by using `all`.
 
@@ -447,7 +447,7 @@ This will display a table containing the following information for each release:
 * Asset name
 * Download URL
 
-### `info`
+### `releases info`
 
 `info` behaves similarly to `all`. It will display the information for your current version/release in a table with the same attributes as `all`.
 
@@ -463,7 +463,7 @@ nd releases info 1.0.0
 
 ## Update `nomad`
 
-Yes, **`nomad` can update itself**. Simply run `nd update` and you are all set! No hassle.
+**`nomad` can update itself**. Simply run `nd update` and you are all set! No hassle.
 
 <!-- LINKS -->
 [bat]: https://github.com/sharkdp/bat
