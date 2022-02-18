@@ -10,6 +10,13 @@ use structopt::StructOpt;
     author = "Joseph Lai"
 )]
 pub struct Args {
+    #[structopt(
+        short = "L",
+        long = "all-labels",
+        help = "Display both file numbers and directory labels. Equivalent to `nd -n -l`"
+    )]
+    pub all_labels: bool,
+
     #[structopt(help = "Display a tree for this directory")]
     pub directory: Option<String>,
 
@@ -108,8 +115,8 @@ pub enum SubCommands {
 pub enum GitOptions {
     /// The `git add` command.
     /// This may be used after running nomad in numbered mode or with labeled directories.
-    /// Enter a single digit or a list of digits delimited by a space.
-    Add { file_numbers: Vec<i32> },
+    /// Enter a single or a list of numbers/labels delimited by a space.
+    Add { file_numbers: Vec<String> },
     /// The `git commit` command.
     /// Optionally include a message after the command, ie. `git commit "YOUR MESSAGE HERE"`
     /// The default commit message is "Updating" if no message is included.
@@ -142,7 +149,7 @@ pub enum FileTypeOptions {
 pub enum ReleaseOptions {
     /// List all releases.
     All,
-    /// Display information for a release version.
+    /// Display information for a release version. Optionally search for a release version.
     Info { release_version: Option<String> },
 }
 
