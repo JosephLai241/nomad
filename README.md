@@ -1,7 +1,7 @@
-     _____ _____ _____ _____ ____
-    |   | |     |     |  _  |    \
-    | | | |  |  | | | |     |  |  |
-    |_|___|_____|_|_|_|__|__|____/
+                               __
+      ___  ___  __ _  ___ ____/ /
+     / _ \/ _ \/  ' \/ _ `/ _  /
+    /_//_/\___/_/_/_/\_,_/\_,_/
 
 > The next gen `tree` command.
 
@@ -207,7 +207,7 @@ nd some_directory/
 
 ## Numbered Mode
 
-**Any options that require a target file argument requires `nomad` to be run in numbered mode prior to using that command. You can do this by including the `-n` flag.**
+**Any options that require a target file argument requires a preceding run in numbered mode prior to using that command. You can do this by including the `-n` flag.**
 
 The options that require numbered mode before running are:
 
