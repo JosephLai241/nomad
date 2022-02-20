@@ -53,7 +53,7 @@ pub fn commit_changes(message: &Option<String>, repo: &Repository) -> Result<(),
                 get_diff_stats(&mut index, &old_tree, repo)
             {
                 println!(
-                    "{colored_changed} {changed_label} changed | {colored_insertions} {insertions_label} | {colored_deletions} {deletions_label}\n",
+                    "| {colored_changed} {changed_label} changed | {colored_insertions} {insertions_label} | {colored_deletions} {deletions_label} |\n",
                     colored_changed = Colour::Fixed(172).bold().paint(format!("{files_changed}")),
                     changed_label = if files_changed == 1 { "file" } else { "files" },
                     colored_insertions = Colour::Green.bold().paint(format!("+{insertions}")),
