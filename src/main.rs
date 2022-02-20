@@ -11,7 +11,7 @@ mod utils;
 use cli::{FileTypeOptions, GitOptions, ReleaseOptions, SubCommands};
 use git::{
     commit::commit_changes,
-    diff::{display_git_diffs, get_repo_diffs},
+    diff::{bat_diffs, get_repo_diffs},
     stage::stage_files,
     status::display_status_tree,
     utils::{get_repo, get_repo_branch, indiscriminate_file_search, SearchMode},
@@ -185,9 +185,9 @@ fn main() -> Result<(), NomadError> {
                 SubCommands::Git(git_command) => {
                     if let Some(repo) = get_repo(&target_directory) {
                         match git_command {
-                            GitOptions::Add { file_numbers } => {
+                            GitOptions::Add { item_labels } => {
                                 if let Err(error) =
-                                    stage_files(file_numbers, &repo, &target_directory)
+                                    stage_files(item_labels, &repo, &target_directory)
                                 {
                                     paint_error(NomadError::GitError {
                                         context: "Unable to stage files".into(),
@@ -200,12 +200,30 @@ fn main() -> Result<(), NomadError> {
                                     paint_error(error);
                                 }
                             }
-                            GitOptions::Diff { file_numbers } => match get_repo_diffs(&repo) {
+                            GitOptions::Diff { item_labels } => match get_repo_diffs(&repo) {
                                 Ok(diff) => {
-                                    if let Err(error) =
-                                        display_git_diffs(diff, file_numbers.to_owned())
-                                    {
-                                        paint_error(error);
+                                    match indiscriminate_file_search(
+                                        item_labels,
+                                        Some(&repo),
+                                        SearchMode::GitDiff,
+                                        &target_directory,
+                                    ) {
+                                        Some(found_items) => {
+                                            if let Err(error) = bat_diffs(
+                                                diff,
+                                                Some(found_items),
+                                                &target_directory,
+                                            ) {
+                                                paint_error(error);
+                                            }
+                                        }
+                                        None => {
+                                            if let Err(error) =
+                                                bat_diffs(diff, None, &target_directory)
+                                            {
+                                                paint_error(error);
+                                            }
+                                        }
                                     }
                                 }
                                 Err(error) => paint_error(NomadError::GitError {

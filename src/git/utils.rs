@@ -238,13 +238,17 @@ pub fn indiscriminate_file_search(
                         "\nDid not find any changed files matching the labels you've entered.\nAre you sure the file or directory contains changed files tracked by Git?\n"
                     )
                 ),
+                SearchMode::GitDiff => {
+                    if !item_labels.is_empty() {
+                        println!("{}", Colour::Fixed(172).bold().paint("\nDid not find any changed files matching the labels you've entered.\nDisplaying all diffs.\n"));
+                    }
+                }
                 SearchMode::Normal => println!(
                     "{}",
                     Colour::Red
                         .bold()
                         .paint("\nNo items were matched!\n")
                 ),
-                _ => {}
             }
 
             None
