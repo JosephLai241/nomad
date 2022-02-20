@@ -116,14 +116,14 @@ pub enum GitOptions {
     /// The `git add` command.
     /// This may be used after running nomad in numbered mode or with labeled directories.
     /// Enter a single or a list of numbers/labels delimited by a space.
-    Add { file_numbers: Vec<String> },
+    Add { item_labels: Vec<String> },
     /// The `git commit` command.
     /// Optionally include a message after the command, ie. `git commit "YOUR MESSAGE HERE"`
     /// The default commit message is "Updating" if no message is included.
     Commit { message: Option<String> },
     /// The `git diff` command.
     /// This may be used after running nomad in numbered mode or with labeled directories.
-    Diff { file_numbers: Vec<String> },
+    Diff { item_labels: Vec<String> },
     /// The `git status` command. Only display changed/unstaged files in the tree.
     Status,
 }
