@@ -96,7 +96,7 @@ pub struct Args {
 pub enum SubCommands {
     ///`bat` (the Rust alternative to the `cat` command) a file.
     /// This may be used after running nomad in numbered mode.
-    Bat { file_number: i32 },
+    Bat { item_labels: Vec<String> },
     /// Edit a file with your default $EDITOR or with Neovim, Vim, Vi, or Nano.
     /// This may be used after running nomad in numbered mode.
     Edit { file_number: i32 },
@@ -123,7 +123,7 @@ pub enum GitOptions {
     Commit { message: Option<String> },
     /// The `git diff` command.
     /// This may be used after running nomad in numbered mode or with labeled directories.
-    Diff { file_number: i32 },
+    Diff { file_numbers: Vec<String> },
     /// The `git status` command. Only display changed/unstaged files in the tree.
     Status,
 }
