@@ -37,6 +37,31 @@ fn get_text_editors() -> Vec<String> {
     )
 }
 
+/// Checks the JSON file for a filepath that corresponds with the entered file number.
+pub fn get_file(target: String, json_target: JSONTarget) -> Result<String, NomadError> {
+    if let Some(file) = search_for_file(target.clone(), json_target)? {
+        Ok(file)
+    } else {
+        match json_target {
+            JSONTarget::Contents => Err(NomadError::Error(anyhow!(
+                "File #{target} is not in the tree!\nRun nomad in numbered mode and try again."
+            ))),
+            JSONTarget::Directories => Err(NomadError::Error(anyhow!(
+                "Directory {target} is not in the tree!\nRun nomad in labeled directories mode and try again."
+            )))
+        }
+    }
+}
+
+/// Get the deserialized JSON file.
+pub fn get_deserialized_json(json_target: JSONTarget) -> Result<Contents, NomadError> {
+    let mut file = get_json_file(json_target, true)?;
+    let mut data = String::new();
+    file.read_to_string(&mut data)?;
+
+    Ok(from_str(&data)?)
+}
+
 /// Search for the target file by parsing the JSON file and retrieving the value
 /// associated with the target index that was passed in.
 fn search_for_file(target: String, json_target: JSONTarget) -> Result<Option<String>, NomadError> {
@@ -51,22 +76,6 @@ fn search_for_file(target: String, json_target: JSONTarget) -> Result<Option<Str
         json.items
             .get(&target)
             .map_or(Ok(None), |file_path| Ok(Some(file_path.into())))
-    }
-}
-
-/// Checks the JSON file for a filepath that corresponds with the entered file number.
-pub fn get_file(target: String, json_target: JSONTarget) -> Result<String, NomadError> {
-    if let Some(file) = search_for_file(target.clone(), json_target)? {
-        Ok(file)
-    } else {
-        match json_target {
-            JSONTarget::Contents => Err(NomadError::Error(anyhow!(
-                "File #{target} is not in the tree!\nRun nomad in numbered mode and try again."
-            ))),
-            JSONTarget::Directories => Err(NomadError::Error(anyhow!(
-                "Directory {target} is not in the tree!\nRun nomad in labeled directories mode and try again."
-            )))
-        }
     }
 }
 
@@ -85,8 +94,7 @@ pub fn open_file(file: String) -> Result<(), NomadError> {
     } else {
         for editor in editors {
             match spawn_editor(editor, file.to_string()) {
-                Ok(status_code) => {
-                    println!("{status_code}");
+                Ok(_) => {
                     return Ok(());
                 }
                 Err(_) => {}
