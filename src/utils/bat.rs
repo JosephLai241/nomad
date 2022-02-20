@@ -24,31 +24,8 @@ pub fn run_bat(file: String) -> Result<(), NomadError> {
         .map_or_else(|error| Err(NomadError::BatError(error)), |_| Ok(()))
 }
 
-/// Contains Git diff data.
-struct GitDiff {
-    /// The number of lines added in the file.
-    added_lines: u32,
-    /// The number of lines deleted in the file.
-    deleted_lines: u32,
-    /// The Git Delta status.
-    delta: Option<Delta>,
-    /// The file mode.
-    file_mode: String,
-    /// The name of the file.
-    filename: String,
-    /// The name of the new file.
-    new_file: String,
-    /// The OIDs of the old and new file.
-    new_old_oids: String,
-    /// The name of the old file.
-    old_file: String,
-    /// The Git diff text.
-    text: Vec<String>,
-}
-
 /// Display Git diffs with `bat`.
 pub fn display_git_diffs<'a>(diff: Diff, file_options: Vec<String>) -> Result<(), NomadError> {
-    let mut diffs: Vec<GitDiff> = Vec::new();
     let mut content: Vec<String> = Vec::new();
 
     let mut current_delta: Option<Delta> = None;
@@ -60,6 +37,8 @@ pub fn display_git_diffs<'a>(diff: Diff, file_options: Vec<String>) -> Result<()
 
     let mut added_lines: u32 = 0;
     let mut deleted_lines: u32 = 0;
+
+    let mut formatted_diffs: Vec<(String, String)> = Vec::new();
 
     diff.print(DiffFormat::Patch, |delta, hunk, line| {
         old_file = delta
@@ -89,6 +68,7 @@ pub fn display_git_diffs<'a>(diff: Diff, file_options: Vec<String>) -> Result<()
 
         if let Some(hunk) = hunk {
             match line.origin() {
+                // Format the file or hunk header for better clarity.
                 'H' | 'F' => {
                     let number_line = if hunk.old_start() != hunk.new_start() {
                         format!(
@@ -126,6 +106,7 @@ pub fn display_git_diffs<'a>(diff: Diff, file_options: Vec<String>) -> Result<()
                         Colour::White.bold().paint("|")
                     ));
                 }
+                // Otherwise format the line based on the Git Delta's status.
                 _ => {
                     let content_text = from_utf8(line.content()).unwrap_or("?");
 
@@ -213,17 +194,78 @@ pub fn display_git_diffs<'a>(diff: Diff, file_options: Vec<String>) -> Result<()
             );
         } else {
             if !content.is_empty() {
-                diffs.push(GitDiff {
+                let added = Colour::Green.bold().paint(format!(
+                    "+{} line{plurality}",
                     added_lines,
+                    plurality = if added_lines != 1 { "s" } else { "" }
+                ));
+                let deleted = Colour::Red.bold().paint(format!(
+                    "-{} line{plurality}",
                     deleted_lines,
-                    delta: current_delta,
-                    file_mode: file_mode.clone(),
-                    filename: filename.clone(),
-                    new_file: new_file.to_string(),
-                    new_old_oids: new_old_oids.clone(),
-                    old_file: old_file.to_string(),
-                    text: content.to_owned(),
-                });
+                    plurality = if deleted_lines != 1 { "s" } else { "" }
+                ));
+
+                let formatted_filename = if let Some(delta) = current_delta {
+                    match delta {
+                        Delta::Added => {
+                            format!(
+                                "| {} | {} | {added} | {} | {} |",
+                                filename,
+                                Colour::Green.bold().paint("ADDED"),
+                                new_old_oids,
+                                file_mode
+                            )
+                        }
+                        Delta::Conflicted => {
+                            format!(
+                                "| {} | {} | {} | {} |",
+                                filename,
+                                Colour::Red.bold().paint("CONFLICTED"),
+                                new_old_oids,
+                                file_mode
+                            )
+                        }
+                        Delta::Deleted => {
+                            format!(
+                                "| {} | {} | {deleted} | {} | {} |",
+                                filename,
+                                Colour::Red.bold().paint("DELETED"),
+                                new_old_oids,
+                                file_mode
+                            )
+                        }
+                        Delta::Modified => {
+                            format!(
+                                "| {} | {} | {added} | {deleted} | {} | {} |",
+                                filename,
+                                Colour::Fixed(172).bold().paint("MODIFIED"),
+                                new_old_oids,
+                                file_mode
+                            )
+                        }
+                        Delta::Renamed | Delta::Typechange => {
+                            format!(
+                                "| {} | {added} | {deleted} | {} | {} |",
+                                format!("{} ==> {}", old_file, new_file),
+                                new_old_oids,
+                                file_mode
+                            )
+                        }
+                        _ => {
+                            format!(
+                                "| {} | {added} | {deleted} | {} | {} |",
+                                filename, new_old_oids, file_mode
+                            )
+                        }
+                    }
+                } else {
+                    format!(
+                        "| {} | {added} | {deleted} | {} | {} |",
+                        filename, new_old_oids, file_mode
+                    )
+                };
+
+                formatted_diffs.push((formatted_filename, content.join("").to_string()));
 
                 content.clear();
                 filename.clear();
@@ -244,94 +286,78 @@ pub fn display_git_diffs<'a>(diff: Diff, file_options: Vec<String>) -> Result<()
     })?;
 
     if !content.is_empty() {
-        diffs.push(GitDiff {
-            added_lines,
-            deleted_lines,
-            delta: current_delta,
-            file_mode,
-            filename: filename.clone(),
-            new_file: new_file.to_string(),
-            new_old_oids,
-            old_file: old_file.to_string(),
-            text: content.to_owned(),
-        });
-    }
-
-    let mut formatted_diffs: Vec<(String, String)> = Vec::new();
-
-    for diff in diffs {
         let added = Colour::Green.bold().paint(format!(
             "+{} line{plurality}",
-            diff.added_lines,
-            plurality = if diff.added_lines != 1 { "s" } else { "" }
+            added_lines,
+            plurality = if added_lines != 1 { "s" } else { "" }
         ));
         let deleted = Colour::Red.bold().paint(format!(
             "-{} line{plurality}",
-            diff.deleted_lines,
-            plurality = if diff.deleted_lines != 1 { "s" } else { "" }
+            deleted_lines,
+            plurality = if deleted_lines != 1 { "s" } else { "" }
         ));
 
-        let formatted_filename = if let Some(delta) = diff.delta {
+        let formatted_filename = if let Some(delta) = current_delta {
             match delta {
                 Delta::Added => {
                     format!(
                         "| {} | {} | {added} | {} | {} |",
-                        diff.filename,
+                        filename,
                         Colour::Green.bold().paint("ADDED"),
-                        diff.new_old_oids,
-                        diff.file_mode
+                        new_old_oids,
+                        file_mode
                     )
                 }
                 Delta::Conflicted => {
                     format!(
                         "| {} | {} | {} | {} |",
-                        diff.filename,
+                        filename,
                         Colour::Red.bold().paint("CONFLICTED"),
-                        diff.new_old_oids,
-                        diff.file_mode
+                        new_old_oids,
+                        file_mode
                     )
                 }
                 Delta::Deleted => {
                     format!(
                         "| {} | {} | {deleted} | {} | {} |",
-                        diff.filename,
+                        filename,
                         Colour::Red.bold().paint("DELETED"),
-                        diff.new_old_oids,
-                        diff.file_mode
+                        new_old_oids,
+                        file_mode
                     )
                 }
                 Delta::Modified => {
                     format!(
                         "| {} | {} | {added} | {deleted} | {} | {} |",
-                        diff.filename,
+                        filename,
                         Colour::Fixed(172).bold().paint("MODIFIED"),
-                        diff.new_old_oids,
-                        diff.file_mode
+                        new_old_oids,
+                        file_mode
                     )
                 }
                 Delta::Renamed | Delta::Typechange => {
                     format!(
                         "| {} | {added} | {deleted} | {} | {} |",
-                        format!("{} ==> {}", diff.old_file, diff.new_file),
-                        diff.new_old_oids,
-                        diff.file_mode
+                        format!("{} ==> {}", old_file, new_file),
+                        new_old_oids,
+                        file_mode
                     )
                 }
                 _ => {
                     format!(
                         "| {} | {added} | {deleted} | {} | {} |",
-                        diff.filename, diff.new_old_oids, diff.file_mode
+                        filename, new_old_oids, file_mode
                     )
                 }
             }
         } else {
             format!(
                 "| {} | {added} | {deleted} | {} | {} |",
-                diff.filename, diff.new_old_oids, diff.file_mode
+                filename, new_old_oids, file_mode
             )
         };
 
-        formatted_diffs.push((formatted_filename, diff.text.join("").to_string()));
+        formatted_diffs.push((formatted_filename, content.join("").to_string()));
     }
 
     if let Err(error) = PrettyPrinter::new()
