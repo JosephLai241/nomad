@@ -328,7 +328,7 @@ fn get_new_old_filenames(delta: &DiffDelta) -> (String, String) {
 }
 
 /// Colorize the origin of the `DiffLine`.
-pub fn colorize_origin(marker: char) -> String {
+fn colorize_origin(marker: char) -> String {
     match marker {
         '+' | '>' => Colour::Green.bold().paint(format!("{marker}")).to_string(),
         '-' | '<' => Colour::Red.bold().paint(format!("{marker}")).to_string(),
