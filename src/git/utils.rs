@@ -1,5 +1,10 @@
 //! Contains useful utilities that support Git functionality.
 
+use crate::{
+    errors::NomadError,
+    utils::{open::get_deserialized_json, temp::JSONTarget},
+};
+
 use std::{
     collections::HashMap,
     path::{Component, Path},
@@ -10,7 +15,7 @@ use anyhow::{anyhow, Result};
 use git2::{Branch, Commit, ObjectType, Repository};
 use itertools::Itertools;
 
-use crate::errors::NomadError;
+use super::markers::get_status_markers;
 
 /// Try to discover a Git repository at or above the current path.
 fn discover_repo(target_directory: &str) -> Option<Repository> {
@@ -115,6 +120,137 @@ pub fn add_marker_depths(sliced_markers: HashMap<String, String>) -> Vec<Modifie
     }
 
     markers
+}
+
+/// Modes for file searching.
+pub enum SearchMode {
+    /// Search for files when using Git commands. If a directory label is passed,
+    /// directory items will be compared with the Git status marker map. Only matching
+    /// items that are tracked by Git AND are changed will be returned.
+    Git,
+    /// Search for files in normal mode. If a directory label is passed, all
+    /// directory items are returned regardless of Git status.
+    Normal,
+}
+
+/// Get files by its number in the tree, or traverse a directory and return all files
+/// within it.
+///
+/// If this function is in Git mode and directory labels are passed into
+/// `item_labels`, only matching items that are tracked by Git AND are changed
+/// will be returned.
+///
+/// If this function is in normal mode and directory labels are passed into
+/// `item_labels`, all items within that directory are returned.
+pub fn indiscriminate_file_search(
+    item_labels: &Vec<String>,
+    repo: Option<&Repository>,
+    search_mode: SearchMode,
+    target_directory: &str,
+) -> Option<Vec<String>> {
+    if let (Ok(contents), Ok(directories)) = (
+        get_deserialized_json(JSONTarget::Contents),
+        get_deserialized_json(JSONTarget::Directories),
+    ) {
+        let mut found: Vec<String> = Vec::new();
+        let mut not_found: Vec<String> = Vec::new();
+
+        for label in item_labels {
+            match label.parse::<i32>() {
+                Ok(_) => match contents.items.get(label) {
+                    Some(file_path) => {
+                        found.push(file_path.to_string());
+                    }
+                    None => not_found.push(label.into()),
+                },
+                Err(_) => match directories.items.get(label) {
+                    Some(directory_path) => {
+                        match search_mode {
+                            SearchMode::Git => {
+                                if let Some(repo) = repo {
+                                    if let Ok(marker_map) =
+                                        get_status_markers(repo, target_directory)
+                                    {
+                                        for file_path in marker_map.keys() {
+                                            let path_parent = Path::new(file_path)
+                                                .parent()
+                                                .unwrap_or(Path::new("?"))
+                                                .to_str()
+                                                .unwrap_or("?");
+
+                                            if path_parent.contains(directory_path) {
+                                                found.push(file_path.to_string());
+                                            }
+                                        }
+                                    } else {
+                                        println!(
+                                            "{}",
+                                            Colour::Red.bold().paint(
+                                                "\nCould not get the HashMap containing Git items!\n"
+                                            )
+                                        );
+                                    }
+                                } else {
+                                    println!(
+                                        "{}",
+                                        Colour::Red.bold().paint(
+                                            "\nUnable to search for Git files: Missing the Git repository!\n"
+                                        )
+                                    );
+                                }
+                            }
+                            SearchMode::Normal => {
+                                // TODO: TRAVERSE THE DIRECTORY AND PUSH ALL ITEMS
+                                //       INTO THE `FOUND` VEC.
+                            }
+                        }
+                    }
+                    None => not_found.push(label.into()),
+                },
+            };
+        }
+
+        if !not_found.is_empty() {
+            println!(
+                "{}",
+                Colour::Fixed(172).bold().paint(
+                    "\nThe following item numbers or directory labels did not match any items in the tree:\n"
+                )
+            );
+
+            for label in not_found {
+                println!(
+                    "==> {}",
+                    Colour::Fixed(172).bold().paint(format!("{label}"))
+                );
+            }
+        }
+
+        if !found.is_empty() {
+            Some(found)
+        } else {
+            match search_mode {
+                SearchMode::Git => println!(
+                    "{}",
+                    Colour::Fixed(172).bold().paint(
+                        "\nDid not find any changed files matching the labels you've entered.\nAre you sure the file or directory contains changed files tracked by Git?\n"
+                    )
+                ),
+                SearchMode::Normal => println!(
+                    "{}",
+                    Colour::Red
+                        .bold()
+                        .paint("\nDid not find any matching items in the tree!\n")
+                ),
+            }
+
+            None
+        }
+    } else {
+        println!("{}", Colour::Red.bold().paint("\nCould not retrieve stored directories and directory contents!\nDid you run nomad in numbered or labeled directories mode?\n"));
+
+        None
+    }
 }
 
 /// Strip prefix paths (the absolute path preceding the current target directory)
