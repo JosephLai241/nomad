@@ -124,10 +124,13 @@ pub fn add_marker_depths(sliced_markers: HashMap<String, String>) -> Vec<Modifie
 
 /// Modes for file searching.
 pub enum SearchMode {
-    /// Search for files when using Git commands. If a directory label is passed,
-    /// directory items will be compared with the Git status marker map. Only matching
-    /// items that are tracked by Git AND are changed will be returned.
+    /// Search for files when using Git commands besides Git diff. If a directory
+    /// label is passed, directory items will be compared with the Git status marker
+    /// map. Only matching items that are tracked by Git AND are changed will be returned.
     Git,
+    /// Search for changed items that are tracked by Git. Mutes the warning message
+    /// that usually appears if no item labels are passed into a subcommand.
+    GitDiff,
     /// Search for files in normal mode. If a directory label is passed, all
     /// directory items are returned regardless of Git status.
     Normal,
@@ -164,47 +167,46 @@ pub fn indiscriminate_file_search(
                     None => not_found.push(label.into()),
                 },
                 Err(_) => match directories.items.get(label) {
-                    Some(directory_path) => {
-                        match search_mode {
-                            SearchMode::Git => {
-                                if let Some(repo) = repo {
-                                    if let Ok(marker_map) =
-                                        get_status_markers(repo, target_directory)
-                                    {
-                                        for file_path in marker_map.keys() {
-                                            let path_parent = Path::new(file_path)
-                                                .parent()
-                                                .unwrap_or(Path::new("?"))
-                                                .to_str()
-                                                .unwrap_or("?");
+                    Some(directory_path) => match search_mode {
+                        SearchMode::Git | SearchMode::GitDiff => {
+                            if let Some(repo) = repo {
+                                if let Ok(marker_map) = get_status_markers(repo, target_directory) {
+                                    for file_path in marker_map.keys() {
+                                        let path_parent = Path::new(file_path)
+                                            .parent()
+                                            .unwrap_or(Path::new("?"))
+                                            .to_str()
+                                            .unwrap_or("?");
 
-                                            if path_parent.contains(directory_path) {
-                                                found.push(file_path.to_string());
-                                            }
+                                        if path_parent.contains(directory_path) {
+                                            found.push(file_path.to_string());
                                         }
-                                    } else {
-                                        println!(
-                                            "{}",
-                                            Colour::Red.bold().paint(
-                                                "\nCould not get the HashMap containing Git items!\n"
-                                            )
-                                        );
                                     }
                                 } else {
                                     println!(
                                         "{}",
                                         Colour::Red.bold().paint(
-                                            "\nUnable to search for Git files: Missing the Git repository!\n"
+                                            "\nCould not get the HashMap containing Git items!\n"
                                         )
                                     );
                                 }
-                            }
-                            SearchMode::Normal => {
-                                // TODO: TRAVERSE THE DIRECTORY AND PUSH ALL ITEMS
-                                //       INTO THE `FOUND` VEC.
+                            } else {
+                                println!(
+                                        "{}",
+                                        Colour::Red.bold().paint(
+                                            "\nUnable to search for Git files: The Git repository is missing!\n"
+                                        )
+                                    );
                             }
                         }
-                    }
+                        SearchMode::Normal => {
+                            for path in contents.items.values() {
+                                if path.contains(directory_path) {
+                                    found.push(path.to_owned());
+                                }
+                            }
+                        }
+                    },
                     None => not_found.push(label.into()),
                 },
             };
@@ -240,8 +242,9 @@ pub fn indiscriminate_file_search(
                     "{}",
                     Colour::Red
                         .bold()
-                        .paint("\nDid not find any matching items in the tree!\n")
+                        .paint("\nNo items were matched!\n")
                 ),
+                _ => {}
             }
 
             None
