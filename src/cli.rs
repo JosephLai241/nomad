@@ -99,7 +99,7 @@ pub enum SubCommands {
     Bat { item_labels: Vec<String> },
     /// Edit a file with your default $EDITOR or with Neovim, Vim, Vi, or Nano.
     /// This may be used after running nomad in numbered mode.
-    Edit { file_number: i32 },
+    Edit { item_labels: Vec<String> },
     /// Filter directory items by filetype.
     Filetype(FileTypeOptions),
     /// Run commonly used Git commands.

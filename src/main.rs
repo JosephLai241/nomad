@@ -11,9 +11,10 @@ mod utils;
 use cli::{FileTypeOptions, GitOptions, ReleaseOptions, SubCommands};
 use git::{
     commit::commit_changes,
+    diff::{display_git_diffs, get_repo_diffs},
     stage::stage_files,
     status::display_status_tree,
-    utils::{get_repo, get_repo_branch},
+    utils::{get_repo, get_repo_branch, indiscriminate_file_search, SearchMode},
 };
 use releases::{build_release_list, update_self};
 use traverse::{
@@ -21,8 +22,9 @@ use traverse::{
     utils::{build_types, build_walker, TypeOption},
 };
 use utils::{
+    bat::run_bat,
     icons::{get_icons_by_extension, get_icons_by_name},
-    open::get_file,
+    open::{get_file, open_files},
     paint::paint_error,
     paths::{canonicalize_path, get_current_directory},
     table::{TableView, TabledItems},
@@ -74,24 +76,34 @@ fn main() -> Result<(), NomadError> {
     if let Some(target_directory) = target_directory {
         if let Some(sub_command) = &args.sub_commands {
             match sub_command {
-                SubCommands::Bat { file_number } => {
-                    match get_file(file_number.to_string(), JSONTarget::Contents) {
-                        Ok(target_file) => {
-                            if let Err(error) = utils::bat::run_bat(target_file) {
+                SubCommands::Bat { item_labels } => {
+                    match indiscriminate_file_search(
+                        item_labels,
+                        None,
+                        SearchMode::Normal,
+                        &target_directory,
+                    ) {
+                        Some(found_items) => {
+                            if let Err(error) = run_bat(found_items) {
                                 paint_error(error);
                             }
                         }
-                        Err(error) => paint_error(error),
+                        None => {}
                     }
                 }
-                SubCommands::Edit { file_number } => {
-                    match get_file(file_number.to_string(), JSONTarget::Contents) {
-                        Ok(target_file) => {
-                            if let Err(error) = utils::open::open_file(target_file) {
+                SubCommands::Edit { item_labels } => {
+                    match indiscriminate_file_search(
+                        item_labels,
+                        None,
+                        SearchMode::Normal,
+                        &target_directory,
+                    ) {
+                        Some(found_items) => {
+                            if let Err(error) = open_files(found_items) {
                                 paint_error(error);
                             }
                         }
-                        Err(error) => paint_error(error),
+                        None => {}
                     }
                 }
                 SubCommands::Filetype(filetype_option) => {
@@ -188,16 +200,19 @@ fn main() -> Result<(), NomadError> {
                                     paint_error(error);
                                 }
                             }
-                            GitOptions::Diff { file_number } => {
-                                match get_file(file_number.to_string(), JSONTarget::Contents) {
-                                    Ok(target_file) => {
-                                        if let Err(error) = utils::bat::run_bat(target_file) {
-                                            paint_error(error);
-                                        }
+                            GitOptions::Diff { file_numbers } => match get_repo_diffs(&repo) {
+                                Ok(diff) => {
+                                    if let Err(error) =
+                                        display_git_diffs(diff, file_numbers.to_owned())
+                                    {
+                                        paint_error(error);
                                     }
-                                    Err(error) => paint_error(error),
                                 }
-                            }
+                                Err(error) => paint_error(NomadError::GitError {
+                                    context: "Unable to get Git diff".into(),
+                                    source: error,
+                                }),
+                            },
                             GitOptions::Status => {
                                 if let Some(branch_name) = get_repo_branch(&repo) {
                                     println!(

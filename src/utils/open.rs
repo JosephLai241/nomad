@@ -13,9 +13,9 @@ use std::{
 };
 
 /// Open the target file with an editor.
-fn spawn_editor(editor: String, file: String) -> Result<ExitStatus, NomadError> {
+fn spawn_editor(editor: String, found_items: Vec<String>) -> Result<ExitStatus, NomadError> {
     Command::new(editor.clone())
-        .arg(&file)
+        .args(&found_items)
         .status()
         .map_err(|error| NomadError::EditorError {
             editor,
@@ -80,11 +80,11 @@ fn search_for_file(target: String, json_target: JSONTarget) -> Result<Option<Str
 }
 
 /// Open the target file.
-pub fn open_file(file: String) -> Result<(), NomadError> {
+pub fn open_files(found_items: Vec<String>) -> Result<(), NomadError> {
     let editors = get_text_editors();
 
     if editors.len() == 1 {
-        spawn_editor(editors[0].to_string(), file).map_or_else(
+        spawn_editor(editors[0].to_string(), found_items).map_or_else(
             |error| Err(error),
             |status_code| {
                 println!("{status_code}");
@@ -93,7 +93,7 @@ pub fn open_file(file: String) -> Result<(), NomadError> {
         )
     } else {
         for editor in editors {
-            match spawn_editor(editor, file.to_string()) {
+            match spawn_editor(editor, found_items.clone()) {
                 Ok(_) => {
                     return Ok(());
                 }
