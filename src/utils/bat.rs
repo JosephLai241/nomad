@@ -3,16 +3,21 @@
 use crate::errors::NomadError;
 
 use anyhow::Result;
-use bat::{PagingMode, PrettyPrinter, WrappingMode};
+use bat::{Input, PagingMode, PrettyPrinter, WrappingMode};
 
 use std::path::Path;
 
 /// Create a new `PrettyPrinter`, then run it against the file.
-pub fn run_bat(file: String) -> Result<(), NomadError> {
+pub fn run_bat(found_items: Vec<String>) -> Result<(), NomadError> {
     PrettyPrinter::new()
         .grid(true)
         .header(true)
-        .input_file(Path::new(&file))
+        .inputs(
+            found_items
+                .iter()
+                .map(|path| Input::from_file(Path::new(path)))
+                .collect::<Vec<Input>>(),
+        )
         .line_numbers(true)
         .paging_mode(PagingMode::QuitIfOneScreen)
         .true_color(true)
