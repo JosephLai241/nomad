@@ -5,7 +5,7 @@ use std::{path::Path, str::from_utf8};
 use ansi_term::Colour;
 use anyhow::Result;
 use bat::{Input, PagingMode, PrettyPrinter, WrappingMode};
-use git2::{Delta, Diff, DiffFormat, Error, Index, ObjectType, Repository, Tree};
+use git2::{Delta, Diff, DiffDelta, DiffFormat, Error, Index, ObjectType, Repository, Tree};
 
 use crate::errors::NomadError;
 
@@ -28,8 +28,70 @@ pub fn colorize_origin(marker: char) -> String {
     }
 }
 
-/// Display Git diffs with `bat`.
-pub fn display_git_diffs<'a>(diff: Diff, file_options: Vec<String>) -> Result<(), NomadError> {
+/// Use `bat` to display Git diffs.
+pub fn bat_diffs(
+    diff: Diff,
+    found_items: Option<Vec<String>>,
+    target_directory: &str,
+) -> Result<(), NomadError> {
+    let formatted_diffs = get_diffs(diff, found_items, target_directory)?;
+
+    if !formatted_diffs.is_empty() {
+        if let Err(error) = PrettyPrinter::new()
+            .grid(true)
+            .header(true)
+            .inputs(
+                formatted_diffs
+                    .iter()
+                    .map(|(name, diff)| Input::from_bytes(diff.as_bytes()).name(name))
+                    .collect::<Vec<Input>>(),
+            )
+            .paging_mode(PagingMode::QuitIfOneScreen)
+            .rule(true)
+            .true_color(true)
+            .wrapping_mode(WrappingMode::Character)
+            .print()
+        {
+            return Err(NomadError::BatError(error));
+        }
+    } else {
+        println!("{}", Colour::Red.bold().paint("\nNo diffs available!\n"));
+    }
+
+    Ok(())
+}
+
+/// Traverse Git diffs, format each line, and return a Vec containing the formatted
+/// filename and the associated diff.
+/// If item labels are specified, only items that are tracked by Git AND contain
+/// changes are returned.
+fn get_diffs(
+    diff: Diff,
+    found_items: Option<Vec<String>>,
+    target_directory: &str,
+) -> Result<Vec<(String, String)>, NomadError> {
+    let stripped_items = if let Some(found_items) = found_items {
+        if !found_items.is_empty() {
+            Some(
+                found_items
+                    .iter()
+                    .map(|full_path| {
+                        Path::new(full_path)
+                            .strip_prefix(target_directory)
+                            .unwrap_or(Path::new("?"))
+                            .to_str()
+                            .unwrap_or("?")
+                            .to_string()
+                    })
+                    .collect::<Vec<String>>(),
+            )
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
     let mut content: Vec<String> = Vec::new();
 
     let mut current_delta: Option<Delta> = None;
@@ -45,24 +107,11 @@ pub fn display_git_diffs<'a>(diff: Diff, file_options: Vec<String>) -> Result<()
     let mut formatted_diffs: Vec<(String, String)> = Vec::new();
 
     diff.print(DiffFormat::Patch, |delta, hunk, line| {
-        old_file = delta
-            .old_file()
-            .path()
-            .unwrap_or(Path::new("?"))
-            .to_str()
-            .unwrap_or("?")
-            .to_string()
-            .clone();
-        new_file = delta
-            .new_file()
-            .path()
-            .unwrap_or(Path::new("?"))
-            .to_str()
-            .unwrap_or("?")
-            .to_string()
-            .clone();
-
         if filename.is_empty() {
+            let (new_filename, old_filename) = get_new_old_filenames(&delta);
+            new_file = new_filename;
+            old_file = old_filename;
+
             filename = if old_file == new_file {
                 new_file.clone()
             } else {
@@ -209,16 +258,26 @@ pub fn display_git_diffs<'a>(diff: Diff, file_options: Vec<String>) -> Result<()
                     old_file.clone(),
                 );
 
-                formatted_diffs.push((formatted_filename, content.join("").to_string()));
+                if let Some(target_items) = &stripped_items {
+                    if target_items.contains(&old_file) || target_items.contains(&new_file) {
+                        formatted_diffs.push((formatted_filename, content.join("").to_string()));
+                    }
+                } else {
+                    formatted_diffs.push((formatted_filename, content.join("").to_string()));
+                }
 
-                content.clear();
-                filename.clear();
+                let (new_filename, old_filename) = get_new_old_filenames(&delta);
+                new_file = new_filename;
+                old_file = old_filename;
 
                 filename = if old_file == new_file {
                     new_file.clone()
                 } else {
                     format!("{old_file} ==> {new_file}")
                 };
+
+                content.clear();
+                filename.clear();
             }
 
             added_lines = 0;
@@ -240,33 +299,41 @@ pub fn display_git_diffs<'a>(diff: Diff, file_options: Vec<String>) -> Result<()
             current_delta,
             file_mode,
             filename,
-            new_file,
+            new_file.clone(),
             new_old_oids,
-            old_file,
+            old_file.clone(),
         );
 
-        formatted_diffs.push((formatted_filename, content.join("").to_string()));
+        if let Some(target_items) = &stripped_items {
+            if target_items.contains(&old_file) || target_items.contains(&new_file) {
+                formatted_diffs.push((formatted_filename, content.join("").to_string()));
+            }
+        } else {
+            formatted_diffs.push((formatted_filename, content.join("").to_string()));
+        }
     }
 
-    if let Err(error) = PrettyPrinter::new()
-        .grid(true)
-        .header(true)
-        .inputs(
-            formatted_diffs
-                .iter()
-                .map(|(name, diff)| Input::from_bytes(diff.as_bytes()).name(name))
-                .collect::<Vec<Input>>(),
-        )
-        .paging_mode(PagingMode::QuitIfOneScreen)
-        .rule(true)
-        .true_color(true)
-        .wrapping_mode(WrappingMode::Character)
-        .print()
-    {
-        return Err(NomadError::BatError(error));
-    }
+    Ok(formatted_diffs)
+}
 
-    Ok(())
+/// Get the new and old filenames from the DiffDelta.
+fn get_new_old_filenames(delta: &DiffDelta) -> (String, String) {
+    (
+        delta
+            .new_file()
+            .path()
+            .unwrap_or(Path::new("?"))
+            .to_str()
+            .unwrap_or("?")
+            .to_string(),
+        delta
+            .old_file()
+            .path()
+            .unwrap_or(Path::new("?"))
+            .to_str()
+            .unwrap_or("?")
+            .to_string(),
+    )
 }
 
 /// Get the formatted filename for a Git diff.
