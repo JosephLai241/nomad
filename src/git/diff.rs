@@ -19,15 +19,6 @@ pub fn get_repo_diffs<'a>(repo: &'a Repository) -> Result<Diff<'a>, Error> {
     Ok(diff)
 }
 
-/// Colorize the origin of the `DiffLine`.
-pub fn colorize_origin(marker: char) -> String {
-    match marker {
-        '+' | '>' => Colour::Green.bold().paint(format!("{marker}")).to_string(),
-        '-' | '<' => Colour::Red.bold().paint(format!("{marker}")).to_string(),
-        _ => Colour::White.bold().paint(format!("{marker}")).to_string(),
-    }
-}
-
 /// Use `bat` to display Git diffs.
 pub fn bat_diffs(
     diff: Diff,
@@ -334,6 +325,15 @@ fn get_new_old_filenames(delta: &DiffDelta) -> (String, String) {
             .unwrap_or("?")
             .to_string(),
     )
+}
+
+/// Colorize the origin of the `DiffLine`.
+pub fn colorize_origin(marker: char) -> String {
+    match marker {
+        '+' | '>' => Colour::Green.bold().paint(format!("{marker}")).to_string(),
+        '-' | '<' => Colour::Red.bold().paint(format!("{marker}")).to_string(),
+        _ => Colour::White.bold().paint(format!("{marker}")).to_string(),
+    }
 }
 
 /// Get the formatted filename for a Git diff.
