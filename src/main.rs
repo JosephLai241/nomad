@@ -16,7 +16,7 @@ use git::{
     status::display_status_tree,
     utils::{get_repo, get_repo_branch, indiscriminate_file_search, SearchMode},
 };
-use releases::{build_release_list, update_self};
+use releases::{build_release_list, check_for_update, update_self};
 use traverse::{
     modes::TraversalMode,
     utils::{build_types, build_walker, TypeOption},
@@ -52,6 +52,8 @@ lazy_static! {
 
 /// Run `nomad`.
 fn main() -> Result<(), NomadError> {
+    check_for_update()?;
+
     let args = cli::get_args();
 
     let target_directory = if let Some(ref directory) = args.directory {
@@ -291,7 +293,7 @@ fn main() -> Result<(), NomadError> {
                         Err(error) => paint_error(error),
                     },
                 },
-                SubCommands::Update => {
+                SubCommands::Upgrade => {
                     if let Err(error) = update_self() {
                         paint_error(error);
                     }

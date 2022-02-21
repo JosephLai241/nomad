@@ -106,8 +106,8 @@ pub enum SubCommands {
     Git(GitOptions),
     /// Retrieve releases for this program (retrieved from GitHub).
     Releases(ReleaseOptions),
-    /// Update `nomad`.
-    Update,
+    /// Upgrade `nomad`.
+    Upgrade,
 }
 
 /// This enum provides some commonly used Git options.
