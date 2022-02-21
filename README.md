@@ -5,6 +5,8 @@
 
 > The next gen `tree` command.
 
+![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)
+
 # Table of Contents
 
 * [Introduction](#introduction)
@@ -20,6 +22,7 @@
 * [Walkthrough](#walkthrough)
 	+ [Default Behavior (Stylized Tree View)](#default-behavior-stylized-tree-view)
 	+ [Labeled Modes](#labeled-modes)
+		* [Unlocked Functionality](#unlocked-functionality)
 	+ [Subcommands](#subcommands)
 		* [`bat` Integration](#bat-integration)
 		* [Quick Edit/Open a File](#quick-editopen-a-file)
@@ -219,7 +222,7 @@ nd some_directory/
 
 ## Labeled Modes
 
-Running `nomad` in a labeled mode unlocks this program's full potential and allows you to perform actions on items in your directory tree very quickly.
+Running `nomad` in a labeled mode unlocks its full potential and allows you to perform actions on items in your directory tree very quickly.
 
 There are three labeled modes in which you can run `nomad`:
 
@@ -227,23 +230,23 @@ There are three labeled modes in which you can run `nomad`:
 * `nd -l` - Labels the directories.
 * `nd -L` - Labels both directories and files. This is an alias for `nd -n -l`.
 
-The following flags/commands require a preceding run in a labeled mode prior to using the command:
+### Unlocked Functionality
 
-* `bat		<file_number(s)_or_directory_label(s)>`
-* `edit		<file_number(s)_or_directory_label(s)>`
-* `git add	<file_number(s)_or_directory_label(s)>`
+By using a labeled mode, you gain access to the following flags/commands, which **require a preceding run in a labeled mode prior to use**:
 
-The `git diff` subcommand can take optional file number(s) and/or directory label(s). This would also mean running `nomad` in a labeled mode prior to using a command:
+* [`nd bat		<file_number(s)_or_directory_label(s)>`](#bat-integration)
+* [`nd edit		<file_number(s)_or_directory_label(s)>`](#quick-editopen-a-file)
+* [`nd git add	<file_number(s)_or_directory_label(s)>`](#git-add)
 
-* `git diff <optional_file_number(s)_or_directory_label(s)>`
+The `git diff` subcommand can take **optional** file number(s) and/or directory label(s). This would also mean running `nomad` in a labeled mode prior to using a command:
 
----
+* [`nd git diff	<optional_file_number(s)_or_directory_label(s)>`](#git-diff)
 
 # Subcommands
 
 ## `bat` Integration
 
-> ***NOTE:*** Requires running in a labeled mode beforehand.
+> ***NOTE:*** Requires running in a [labeled mode](#labeled-modes) beforehand.
 
 [`bat`][bat] is a *much* improved `cat` alternative and is integrated into `nomad`.
 
@@ -285,7 +288,7 @@ The following features are integrated into `bat`:
 
 ## Quick Edit/Open a File
 
-> ***NOTE:*** Requires running in a labeled mode beforehand.
+> ***NOTE:*** Requires running in a [labeled mode](#labeled-modes) mode beforehand.
 
 `nomad` provides a quick way to open and edit a file after displaying a directory's tree.
 
@@ -404,7 +407,7 @@ git
 
 ### `git add`
 
-> ***NOTE:*** Requires running in a labeled mode beforehand.
+> ***NOTE:*** Requires running in a [labeled mode](#labeled-modes) mode beforehand.
 
 Quickly run a `git add` for a file without the burden of typing out the entire file path. Pass in the number that corresponds with the file you want to stage.
 
@@ -438,7 +441,7 @@ The default commit message is `"Updating"` if no commit message is provided.
 
 ### `git diff`
 
-> ***NOTE:*** Requires running in a labeled mode beforehand.
+> ***NOTE:*** Requires running in a [labeled mode](#labeled-modes) mode beforehand.
 
 Quickly run a `git diff` for a file without the burden of typing out the entire file path.
 
