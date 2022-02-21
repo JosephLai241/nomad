@@ -260,7 +260,7 @@ Quickly `bat` a file by passing the file's number with the `bat` subcommand:
 nd bat <file_number>
 ```
 
-#### Examples
+### Examples
 
 ```
 nd bat 2 10 4	// `bat`s the 2nd, 10th, and 4th files in one go.
@@ -301,7 +301,7 @@ Quickly edit/open a file by passing the file's number with the `edit` subcommand
 nd edit <file_number>
 ```
 
-#### Examples
+### Examples
 
 ```
 nd edit 2 10 4	// Open/edit the 2nd, 10th, and 4th files in one go.
@@ -421,7 +421,7 @@ Quickly run a `git add` for a file without the burden of typing out the entire f
 nd git add 12    // Stages the 12th file in the tree.
 ```
 
-#### Examples
+### Examples
 
 ```
 nd git add 2 10 4	// Stages the 2nd, 10th, and 4th files in one go.
@@ -459,7 +459,7 @@ This command will use the built-in `bat` to display the target file's diff.
 nd git diff 2    // View the diff for the 2nd file in the tree.
 ```
 
-#### Examples
+### Examples
 
 ```
 nd git diff 2 10 4	// View the diff for the 2nd, 10th, and 4th files in one go.
