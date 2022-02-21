@@ -24,11 +24,10 @@ use traverse::{
 use utils::{
     bat::run_bat,
     icons::{get_icons_by_extension, get_icons_by_name},
-    open::{get_file, open_files},
+    open::open_files,
     paint::paint_error,
     paths::{canonicalize_path, get_current_directory},
     table::{TableView, TabledItems},
-    temp::JSONTarget,
 };
 
 use ansi_term::Colour;
