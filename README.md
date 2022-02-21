@@ -19,8 +19,7 @@
 	+ [Releases Usage](#releases-usage)
 * [Walkthrough](#walkthrough)
 	+ [Default Behavior (Stylized Tree View)](#default-behavior-stylized-tree-view)
-	+ [Numbered Mode](#numbered-mode)
-	+ [Labeled Directories Mode](#labeled-directories-mode)
+	+ [Labeled Modes](#labeled-modes)
 	+ [Subcommands](#subcommands)
 		* [`bat` Integration](#bat-integration)
 		* [Quick Edit/Open a File](#quick-editopen-a-file)
@@ -218,25 +217,25 @@ Alternatively, pass in the name of the directory you wish to target:
 nd some_directory/
 ```
 
-## Numbered Mode
+## Labeled Modes
 
-**Any options that require a target file argument requires a preceding run in numbered mode prior to using that command. You can do this by including the `-n` flag.**
+Running `nomad` in a labeled mode unlocks this program's full potential and allows you to perform actions on items in your directory tree very quickly.
 
-The options that require numbered mode before running are:
+There are three labeled modes in which you can run `nomad`:
 
-```
-bat <file_number>
-edit <file_number>
+* `nd -n` - Labels the files.
+* `nd -l` - Labels the directories.
+* `nd -L` - Labels both directories and files. This is an alias for `nd -n -l`.
 
-git add <file_number(s)>
-git diff <file_number>
-```
+The following flags/commands require a preceding run in a labeled mode prior to using the command:
 
-## Labeled Directories Mode
+* `bat		<file_number(s)_or_directory_label(s)>`
+* `edit		<file_number(s)_or_directory_label(s)>`
+* `git add	<file_number(s)_or_directory_label(s)>`
 
-You can run `nomad` in labeled directories mode by including the `-l` flag.
+The `git diff` subcommand can take optional file number(s) and/or directory label(s). This would also mean running `nomad` in a labeled mode prior to using a command:
 
-This mode is useful when using the `git add` subcommand - you can quickly add all modified or new files within a directory.
+* `git diff <optional_file_number(s)_or_directory_label(s)>`
 
 ---
 
@@ -244,7 +243,7 @@ This mode is useful when using the `git add` subcommand - you can quickly add al
 
 ## `bat` Integration
 
-> ***NOTE:*** Requires running in numbered mode beforehand.
+> ***NOTE:*** Requires running in a labeled mode beforehand.
 
 [`bat`][bat] is a *much* improved `cat` alternative and is integrated into `nomad`.
 
@@ -286,7 +285,7 @@ The following features are integrated into `bat`:
 
 ## Quick Edit/Open a File
 
-> ***NOTE:*** Requires running in numbered mode beforehand.
+> ***NOTE:*** Requires running in a labeled mode beforehand.
 
 `nomad` provides a quick way to open and edit a file after displaying a directory's tree.
 
@@ -405,7 +404,7 @@ git
 
 ### `git add`
 
-> ***NOTE:*** Requires running in numbered mode beforehand.
+> ***NOTE:*** Requires running in a labeled mode beforehand.
 
 Quickly run a `git add` for a file without the burden of typing out the entire file path. Pass in the number that corresponds with the file you want to stage.
 
@@ -439,7 +438,7 @@ The default commit message is `"Updating"` if no commit message is provided.
 
 ### `git diff`
 
-> ***NOTE:*** Requires running in numbered mode beforehand.
+> ***NOTE:*** Requires running in a labeled mode beforehand.
 
 Quickly run a `git diff` for a file without the burden of typing out the entire file path.
 
