@@ -53,10 +53,15 @@ This project is inspired by [`lsd`][lsd]'s colorization and icons. `lsd` is an i
 	+ Respect `.gitignore` and rules defined in similar `.ignore`-type files. This is enabled by default.
 	+ Display Git status markers next to items within a Git repository. This is enabled by default.
 	+ Integrated Git commands
-		+ Quickly point Git commands such as `git add/diff/unstage` to a file within the tree. This allows you to add files or view diffs without needing to type out the entire path to the file.
+		+ Quickly point Git commands such as `git add/diff/unstage` to a file or a directory (to add/diff/unstage changed files within that directory) in the tree. This allows you to execute those commands without typing out the entire path(s).
+		+ `git diff` improved for better readability.
 		+ `git status` in tree form.
 		+ `git commit <"OPTIONAL_MESSAGE">` integration.
-* Filter directory items by filetype or by a pattern.
+* Filter directory items by filetype(s) or by a pattern.
+	+ Filtering by filetype(s)
+		* Match or exclude filetype(s) in the directory.
+	+ Filtering by a pattern
+		* Match or exclude a pattern. Supports regex expressions that are compatible with Rust's [regex][regex] crate.
 * Quick edit/open of a file wtihin the directory (after running `nomad` in numbered mode (`-n`)).
 * Built-in [`bat`][bat], a `cat` alternative written in Rust, to quickly view a file within the tree.
 * Display releases without going on GitHub.
@@ -91,6 +96,14 @@ Follow the [NerdFont installation guide][NerdFont Installation] for instructions
 ## "I don't want to install a NerdFont"
 
 If you do not want a crispy looking tree, you can include the `--mute-icons` flag to disable icons.
+
+Including this flag every time you run `nomad` can become cumbersome, so it may be helpful to create an alias for it in your `.bashrc` or equivalent:
+
+```bash
+# In `.bashrc`
+
+alias nd="nd --mute-icons"
+```
 
 # Usage
 
@@ -239,6 +252,24 @@ Quickly `bat` a file by passing the file's number with the `bat` subcommand:
 
 ```
 nd bat <file_number>
+```
+
+You can also `bat` multiple files at a time. Simply enter the file numbers delimited by a space:
+
+```
+nd bat 2 10 4	// `bat`s the 2nd, 10th, and 4th files in one go.
+```
+
+Alternatively, you can `bat` everything within a directory by passing in the directory's label(s) delimited by a space:
+
+```
+nd bat a f h	// `bat`s all files within the directories labeled "a", "f", and "h".
+```
+
+Finally, you can mix and match file numbers and directories if you'd like.
+
+```
+nd bat 2 f 6	// `bat`s the 2nd file, all files within the directory labeled "f", and the 6th file.
 ```
 
 The following features are integrated into `bat`:
@@ -474,5 +505,6 @@ nd releases info 1.0.0
 [Neovim]: https://github.com/neovim/neovim
 [NerdFont]: https://www.nerdfonts.com/
 [NerdFont Installation]: https://github.com/ryanoasis/nerd-fonts#font-installation
+[regex]: https://docs.rs/regex/latest/regex/
 [Vi]: http://ex-vi.sourceforge.net/
 [Vim]: https://www.vim.org/
