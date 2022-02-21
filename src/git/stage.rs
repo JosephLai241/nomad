@@ -5,7 +5,7 @@ use std::path::Path;
 use ansi_term::Colour;
 use git2::{Error, Repository};
 
-use super::utils::{get_repo_branch, indiscriminate_file_search, SearchMode};
+use super::utils::{get_repo_branch, indiscriminate_search, SearchMode};
 
 /// Stage file(s) by adding them to the Git index (the staging area between the
 /// working directory and the repository). Then return the tree containing staged
@@ -18,7 +18,7 @@ pub fn stage_files(
     let mut index = repo.index()?;
 
     let found_items =
-        indiscriminate_file_search(item_labels, Some(repo), SearchMode::Git, target_directory);
+        indiscriminate_search(item_labels, Some(repo), SearchMode::Git, target_directory);
 
     let mut staged_files = 0;
     if let Some(found_items) = found_items {

@@ -145,7 +145,7 @@ pub enum SearchMode {
 ///
 /// If this function is in normal mode and directory labels are passed into
 /// `item_labels`, all items within that directory are returned.
-pub fn indiscriminate_file_search(
+pub fn indiscriminate_search(
     item_labels: &Vec<String>,
     repo: Option<&Repository>,
     search_mode: SearchMode,

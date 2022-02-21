@@ -14,7 +14,7 @@ use git::{
     diff::{bat_diffs, get_repo_diffs},
     stage::stage_files,
     status::display_status_tree,
-    utils::{get_repo, get_repo_branch, indiscriminate_file_search, SearchMode},
+    utils::{get_repo, get_repo_branch, indiscriminate_search, SearchMode},
 };
 use releases::{build_release_list, check_for_update, update_self};
 use traverse::{
@@ -52,7 +52,7 @@ lazy_static! {
 
 /// Run `nomad`.
 fn main() -> Result<(), NomadError> {
-    check_for_update()?;
+    //check_for_update()?;
 
     let args = cli::get_args();
 
@@ -78,7 +78,7 @@ fn main() -> Result<(), NomadError> {
         if let Some(sub_command) = &args.sub_commands {
             match sub_command {
                 SubCommands::Bat { item_labels } => {
-                    match indiscriminate_file_search(
+                    match indiscriminate_search(
                         item_labels,
                         None,
                         SearchMode::Normal,
@@ -93,7 +93,7 @@ fn main() -> Result<(), NomadError> {
                     }
                 }
                 SubCommands::Edit { item_labels } => {
-                    match indiscriminate_file_search(
+                    match indiscriminate_search(
                         item_labels,
                         None,
                         SearchMode::Normal,
@@ -203,7 +203,7 @@ fn main() -> Result<(), NomadError> {
                             }
                             GitOptions::Diff { item_labels } => match get_repo_diffs(&repo) {
                                 Ok(diff) => {
-                                    match indiscriminate_file_search(
+                                    match indiscriminate_search(
                                         item_labels,
                                         Some(&repo),
                                         SearchMode::GitDiff,
