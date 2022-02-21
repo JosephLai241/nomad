@@ -25,7 +25,9 @@
 		* [Unlocked Functionality](#unlocked-functionality)
 	+ [Subcommands](#subcommands)
 		* [`bat` Integration](#bat-integration)
+			+ [Examples](#examples)
 		* [Quick Edit/Open a File](#quick-editopen-a-file)
+			+ [Examples](#examples-1)
 		* [Filetype Filters](#filetype-filters)
 			+ [`filetype match`](#filetype-match)
 			+ [`filetype negate`](#filetype-negate)
@@ -34,8 +36,10 @@
 			+ [Color Code/Status Marker Key](#color-codestatus-marker-key)
 			+ [Available Subcommands](#available-subcommands)
 			+ [`git add`](#git-add)
+				* [Examples](#examples-2)
 			+ [`git commit`](#git-commit)
 			+ [`git diff`](#git-diff)
+				* [Examples](#examples-3)
 			+ [`git status`](#git-status)
 		* [View Releases](#view-releases)
 			+ [`releases all`](#releases-all)
@@ -256,21 +260,13 @@ Quickly `bat` a file by passing the file's number with the `bat` subcommand:
 nd bat <file_number>
 ```
 
-You can also `bat` multiple files at a time. Simply enter the file numbers delimited by a space:
+#### Examples
 
 ```
 nd bat 2 10 4	// `bat`s the 2nd, 10th, and 4th files in one go.
-```
 
-Alternatively, you can `bat` everything within a directory by passing in the directory's label(s) delimited by a space:
-
-```
 nd bat a f h	// `bat`s all files within the directories labeled "a", "f", and "h".
-```
 
-Finally, you can mix and match file numbers and directories if you'd like.
-
-```
 nd bat 2 f 6	// `bat`s the 2nd file, all files within the directory labeled "f", and the 6th file.
 ```
 
@@ -303,6 +299,16 @@ Quickly edit/open a file by passing the file's number with the `edit` subcommand
 
 ```
 nd edit <file_number>
+```
+
+#### Examples
+
+```
+nd edit 2 10 4	// Open/edit the 2nd, 10th, and 4th files in one go.
+
+nd edit a f h	// Open/edit all files within the directories labeled "a", "f", and "h".
+
+nd edit 2 f 6	// Open/edit the 2nd file, all files within the directory labeled "f", and the 6th file.  
 ```
 
 ## Filetype Filters
@@ -415,13 +421,15 @@ Quickly run a `git add` for a file without the burden of typing out the entire f
 nd git add 12    // Stages the 12th file in the tree.
 ```
 
-You can stage multiple items at once by delimiting numbers with a space like so:
+#### Examples
 
 ```
-nd git add 3 5 12 16    // Stages the 3rd, 5th, 12th, and 16th file in the tree.
-```
+nd git add 2 10 4	// Stages the 2nd, 10th, and 4th files in one go.
 
-The files that are staged will be colorized depending on its Git status.
+nd git add a f h	// Stages all files within the directories labeled "a", "f", and "h".
+
+nd git add 2 f 6	// Stages the 2nd file, all files within the directory labeled "f", and the 6th file.  
+```
 
 ### `git commit`
 
@@ -449,6 +457,16 @@ This command will use the built-in `bat` to display the target file's diff.
 
 ```
 nd git diff 2    // View the diff for the 2nd file in the tree.
+```
+
+#### Examples
+
+```
+nd git diff 2 10 4	// View the diff for the 2nd, 10th, and 4th files in one go.
+
+nd git diff a f h	// View the diff for all files within the directories labeled "a", "f", and "h".
+
+nd git diff 2 f 6	// View the diff for the 2nd file, all files within the directory labeled "f", and the 6th file.  
 ```
 
 ### `git status`
