@@ -137,9 +137,9 @@ pub fn indiscriminate_search(
     } else {
         println!(
             "{}",
-            Colour::Red.bold().paint(
-                "\nCould not retrieve stored directories and directory contents!\nDid you run nomad in numbered or labeled directories mode?\n"
-            )
+            Colour::Red
+                .bold()
+                .paint("\nCould not retrieve stored directories and directory contents!\n")
         );
 
         None
