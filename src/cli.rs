@@ -124,6 +124,8 @@ pub enum GitOptions {
     /// The `git diff` command.
     /// This may be used after running nomad in numbered mode or with labeled directories.
     Diff { item_labels: Vec<String> },
+    /// The `git restore` command.
+    Restore { item_labels: Vec<String> },
     /// The `git status` command. Only display changed/unstaged files in the tree.
     Status,
 }
@@ -131,14 +133,36 @@ pub enum GitOptions {
 /// This enum provides pattern matching options.
 #[derive(Debug, PartialEq, StructOpt)]
 pub enum FileTypeOptions {
-    /// Only display files matching this filetype.
-    /// Enter a single filetype or a list of filetypes delimited by a space.
-    /// ie. `nd filetype match rust py go vim`.
-    Match { filetypes: Vec<String> },
-    /// Do not display files that match this filetype.
-    /// Enter a single filetype or a list of filetypes delimited by a space.
-    /// ie. `nd filetype negate c cpp java r`.
-    Negate { filetypes: Vec<String> },
+    /// Only display files matching the specified filetypes and/or globs.
+    Match {
+        #[structopt(
+            short,
+            long,
+            help = "Enter a single filetype or a list of filetypes delimited by a space. ie. `nd filetype match -f rust py go vim`"
+        )]
+        filetypes: Vec<String>,
+        #[structopt(
+            short,
+            long,
+            help = "Enter a single glob or a list of globs delimited by a space. ie. `nd filetype match -g *.something *.anotherthing`. You may have to put quotes around globs that include '*'"
+        )]
+        globs: Vec<String>,
+    },
+    /// Do not display files that match the specified filetypes and/or globs.
+    Negate {
+        #[structopt(
+            short,
+            long,
+            help = "Enter a single filetype or a list of filetypes delimited by a space. ie. `nd filetype match -f rust py go vim`"
+        )]
+        filetypes: Vec<String>,
+        #[structopt(
+            short,
+            long,
+            help = "Enter a single glob or a list of globs delimited by a space. ie. `nd filetype match -g *.something *.anotherthing`. You may have to put quotes around globs that include '*'"
+        )]
+        globs: Vec<String>,
+    },
     /// List the current set of filetype definitions. Optionally search for a filetype.
     /// ie. `nd filetype options rust`.
     Options { filetype: Option<String> },
