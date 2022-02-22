@@ -14,7 +14,7 @@ use git::{
     diff::{bat_diffs, get_repo_diffs},
     stage::stage_files,
     status::display_status_tree,
-    utils::{get_repo, get_repo_branch, indiscriminate_search, SearchMode},
+    utils::{get_repo, get_repo_branch},
 };
 use releases::{build_release_list, check_for_update, update_self};
 use traverse::{
@@ -27,6 +27,7 @@ use utils::{
     open::open_files,
     paint::paint_error,
     paths::{canonicalize_path, get_current_directory},
+    search::{indiscriminate_search, SearchMode},
     table::{TableView, TabledItems},
 };
 
@@ -112,8 +113,8 @@ fn main() -> Result<(), NomadError> {
                     type_matcher.add_defaults();
 
                     match filetype_option {
-                        FileTypeOptions::Match { filetypes } => {
-                            match build_types(filetypes, type_matcher, TypeOption::Match) {
+                        FileTypeOptions::Match { filetypes, globs } => {
+                            match build_types(filetypes, globs, type_matcher, TypeOption::Match) {
                                 Ok(types) => {
                                     match build_walker(&args, &target_directory, Some(types)) {
                                         Ok(mut walker) => {
@@ -143,8 +144,8 @@ fn main() -> Result<(), NomadError> {
                                 Err(error) => paint_error(error),
                             }
                         }
-                        FileTypeOptions::Negate { filetypes } => {
-                            match build_types(filetypes, type_matcher, TypeOption::Negate) {
+                        FileTypeOptions::Negate { filetypes, globs } => {
+                            match build_types(filetypes, globs, type_matcher, TypeOption::Negate) {
                                 Ok(types) => {
                                     match build_walker(&args, &target_directory, Some(types)) {
                                         Ok(mut walker) => {
@@ -232,6 +233,10 @@ fn main() -> Result<(), NomadError> {
                                     source: error,
                                 }),
                             },
+                            GitOptions::Restore { item_labels } => {
+                                // TODO: MAKE AN ENUM FOR THE STAGE_FILES() FUNCTION
+                                //       TO EITHER ADD OR REMOVE FROM THE INDEX?
+                            }
                             GitOptions::Status => {
                                 if let Some(branch_name) = get_repo_branch(&repo) {
                                     println!(
