@@ -5,7 +5,9 @@ use std::path::Path;
 use ansi_term::Colour;
 use git2::{Error, Repository};
 
-use super::utils::{get_repo_branch, indiscriminate_search, SearchMode};
+use crate::utils::search::{indiscriminate_search, SearchMode};
+
+use super::utils::get_repo_branch;
 
 /// Stage file(s) by adding them to the Git index (the staging area between the
 /// working directory and the repository). Then return the tree containing staged

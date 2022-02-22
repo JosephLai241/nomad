@@ -4,8 +4,11 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-/// Store directory items with an associated index number.
+/// Store all directory items.
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Contents {
-    pub items: HashMap<String, String>,
+    /// Contains labeled directory paths.
+    pub labeled: HashMap<String, String>,
+    /// Contains numbered directory items.
+    pub numbered: HashMap<String, String>,
 }

@@ -14,10 +14,8 @@ use crate::errors::NomadError;
 
 /// Directory name within the system's temporary directory to store `nomad` metadata.
 static DIRECTORY: &str = "nomad";
-/// The JSON file that stores labeled directories.
-static LABELED_FILE: &str = "labels.json";
-/// The JSON file that stores numbered directory contents.
-static NUMBERED_FILE: &str = "items.json";
+/// The JSON file that stores directory items (directories and contents).
+static ITEMS_JSON: &str = "items.json";
 
 /// Get the path to the temporary directory to store `nomad` metadata.
 pub fn get_temp_dir_path() -> PathBuf {
@@ -33,22 +31,10 @@ pub fn create_temp_dir() -> Result<(), NomadError> {
     Ok(())
 }
 
-/// Contains options for JSON file access.
-#[derive(Copy, Clone)]
-pub enum JSONTarget {
-    /// Get the JSON file that contains numbered directory contents.
-    Contents,
-    /// Get the JSON file that contains labeled directories.
-    Directories,
-}
-
 /// Return a JSON `File` object in write/overwrite or read-only mode.
-pub fn get_json_file(json_target: JSONTarget, read_only: bool) -> Result<File, NomadError> {
+pub fn get_json_file(read_only: bool) -> Result<File, NomadError> {
     let mut items_json = get_temp_dir_path();
-    items_json.push(match json_target {
-        JSONTarget::Contents => NUMBERED_FILE,
-        JSONTarget::Directories => LABELED_FILE,
-    });
+    items_json.push(ITEMS_JSON);
 
     let file = if read_only {
         File::open(items_json)?

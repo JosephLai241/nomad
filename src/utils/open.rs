@@ -1,6 +1,6 @@
 //! Open a file using the client's system's `$EDITOR`.
 
-use super::temp::{get_json_file, JSONTarget};
+use super::temp::get_json_file;
 use crate::{errors::NomadError, models::Contents};
 
 use anyhow::{anyhow, Result};
@@ -38,24 +38,17 @@ fn get_text_editors() -> Vec<String> {
 }
 
 /// Checks the JSON file for a filepath that corresponds with the entered file number.
-pub fn get_file(target: String, json_target: JSONTarget) -> Result<String, NomadError> {
-    if let Some(file) = search_for_file(target.clone(), json_target)? {
+pub fn get_file(target: String) -> Result<String, NomadError> {
+    if let Some(file) = search_for_file(target.clone())? {
         Ok(file)
     } else {
-        match json_target {
-            JSONTarget::Contents => Err(NomadError::Error(anyhow!(
-                "File #{target} is not in the tree!\nRun nomad in numbered mode and try again."
-            ))),
-            JSONTarget::Directories => Err(NomadError::Error(anyhow!(
-                "Directory {target} is not in the tree!\nRun nomad in labeled directories mode and try again."
-            )))
-        }
+        Err(NomadError::Error(anyhow!("An item with the label \"{target}\" is not in the tree!\nRun nomad in a labeled mode and try again.")))
     }
 }
 
 /// Get the deserialized JSON file.
-pub fn get_deserialized_json(json_target: JSONTarget) -> Result<Contents, NomadError> {
-    let mut file = get_json_file(json_target, true)?;
+pub fn get_deserialized_json() -> Result<Contents, NomadError> {
+    let mut file = get_json_file(true)?;
     let mut data = String::new();
     file.read_to_string(&mut data)?;
 
@@ -64,16 +57,16 @@ pub fn get_deserialized_json(json_target: JSONTarget) -> Result<Contents, NomadE
 
 /// Search for the target file by parsing the JSON file and retrieving the value
 /// associated with the target index that was passed in.
-fn search_for_file(target: String, json_target: JSONTarget) -> Result<Option<String>, NomadError> {
-    let mut file = get_json_file(json_target, true)?;
+fn search_for_file(target: String) -> Result<Option<String>, NomadError> {
+    let mut file = get_json_file(true)?;
     let mut data = String::new();
     file.read_to_string(&mut data)?;
 
     let json: Contents = from_str(&data)?;
-    if !json.items.contains_key(&target) {
+    if !json.numbered.contains_key(&target) {
         Ok(None)
     } else {
-        json.items
+        json.labeled
             .get(&target)
             .map_or(Ok(None), |file_path| Ok(Some(file_path.into())))
     }
