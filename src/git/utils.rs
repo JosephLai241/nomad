@@ -89,7 +89,7 @@ pub struct ModifiedItem {
     pub path: String,
 }
 
-/// Get the depth of each staged item and transform the HashMap into a Vec of tuples.
+/// Get the depth of each staged item and transform the HashMap into a Vec of `ModifiedItem`s.
 pub fn add_marker_depths(sliced_markers: HashMap<String, String>) -> Vec<ModifiedItem> {
     let mut markers = Vec::new();
 
@@ -141,4 +141,35 @@ pub fn strip_prefixes(
             (stripped_key.to_owned(), value.to_owned())
         })
         .collect()
+}
+
+/// Add color/style to the filename depending on its Git status.
+pub fn paint_git_item(filename: &str, marker: &str) -> String {
+    let staged_deleted = Colour::Red.bold().paint("SD").to_string();
+    let staged_modified = Colour::Yellow.bold().paint("SM").to_string();
+    let staged_new = Colour::Green.bold().paint("SA").to_string();
+    let staged_renamed = Colour::Fixed(172).bold().paint("SR").to_string();
+    let conflicted = Colour::Red.bold().paint("CONFLICT").to_string();
+
+    match marker.to_string() {
+        _ if marker == staged_deleted => Colour::Red
+            .bold()
+            .strikethrough()
+            .paint(format!("{filename}"))
+            .to_string(),
+        _ if marker == staged_modified => Colour::Yellow
+            .bold()
+            .paint(format!("{filename}"))
+            .to_string(),
+        _ if marker == staged_new => Colour::Green
+            .bold()
+            .paint(format!("{filename}"))
+            .to_string(),
+        _ if marker == staged_renamed => Colour::Fixed(172)
+            .bold()
+            .paint(format!("{filename}"))
+            .to_string(),
+        _ if marker == conflicted => Colour::Red.bold().paint(format!("{filename}")).to_string(),
+        _ => filename.to_string(),
+    }
 }
