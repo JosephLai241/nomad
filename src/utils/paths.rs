@@ -36,7 +36,7 @@ pub fn canonicalize_path(target: &str) -> Result<String, NomadError> {
         )
 }
 
-/// Get the filename for a `DirEntry`.
+/// Get the filename for a `Path`.
 pub fn get_filename(item: &Path) -> String {
     item.file_name()
         .unwrap_or(OsStr::new("?"))
