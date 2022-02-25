@@ -1,9 +1,11 @@
 //! Apply colors to a directory's contents.
 
 use ansi_term::Colour;
-use ignore::DirEntry;
 
-use std::{fs::read_link, path::PathBuf};
+use std::{
+    fs::read_link,
+    path::{Path, PathBuf},
+};
 
 use crate::errors::NomadError;
 
@@ -15,18 +17,18 @@ pub fn paint_error(error: NomadError) {
 }
 
 /// Paint a directory.
-pub fn paint_directory(item: &DirEntry) -> String {
+pub fn paint_directory(item: &Path) -> String {
     Colour::Blue
         .bold()
         .paint(format!("{}", get_filename(item)))
         .to_string()
 }
 
-/// Paint a symlinked directory.
-pub fn paint_symlink_directory(item: &DirEntry) -> String {
+/// Paint a symlinked item.
+pub fn paint_symlink(item: &Path) -> String {
     let filename = get_filename(item);
 
-    let points_to = read_link(item.path()).map_or("?".to_string(), |pathbuf_path| {
+    let points_to = read_link(item).map_or("?".to_string(), |pathbuf_path| {
         pathbuf_path
             .canonicalize()
             .unwrap_or(PathBuf::from("?"))

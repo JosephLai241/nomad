@@ -6,6 +6,8 @@ use ignore::DirEntry;
 use unix_mode::to_string;
 use users::{get_group_by_gid, get_user_by_uid};
 
+use std::path::Path;
+
 #[cfg(target_family = "unix")]
 use std::os::unix::{fs::PermissionsExt, prelude::MetadataExt};
 #[cfg(target_family = "windows")]
@@ -76,7 +78,8 @@ fn colorize_permission_bits(permissions: String) -> String {
 ///
 /// This is only compiled when on UNIX systems.
 #[cfg(target_family = "unix")]
-pub fn get_metadata(item: &DirEntry, plain: bool) -> String {
+//pub fn get_metadata(item: &DirEntry, plain: bool) -> String {
+pub fn get_metadata(item: &Path, plain: bool) -> String {
     let metadata = item
         .metadata()
         .expect("Could not retrieve metadata for a directory item!");

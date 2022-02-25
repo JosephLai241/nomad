@@ -3,7 +3,11 @@
 use anyhow::{Context, Result};
 use ignore::DirEntry;
 
-use std::{env, ffi::OsStr, path::PathBuf};
+use std::{
+    env,
+    ffi::OsStr,
+    path::{Path, PathBuf},
+};
 
 use crate::errors::NomadError;
 
@@ -33,9 +37,8 @@ pub fn canonicalize_path(target: &str) -> Result<String, NomadError> {
 }
 
 /// Get the filename for a `DirEntry`.
-pub fn get_filename(item: &DirEntry) -> String {
-    item.path()
-        .file_name()
+pub fn get_filename(item: &Path) -> String {
+    item.file_name()
         .unwrap_or(OsStr::new("?"))
         .to_str()
         .unwrap_or("?")
