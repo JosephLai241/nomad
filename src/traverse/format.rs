@@ -1,14 +1,15 @@
 //! Formatting items in the tree.
 
-use std::path::Path;
-
-use ansi_term::Colour;
-
-use crate::utils::{
-    meta::get_metadata,
-    paint::{paint_directory, paint_symlink},
-    paths::get_filename,
+use crate::{
+    git::utils::paint_git_item,
+    utils::{
+        meta::get_metadata,
+        paint::{paint_directory, paint_symlink},
+        paths::get_filename,
+    },
 };
+
+use std::path::Path;
 
 /// Format how directories are displayed in the tree.
 pub fn format_directory(
@@ -61,35 +62,7 @@ pub fn format_content(
     let metadata = get_metadata(item, plain);
 
     let mut item_string = if let (Some(marker), false, false) = (git_marker, mute_git, plain) {
-        let staged_deleted = Colour::Red.bold().paint("SD").to_string();
-        let staged_modified = Colour::Yellow.bold().paint("SM").to_string();
-        let staged_new = Colour::Green.bold().paint("SA").to_string();
-        let staged_renamed = Colour::Fixed(172).bold().paint("SR").to_string();
-        let conflicted = Colour::Red.bold().paint("CONFLICT").to_string();
-
-        let formatted_filename = match marker {
-            _ if marker == staged_deleted => Colour::Red
-                .bold()
-                .strikethrough()
-                .paint(format!("{filename}"))
-                .to_string(),
-            _ if marker == staged_modified => Colour::Yellow
-                .bold()
-                .paint(format!("{filename}"))
-                .to_string(),
-            _ if marker == staged_new => Colour::Green
-                .bold()
-                .paint(format!("{filename}"))
-                .to_string(),
-            _ if marker == staged_renamed => Colour::Fixed(172)
-                .bold()
-                .paint(format!("{filename}"))
-                .to_string(),
-            _ if marker == conflicted => {
-                Colour::Red.bold().paint(format!("{filename}")).to_string()
-            }
-            _ => filename,
-        };
+        let formatted_filename = paint_git_item(&filename, &marker);
 
         if mute_icons {
             format!("{marker} {formatted_filename}")
