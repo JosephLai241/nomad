@@ -37,15 +37,6 @@ fn get_text_editors() -> Vec<String> {
     )
 }
 
-/// Checks the JSON file for a filepath that corresponds with the entered file number.
-pub fn get_file(target: String) -> Result<String, NomadError> {
-    if let Some(file) = search_for_file(target.clone())? {
-        Ok(file)
-    } else {
-        Err(NomadError::Error(anyhow!("An item with the label \"{target}\" is not in the tree!\nRun nomad in a labeled mode and try again.")))
-    }
-}
-
 /// Get the deserialized JSON file.
 pub fn get_deserialized_json() -> Result<Contents, NomadError> {
     let mut file = get_json_file(true)?;
@@ -53,23 +44,6 @@ pub fn get_deserialized_json() -> Result<Contents, NomadError> {
     file.read_to_string(&mut data)?;
 
     Ok(from_str(&data)?)
-}
-
-/// Search for the target file by parsing the JSON file and retrieving the value
-/// associated with the target index that was passed in.
-fn search_for_file(target: String) -> Result<Option<String>, NomadError> {
-    let mut file = get_json_file(true)?;
-    let mut data = String::new();
-    file.read_to_string(&mut data)?;
-
-    let json: Contents = from_str(&data)?;
-    if !json.numbered.contains_key(&target) {
-        Ok(None)
-    } else {
-        json.labeled
-            .get(&target)
-            .map_or(Ok(None), |file_path| Ok(Some(file_path.into())))
-    }
 }
 
 /// Open the target file.
