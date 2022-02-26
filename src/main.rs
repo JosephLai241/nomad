@@ -17,10 +17,7 @@ use git::{
     utils::{get_repo, get_repo_branch},
 };
 use releases::{build_release_list, check_for_update, update_self};
-use traverse::{
-    modes::TraversalMode,
-    utils::{build_types, build_walker, TypeOption},
-};
+use traverse::utils::{build_types, build_walker, TypeOption};
 use utils::{
     bat::run_bat,
     icons::{get_icons_by_extension, get_icons_by_name},
@@ -121,7 +118,6 @@ fn main() -> Result<(), NomadError> {
                                             match traverse::walk_directory(
                                                 &args,
                                                 &target_directory,
-                                                TraversalMode::Filetype,
                                                 &mut walker,
                                             ) {
                                                 Ok((tree, config)) => {
@@ -152,7 +148,6 @@ fn main() -> Result<(), NomadError> {
                                             match traverse::walk_directory(
                                                 &args,
                                                 &target_directory,
-                                                TraversalMode::Filetype,
                                                 &mut walker,
                                             ) {
                                                 Ok((tree, config)) => {
@@ -240,23 +235,15 @@ fn main() -> Result<(), NomadError> {
                             GitOptions::Status => {
                                 if let Some(branch_name) = get_repo_branch(&repo) {
                                     println!(
-                                        "\nOn branch: {}\n",
+                                        "\nOn branch: {}",
                                         Colour::Green.bold().paint(format!("{branch_name}"))
                                     );
                                 }
 
-                                match build_walker(&args, &target_directory, None) {
-                                    Ok(mut walker) => {
-                                        if let Err(error) = display_status_tree(
-                                            &args,
-                                            &repo,
-                                            &target_directory,
-                                            &mut walker,
-                                        ) {
-                                            paint_error(error);
-                                        }
-                                    }
-                                    Err(error) => paint_error(error),
+                                if let Err(error) =
+                                    display_status_tree(&args, &repo, &target_directory)
+                                {
+                                    paint_error(error);
                                 }
                             }
                         }
@@ -308,18 +295,7 @@ fn main() -> Result<(), NomadError> {
             // Run `nomad` in normal mode.
             match build_walker(&args, &target_directory, None) {
                 Ok(mut walker) => {
-                    let traversal_mode = if args.pattern.is_some() {
-                        TraversalMode::Regex
-                    } else {
-                        TraversalMode::Normal
-                    };
-
-                    match traverse::walk_directory(
-                        &args,
-                        &target_directory,
-                        traversal_mode,
-                        &mut walker,
-                    ) {
+                    match traverse::walk_directory(&args, &target_directory, &mut walker) {
                         Ok((tree, config)) => {
                             if let Some(filename) = args.export {
                                 if let Err(error) =
