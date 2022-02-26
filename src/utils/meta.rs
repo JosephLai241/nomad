@@ -8,9 +8,9 @@ use users::{get_group_by_gid, get_user_by_uid};
 use std::path::Path;
 
 #[cfg(target_family = "unix")]
-use std::os::unix::{fs::PermissionsExt, prelude::MetadataExt};
+use std::os::unix::fs::{MetadataExt, PermissionsExt};
 #[cfg(target_family = "windows")]
-use std::os::windows::{fs::PermissionsExt, prelude::MetadataExt};
+use std::os::windows::fs::MetadataExt;
 
 /// Convert a UNIX timestamp to a readable format.
 fn convert_time(timestamp: i64) -> String {
@@ -24,13 +24,13 @@ fn convert_time(timestamp: i64) -> String {
 ///
 /// Petabyte is the largest unit of data that may be converted. Otherwise, file
 /// sizes will be displayed in bytes.
-fn convert_bytes(bytes: u64) -> String {
-    let (convert_by, label) = match bytes {
-        1000..=999999 => (1000 as i64, "KB"),
-        1000000..=9999999 => (1000000 as i64, "MB"),
-        1000000000..=999999999999 => (1000000000 as i64, "GB"),
-        1000000000000..=999999999999999 => (1000000000000 as i64, "TB"),
-        1000000000000000..=999999999999999999 => (1000000000000000 as i64, "PB"),
+fn convert_bytes(bytes: i64) -> String {
+    let (convert_by, label): (i64, &str) = match bytes {
+        1000..=999999 => (1000, "KB"),
+        1000000..=9999999 => (1000000, "MB"),
+        1000000000..=999999999999 => (1000000000, "GB"),
+        1000000000000..=999999999999999 => (1000000000000, "TB"),
+        1000000000000000..=999999999999999999 => (1000000000000000, "PB"),
         _ => (1, "B"),
     };
 
@@ -120,7 +120,10 @@ pub fn get_metadata(item: &Path, plain: bool) -> String {
             Colour::Fixed(035).paint(plain_last_modified).to_string()
         };
 
-        let plain_size = format!("{}", convert_bytes(metadata.size()));
+        let plain_size = i64::try_from(metadata.size())
+            .map_or("unknown file size".to_string(), |converted_bytes| {
+                convert_bytes(converted_bytes)
+            });
         let size = if plain {
             plain_size
         } else {
@@ -152,10 +155,67 @@ pub fn get_metadata(item: &Path, plain: bool) -> String {
 }
 
 /// Get the metadata for a directory or file.
-/// This function merely returns an empty string.
 ///
 /// This is only compiled when on Windows systems.
 #[cfg(target_family = "windows")]
-pub fn get_metadata(item: &dirEntry) -> String {
-    "".to_string()
+pub fn get_metadata(item: &Path, plain: bool) -> String {
+    let metadata = item.metadata().ok();
+
+    if let Some(metadata) = metadata {
+        let plain_file_attributes = match metadata.file_attributes() {
+            1 => "FILE_ATTRIBUTE_READONLY",
+            2 => "FILE_ATTRIBUTE_HIDDEN",
+            4 => "FILE_ATTRIBUTE_SYSTEM",
+            16 => "FILE_ATTRIBUTE_DIRECTORY",
+            32 => "FILE_ATTRIBUTE_ARCHIVE",
+            64 => "FILE_ATTRIBUTE_DEVICE",
+            128 => "FILE_ATTRIBUTE_NORMAL",
+            256 => "FILE_ATTRIBUTE_TEMPORARY",
+            512 => "FILE_ATTRIBUTE_SPARSE_FILE",
+            1024 => "FILE_ATTRIBUTE_REPARSE_POINT",
+            2048 => "FILE_ATTRIBUTE_COMPRESSED",
+            4096 => "FILE_ATTRIBUTE_OFFLINE",
+            8192 => "FILE_ATTRIBUTE_NOT_CONTENT_INDEXED",
+            16384 => "FILE_ATTRIBUTE_ENCRYPTED",
+            32768 => "FILE_ATTRIBUTE_INTEGRITY_STREAM",
+            65536 => "FILE_ATTRIBUTE_VIRTUAL",
+            131072 => "FILE_ATTRIBUTE_NO_SCRUB_DATA",
+            262144 => "FILE_ATTRIBUTE_RECALL_ON_OPEN",
+            4194304 => "FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS",
+        };
+        let file_attributes = if plain {
+            plain_file_attributes.to_string()
+        } else {
+            Colour::Fixed(193)
+                .paint(format!("{}", plain_file_attributes))
+                .to_string()
+        };
+
+        let plain_last_modified = i64::try_from(metadata.last_write_time()).map_or(
+            "unknown last modified time".to_string(),
+            |converted_value| convert_time(converted_value),
+        );
+        let last_modified = if plain {
+            plain_last_modified
+        } else {
+            Colour::Fixed(035).paint(plain_last_modified).to_string()
+        };
+
+        let plain_size = i64::try_from(metadata.file_size())
+            .map_or("unknown file size".to_string(), |converted_bytes| {
+                convert_bytes(converted_bytes)
+            });
+        let size = if plain {
+            plain_size
+        } else {
+            Colour::Fixed(172).paint(plain_size).to_string()
+        };
+
+        format!("{file_attributes} {last_modified} {size}")
+    } else {
+        Colour::Red
+            .bold()
+            .paint("-- No metadata available for this item --")
+            .to_string()
+    }
 }
