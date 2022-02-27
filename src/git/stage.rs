@@ -7,8 +7,6 @@ use git2::{Error, Repository};
 
 use crate::utils::search::{indiscriminate_search, SearchMode};
 
-use super::utils::get_repo_branch;
-
 /// Stage file(s) by adding them to the Git index (the staging area between the
 /// working directory and the repository). Then return the tree containing staged
 /// items (the Git index tree).
@@ -33,17 +31,13 @@ pub fn stage_files(
                     target_file
                 };
 
+            if let Err(_) = index.add_path(relative_path) {
+                // May need to revisit this in the future to account for different errors. We'll see.
+                index.remove_path(relative_path)?;
+            }
+
             staged_files += 1;
-            index.add_path(relative_path)?;
         }
-    } else {
-        if let Some(branch_name) = get_repo_branch(repo) {
-            println!(
-                "\nOn branch: {}\n",
-                Colour::Green.bold().paint(format!("{branch_name}"))
-            );
-        }
-        // TODO: CALL THE GIT STATUS TREE HERE WITH THE BRANCH N SHIT.
     }
 
     if staged_files > 0 {
@@ -53,6 +47,11 @@ pub fn stage_files(
             "\nStaged {} {ends_with}\n",
             Colour::Green.bold().paint(format!("{staged_files}")),
             ends_with = if staged_files == 1 { "item" } else { "items" }
+        );
+    } else {
+        println!(
+            "\n{}\n",
+            Colour::Fixed(192).bold().paint("No items were staged!")
         );
     }
 
