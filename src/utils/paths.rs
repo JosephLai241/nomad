@@ -2,10 +2,7 @@
 
 use crate::errors::NomadError;
 
-use ansi_term::Colour;
 use anyhow::{Context, Result};
-use ignore::DirEntry;
-use regex::Match;
 
 use std::{
     env,
@@ -42,35 +39,6 @@ pub fn canonicalize_path(target: &str) -> Result<String, NomadError> {
 pub fn get_filename(item: &Path) -> String {
     item.file_name()
         .unwrap_or(OsStr::new("?"))
-        .to_str()
-        .unwrap_or("?")
-        .to_string()
-}
-
-/// Stylize a matched path based on the target regex pattern.
-pub fn format_regex_match(entry: &DirEntry, matched: Match) -> String {
-    let mut item_name = entry
-        .path()
-        .file_name()
-        .unwrap_or(OsStr::new("?"))
-        .to_str()
-        .unwrap_or("?")
-        .to_string();
-    let matched_section = Colour::Red
-        .bold()
-        .paint(format!(
-            "{}",
-            item_name[matched.start()..matched.end()].to_string()
-        ))
-        .to_string();
-
-    item_name.replace_range(matched.start()..matched.end(), &matched_section);
-
-    entry
-        .path()
-        .parent()
-        .unwrap_or(Path::new("?"))
-        .join(Path::new(&item_name))
         .to_str()
         .unwrap_or("?")
         .to_string()

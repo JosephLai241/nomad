@@ -7,6 +7,8 @@
 pub struct FoundItem {
     /// The Git status marker indicating the change that was made to the file.
     pub marker: Option<String>,
+    /// The start and end of the pattern match in the path.
+    pub matched: Option<(usize, usize)>,
     /// The filepath.
     pub path: String,
 }
@@ -26,6 +28,8 @@ pub struct TransformedItem {
     pub is_file: bool,
     /// The Git status marker indicating the change that was made to the file.
     pub marker: Option<String>,
+    /// The start and end of the pattern match in the path.
+    pub matched: Option<(usize, usize)>,
     /// The absolute filepath.
     pub path: String,
 }

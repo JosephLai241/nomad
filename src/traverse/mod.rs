@@ -10,10 +10,7 @@ use self::{
     traits::{ToTree, TransformFound},
 };
 use crate::{
-    cli::Args,
-    errors::NomadError,
-    git::markers::extend_marker_map,
-    utils::paths::{canonicalize_path, format_regex_match},
+    cli::Args, errors::NomadError, git::markers::extend_marker_map, utils::paths::canonicalize_path,
 };
 
 use anyhow::{private, Result};
@@ -68,7 +65,8 @@ pub fn walk_directory(
                                             .unwrap_or("?".to_string()),
                                     )
                                     .map_or(None, |marker| Some(marker.to_string())),
-                                path: format_regex_match(&entry, matched),
+                                matched: Some((matched.start(), matched.end())),
+                                path: entry.path().to_str().unwrap_or("?").to_string(),
                             })
                         } else {
                             None
@@ -81,6 +79,7 @@ pub fn walk_directory(
                                         .unwrap_or("?".to_string()),
                                 )
                                 .map_or(None, |marker| Some(marker.to_string())),
+                            matched: None,
                             path: entry.path().to_str().unwrap_or("?").to_string(),
                         })
                     }

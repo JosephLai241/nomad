@@ -9,6 +9,8 @@ use crate::{
     },
 };
 
+use ansi_term::Colour;
+
 use std::path::Path;
 
 /// Format how directories are displayed in the tree.
@@ -53,16 +55,17 @@ pub fn format_content(
     icon: String,
     item: &Path,
     include_metadata: bool,
+    matched: Option<(usize, usize)>,
     mute_git: bool,
     mute_icons: bool,
     number: Option<i32>,
     plain: bool,
 ) -> String {
-    let filename = get_filename(item);
+    let mut filename = get_filename(item);
     let metadata = get_metadata(item, plain);
 
     let mut item_string = if let (Some(marker), false, false) = (git_marker, mute_git, plain) {
-        let formatted_filename = paint_git_item(&filename, &marker);
+        let formatted_filename = paint_git_item(&filename, &marker, matched);
 
         if mute_icons {
             format!("{marker} {formatted_filename}")
@@ -73,6 +76,11 @@ pub fn format_content(
         if mute_icons || plain {
             format!("{filename}")
         } else {
+            filename = if let Some(ranges) = matched {
+                highlight_matched(filename, ranges)
+            } else {
+                filename
+            };
             format!("{icon} {filename}")
         }
     };
@@ -85,4 +93,16 @@ pub fn format_content(
     }
 
     item_string
+}
+
+/// Reformat the filename if a pattern was provided and matched.
+pub fn highlight_matched(mut filename: String, ranges: (usize, usize)) -> String {
+    let matched_section = Colour::Red
+        .bold()
+        .paint(format!("{}", filename[ranges.0..ranges.1].to_string()))
+        .to_string();
+
+    filename.replace_range(ranges.0..ranges.1, &matched_section);
+
+    filename
 }

@@ -55,6 +55,7 @@ impl TransformFound for Vec<FoundItem> {
                                 is_dir: true,
                                 is_file: false,
                                 marker: None,
+                                matched: None,
                                 path: Path::new(target_directory)
                                     .join(joined_path)
                                     .to_str()
@@ -70,6 +71,7 @@ impl TransformFound for Vec<FoundItem> {
                                 is_dir: false,
                                 is_file: true,
                                 marker: found_item.marker.clone(),
+                                matched: found_item.matched,
                                 path: Path::new(target_directory)
                                     .join(joined_path)
                                     .to_str()
@@ -118,6 +120,7 @@ impl ToTree for Vec<TransformedItem> {
             is_dir: true,
             is_file: false,
             marker: None,
+            matched: None,
             path: target_directory.to_string(),
         };
 
@@ -183,6 +186,7 @@ impl ToTree for Vec<TransformedItem> {
                     icon,
                     Path::new(&item.path),
                     args.metadata,
+                    item.matched,
                     args.no_git,
                     args.no_icons,
                     number,
