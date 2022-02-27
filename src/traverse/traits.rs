@@ -22,11 +22,15 @@ use std::{
 /// Converts a `Vec<FoundItem>` into a `Vec<TransformedItem>`.
 pub trait TransformFound {
     /// Converts a `Vec<FoundItem>` into a `Vec<TransformedItem>`.
-    fn transform(self, target_directory: &str) -> Vec<TransformedItem>;
+    fn transform(self, target_directory: &str) -> Result<Vec<TransformedItem>, NomadError>;
 }
 
 impl TransformFound for Vec<FoundItem> {
-    fn transform(self, target_directory: &str) -> Vec<TransformedItem> {
+    fn transform(self, target_directory: &str) -> Result<Vec<TransformedItem>, NomadError> {
+        if self.is_empty() {
+            return Err(NomadError::NothingFound);
+        }
+
         let mut transformed: Vec<TransformedItem> = Vec::new();
 
         let mut directories: HashSet<String> = HashSet::new();
@@ -85,7 +89,7 @@ impl TransformFound for Vec<FoundItem> {
             }
         }
 
-        transformed
+        Ok(transformed)
     }
 }
 

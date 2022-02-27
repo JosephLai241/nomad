@@ -89,7 +89,7 @@ pub fn walk_directory(
             }
         })
         .collect::<Vec<FoundItem>>()
-        .transform(target_directory)
+        .transform(target_directory)?
         .to_tree(args, target_directory)?;
 
     Ok((tree, config))

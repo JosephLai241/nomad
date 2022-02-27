@@ -92,7 +92,7 @@ fn build_status_tree(
         })
         .sorted_by_key(|found_item| found_item.path.to_string())
         .collect::<Vec<FoundItem>>()
-        .transform(target_directory)
+        .transform(target_directory)?
         .to_tree(args, target_directory)?;
 
     Ok((tree, config))
