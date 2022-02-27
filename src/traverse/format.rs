@@ -97,7 +97,7 @@ pub fn format_content(
 
 /// Reformat the filename if a pattern was provided and matched.
 pub fn highlight_matched(mut filename: String, ranges: (usize, usize)) -> String {
-    let matched_section = Colour::Red
+    let matched_section = Colour::Fixed(033) // 033 is a shade of blue.
         .bold()
         .paint(format!("{}", filename[ranges.0..ranges.1].to_string()))
         .to_string();
