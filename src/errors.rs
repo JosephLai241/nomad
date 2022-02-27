@@ -23,6 +23,10 @@ pub enum NomadError {
     #[error(transparent)]
     Error(#[from] anyhow::Error),
 
+    /// An invalid target was entered when attempting to run the Git blame subcommand.
+    #[error("`git blame` can only be called on a single file")]
+    GitBlameError,
+
     /// Something went wrong when running Git subcommands.
     #[error("{context:?}: {source:?}")]
     GitError {
@@ -38,6 +42,10 @@ pub enum NomadError {
     /// IO errors raised from the standard library (std::io).
     #[error("IO error: {0}")]
     IOError(#[from] io::Error),
+
+    /// Nothing was found.
+    #[error("No items were found!")]
+    NothingFound,
 
     /// An invalid directory path is provided.
     #[error("{0} is not a directory!")]
