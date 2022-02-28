@@ -45,7 +45,7 @@ pub fn walk_directory(
         .filter_map(|dir_entry| {
             if let Ok(entry) = dir_entry {
                 if entry.path().is_dir() {
-                    extend_marker_map(&mut git_markers, target_directory);
+                    extend_marker_map(&mut git_markers, entry.path().to_str().unwrap_or("?"));
                     None
                 } else {
                     if let Some(ref regex) = regex_expression {
