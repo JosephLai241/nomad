@@ -6,11 +6,11 @@
 
 > The next gen `tree` command.
 
-![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/JosephLai241/nomad/Rust?style=for-the-badge)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/JosephLai241/nomad?style=for-the-badge)
-![Lines of code](https://img.shields.io/tokei/lines/github/JosephLai241/nomad?style=for-the-badge)
-![License](https://img.shields.io/github/license/JosephLai241/nomad?style=for-the-badge)
+![Rust](https://img.shields.io/badge/Rust-black?logo=rust)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/JosephLai241/nomad/Rust?logo=github)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/JosephLai241/nomad)
+![Lines of code](https://img.shields.io/tokei/lines/github/JosephLai241/nomad)
+![License](https://img.shields.io/github/license/JosephLai241/nomad)
 
 # Table of Contents
 
