@@ -44,15 +44,12 @@ pub fn stage_files(
         index.write()?;
 
         println!(
-            "\nStaged {} {ends_with}\n",
+            "\nStaged {} {}\n",
             Colour::Green.bold().paint(format!("{staged_files}")),
-            ends_with = if staged_files == 1 { "item" } else { "items" }
+            if staged_files == 1 { "item" } else { "items" }
         );
     } else {
-        println!(
-            "\n{}\n",
-            Colour::Fixed(192).bold().paint("No items were staged!")
-        );
+        println!("{}\n", Colour::Red.bold().paint("No items were staged!"));
     }
 
     Ok(())
