@@ -51,8 +51,7 @@ pub fn build_types(
         };
     }
 
-    let mut index = 0;
-    for glob in globs {
+    for (index, glob) in globs.iter().enumerate() {
         let glob_label = index.to_string();
 
         type_matcher.add(&glob_label, glob)?;
@@ -65,8 +64,6 @@ pub fn build_types(
                 type_matcher.negate(&glob_label);
             }
         }
-
-        index += 1;
     }
 
     type_matcher.build().map_or_else(
