@@ -1,5 +1,6 @@
 //! Exposing Git functionality.
 
+pub mod blame;
 pub mod commit;
 pub mod diff;
 pub mod markers;
