@@ -21,17 +21,30 @@ pub fn bat_blame(
     repo: &Repository,
     target_directory: &str,
 ) -> Result<(), NomadError> {
-    let blame_meta = get_blame(&filename, ranges, repo, target_directory)?;
+    let blame_meta = get_blame(&filename, &ranges, repo, target_directory)?;
     let joined_blame = blame_meta.blame.join("\n");
 
-    if let Err(error) = PrettyPrinter::new()
+    let mut printer = PrettyPrinter::new();
+    printer
         .grid(true)
         .header(true)
         .input(Input::from_bytes(joined_blame.as_bytes()).name(format!(
-            "| {} | {} {author_label} | {} {email_label} |",
+            "| {} | {} {author_label} | {} {email_label} |{}",
             blame_meta.relative_path,
             Colour::Green.paint(blame_meta.authors.to_string()),
             Colour::Yellow.paint(blame_meta.emails.to_string()),
+            if !ranges.is_empty() {
+                format!(
+                    " Lines {} to {} |",
+                    Colour::Fixed(193).paint(format!("{}", ranges.get(0).unwrap_or(&0))),
+                    Colour::Fixed(193).paint(format!(
+                        "{}",
+                        ranges.get(1).unwrap_or(&blame_meta.blame.len())
+                    ))
+                )
+            } else {
+                "".to_string()
+            },
             author_label = if blame_meta.authors > 1 {
                 "authors"
             } else {
@@ -43,13 +56,16 @@ pub fn bat_blame(
                 "email"
             },
         )))
-        .line_numbers(true)
         .paging_mode(PagingMode::QuitIfOneScreen)
         .rule(true)
         .true_color(true)
-        .wrapping_mode(WrappingMode::Character)
-        .print()
-    {
+        .wrapping_mode(WrappingMode::Character);
+
+    if ranges.is_empty() {
+        printer.line_numbers(true);
+    }
+
+    if let Err(error) = printer.print() {
         return Err(NomadError::BatError(error));
     }
 
@@ -72,7 +88,7 @@ struct BlameMeta {
 /// formatted lines in the blame.
 fn get_blame(
     filename: &str,
-    ranges: Vec<usize>,
+    ranges: &Vec<usize>,
     repo: &Repository,
     target_directory: &str,
 ) -> Result<BlameMeta, NomadError> {
@@ -128,7 +144,9 @@ fn get_blame(
 
             let commit_id = repo.find_commit(hunk.final_commit_id())?.id().to_string();
 
-            let blame = format!(
+            // TODO: ADD STRING FORMATTING SO THAT ALL LINES HAVE THE SAME AMOUNT
+            // OF SPACING FOLLOWING "|"
+            formatted_blame.push(format!(
                 "{} {} {} | {}",
                 Colour::Fixed(028).paint(&commit_id[..7]),
                 Colour::Fixed(193).paint(&author),
@@ -142,9 +160,7 @@ fn get_blame(
                     }
                     None => line,
                 }
-            );
-
-            formatted_blame.push(blame);
+            ));
         }
     }
 
