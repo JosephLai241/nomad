@@ -68,7 +68,7 @@ pub enum NomadError {
     },
 
     /// Something went wrong when compiling a regex expression.
-    #[error("Regex error: {0}")]
+    #[error("{0}")]
     RegexError(#[from] regex::Error),
 
     /// Something went wrong when self-updating.
