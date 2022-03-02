@@ -1,6 +1,12 @@
 //! Defining command-line interface flags.
 
+pub mod filetype;
+pub mod git;
+pub mod releases;
+
 use structopt::StructOpt;
+
+use self::{filetype::FileTypeOptions, git::GitOptions, releases::ReleaseOptions};
 
 /// This struct contains all flags that are used in this program.
 #[derive(Debug, PartialEq, StructOpt)]
@@ -108,90 +114,6 @@ pub enum SubCommands {
     Releases(ReleaseOptions),
     /// Upgrade `nomad`.
     Upgrade,
-}
-
-/// This enum provides some commonly used Git options.
-#[derive(Debug, PartialEq, StructOpt)]
-pub enum GitOptions {
-    /// The `git add` command.
-    /// This may be used after running nomad in numbered mode or with labeled directories.
-    /// Enter a single or a list of numbers/labels delimited by a space.
-    Add { item_labels: Vec<String> },
-    /// The `git blame` command.
-    /// This may be used after running monad in numbered mode or with labeled directories.
-    /// You can only call `git blame` on a single file.
-    Blame(BlameOptions),
-    /// The `git commit` command.
-    /// Optionally include a message after the command, ie. `git commit "YOUR MESSAGE HERE"`
-    /// The default commit message is "Updating" if no message is included.
-    Commit { message: Option<String> },
-    /// The `git diff` command.
-    /// This may be used after running nomad in numbered mode or with labeled directories.
-    Diff { item_labels: Vec<String> },
-    /// The `git restore` command.
-    Restore { item_labels: Vec<String> },
-    /// The `git status` command. Only display changed/unstaged files in the tree.
-    Status,
-}
-
-/// This struct provides options for the `git blame` command.
-#[derive(Debug, PartialEq, StructOpt)]
-pub struct BlameOptions {
-    #[structopt(help = "Display a blame for this file")]
-    pub file_number: String,
-    #[structopt(
-        short,
-        long,
-        help = "Restrict a range of lines to display in the blame"
-    )]
-    pub lines: Vec<usize>,
-}
-
-/// This enum provides pattern matching options.
-#[derive(Debug, PartialEq, StructOpt)]
-pub enum FileTypeOptions {
-    /// Only display files matching the specified filetypes and/or globs.
-    Match {
-        #[structopt(
-            short,
-            long,
-            help = "Enter a single filetype or a list of filetypes delimited by a space. ie. `nd filetype match -f rust py go vim`"
-        )]
-        filetypes: Vec<String>,
-        #[structopt(
-            short,
-            long,
-            help = "Enter a single glob or a list of globs delimited by a space. ie. `nd filetype match -g *.something *.anotherthing`. You may have to put quotes around globs that include '*'"
-        )]
-        globs: Vec<String>,
-    },
-    /// Do not display files that match the specified filetypes and/or globs.
-    Negate {
-        #[structopt(
-            short,
-            long,
-            help = "Enter a single filetype or a list of filetypes delimited by a space. ie. `nd filetype match -f rust py go vim`"
-        )]
-        filetypes: Vec<String>,
-        #[structopt(
-            short,
-            long,
-            help = "Enter a single glob or a list of globs delimited by a space. ie. `nd filetype match -g *.something *.anotherthing`. You may have to put quotes around globs that include '*'"
-        )]
-        globs: Vec<String>,
-    },
-    /// List the current set of filetype definitions. Optionally search for a filetype.
-    /// ie. `nd filetype options rust`.
-    Options { filetype: Option<String> },
-}
-
-/// This enum provides interactions with releases.
-#[derive(Debug, PartialEq, StructOpt)]
-pub enum ReleaseOptions {
-    /// List all releases.
-    All,
-    /// Display information for a release version. Optionally search for a release version.
-    Info { release_version: Option<String> },
 }
 
 /// Return the `Args` struct.
