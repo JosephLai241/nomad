@@ -16,6 +16,7 @@ use git::{
     branch::display_branches,
     commit::commit_changes,
     diff::{bat_diffs, get_repo_diffs},
+    restore::restore_files,
     stage::stage_files,
     status::display_status_tree,
     utils::{get_repo, get_repo_branch},
@@ -39,6 +40,8 @@ use ignore::types::TypesBuilder;
 use lazy_static::lazy_static;
 
 use std::collections::HashMap;
+
+use crate::git::status::display_commits_ahead;
 
 lazy_static! {
     /// The alphabet in `char`s.
@@ -308,7 +311,17 @@ fn main() -> Result<(), NomadError> {
                             GitOptions::Restore(restore_options) => {
                                 // TODO: MAKE AN ENUM FOR THE STAGE_FILES() FUNCTION
                                 //       TO EITHER ADD OR REMOVE FROM THE INDEX?
-                                println!("{:?}", restore_options);
+                                if let Err(error) = restore_files(
+                                    &restore_options.item_labels,
+                                    git::restore::RestoreMode::Staged,
+                                    &repo,
+                                    &target_directory,
+                                ) {
+                                    paint_error(NomadError::GitError {
+                                        context: "Unable to restore files".into(),
+                                        source: error,
+                                    });
+                                }
                             }
                             GitOptions::Status => {
                                 if let Some(branch_name) = get_repo_branch(&repo) {
@@ -316,6 +329,10 @@ fn main() -> Result<(), NomadError> {
                                         "\nOn branch: {}",
                                         Colour::Green.bold().paint(format!("{branch_name}"))
                                     );
+
+                                    if let Err(error) = display_commits_ahead(&branch_name, &repo) {
+                                        paint_error(error);
+                                    }
                                 }
 
                                 if let Err(error) =
