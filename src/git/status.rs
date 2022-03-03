@@ -61,7 +61,7 @@ fn build_status_tree(
 
     let (tree, config) = marker_map
         .iter()
-        .map(|(relative_path, marker)| {
+        .filter_map(|(relative_path, marker)| {
             if let Some(ref regex) = regex_expression {
                 if let Some(matched) = regex.find(
                     Path::new(&relative_path)
@@ -70,24 +70,20 @@ fn build_status_tree(
                         .to_str()
                         .unwrap_or("?"),
                 ) {
-                    FoundItem {
+                    Some(FoundItem {
                         marker: Some(marker.to_string()),
                         matched: Some((matched.start(), matched.end())),
                         path: relative_path.clone(),
-                    }
+                    })
                 } else {
-                    FoundItem {
-                        marker: Some(marker.to_string()),
-                        matched: None,
-                        path: relative_path.to_string(),
-                    }
+                    None
                 }
             } else {
-                FoundItem {
+                Some(FoundItem {
                     marker: Some(marker.to_string()),
                     matched: None,
                     path: relative_path.to_string(),
-                }
+                })
             }
         })
         .sorted_by_key(|found_item| found_item.path.to_string())
