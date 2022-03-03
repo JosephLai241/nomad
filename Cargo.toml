@@ -11,9 +11,9 @@ readme = "README.md"
 repository = "https://github.com/JosephLai241/nomad"
 version = "1.0.0"
 
-#[[bin]]
-#name = "nd"
-#path = "target/release"
+[[bin]]
+name = "nd"
+path = "src/main.rs"
 
 [dependencies]
 ansi_term = "0.12.1"
