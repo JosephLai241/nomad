@@ -6,11 +6,11 @@ use structopt::StructOpt;
 #[derive(Debug, PartialEq, StructOpt)]
 pub enum GitOptions {
     /// The `git add` command.
-    /// This may be used after running nomad in numbered mode or with labeled directories.
+    /// This may be used after running nomad in a labeled mode.
     /// Enter a single or a list of numbers/labels delimited by a space.
     Add { item_labels: Vec<String> },
     /// The `git blame` command.
-    /// This may be used after running monad in numbered mode or with labeled directories.
+    /// This may be used after running monad in a labeled mode.
     /// You can only call `git blame` on a single file.
     Blame(BlameOptions),
     /// The `git branch` command.
@@ -20,7 +20,7 @@ pub enum GitOptions {
     /// The default commit message is "Updating" if no message is included.
     Commit { message: Option<String> },
     /// The `git diff` command.
-    /// This may be used after running nomad in numbered mode or with labeled directories.
+    /// This may be used after running nomad in a labeled mode.
     Diff { item_labels: Vec<String> },
     /// The `git restore` command.
     Restore(RestoreOptions),

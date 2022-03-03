@@ -101,10 +101,10 @@ pub struct Args {
 #[derive(Debug, PartialEq, StructOpt)]
 pub enum SubCommands {
     ///`bat` (the Rust alternative to the `cat` command) a file.
-    /// This may be used after running nomad in numbered mode.
+    /// This may be used after running nomad in a labeled mode.
     Bat { item_labels: Vec<String> },
     /// Edit a file with your default $EDITOR or with Neovim, Vim, Vi, or Nano.
-    /// This may be used after running nomad in numbered mode.
+    /// This may be used after running nomad in a labeled mode.
     Edit { item_labels: Vec<String> },
     /// Filter directory items by filetype.
     Filetype(FileTypeOptions),
