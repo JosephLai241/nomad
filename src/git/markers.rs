@@ -61,7 +61,7 @@ pub fn get_status_markers(
                 formatted_items.insert(item_name, Colour::Yellow.bold().paint("M").to_string());
             }
             s if s.contains(Status::WT_NEW) => {
-                formatted_items.insert(item_name, Colour::Green.bold().paint("U").to_string());
+                formatted_items.insert(item_name, Colour::Fixed(243).bold().paint("U").to_string());
             }
             s if s.contains(Status::WT_RENAMED) => {
                 formatted_items.insert(item_name, Colour::Fixed(172).bold().paint("R").to_string());
