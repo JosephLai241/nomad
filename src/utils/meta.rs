@@ -147,10 +147,16 @@ pub fn get_metadata(item: &Path, plain: bool) -> String {
 
         format!("{mode} {user} {group} {size} {last_modified}")
     } else {
-        Colour::Red
-            .bold()
-            .paint("-- No metadata available for this item --")
-            .to_string()
+        let missing_message = "-- No metadata available for this item --";
+
+        if plain {
+            missing_message.to_string()
+        } else {
+            Colour::Red
+                .bold()
+                .paint("-- No metadata available for this item --")
+                .to_string()
+        }
     }
 }
 
