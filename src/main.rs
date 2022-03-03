@@ -8,9 +8,12 @@ mod releases;
 mod traverse;
 mod utils;
 
-use cli::{FileTypeOptions, GitOptions, ReleaseOptions, SubCommands};
+use cli::{
+    filetype::FileTypeOptions, get_args, git::GitOptions, releases::ReleaseOptions, SubCommands,
+};
 use git::{
     blame::bat_blame,
+    branch::display_branches,
     commit::commit_changes,
     diff::{bat_diffs, get_repo_diffs},
     stage::stage_files,
@@ -74,7 +77,7 @@ lazy_static! {
 fn main() -> Result<(), NomadError> {
     //check_for_update()?;
 
-    let args = cli::get_args();
+    let args = get_args();
 
     let target_directory = if let Some(ref directory) = args.directory {
         canonicalize_path(directory).map_or_else(
@@ -261,6 +264,11 @@ fn main() -> Result<(), NomadError> {
                                     Err(_) => paint_error(NomadError::GitBlameError),
                                 }
                             }
+                            GitOptions::Branch => {
+                                if let Err(error) = display_branches(&args, &repo) {
+                                    paint_error(error);
+                                }
+                            }
                             GitOptions::Commit { message } => {
                                 if let Err(error) = commit_changes(message, &repo) {
                                     paint_error(error);
@@ -297,9 +305,10 @@ fn main() -> Result<(), NomadError> {
                                     source: error,
                                 }),
                             },
-                            GitOptions::Restore { item_labels } => {
+                            GitOptions::Restore(restore_options) => {
                                 // TODO: MAKE AN ENUM FOR THE STAGE_FILES() FUNCTION
                                 //       TO EITHER ADD OR REMOVE FROM THE INDEX?
+                                println!("{:?}", restore_options);
                             }
                             GitOptions::Status => {
                                 if let Some(branch_name) = get_repo_branch(&repo) {
