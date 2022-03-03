@@ -10,9 +10,9 @@ use crate::{
     },
 };
 
-use ansi_term::Colour;
-use anyhow::private;
-use git2::Repository;
+use ansi_term::{Colour, Style};
+use anyhow::{private, Result};
+use git2::{ObjectType, Repository};
 use itertools::Itertools;
 use ptree::{item::StringItem, PrintConfig};
 use regex::Regex;
@@ -30,8 +30,10 @@ pub fn display_status_tree(
         |marker_map| {
             if marker_map.is_empty() {
                 println!(
-                    "{}\n",
-                    Colour::Fixed(172).bold().paint(format!("No Git changes."))
+                    "\n{}\n",
+                    Colour::Green
+                        .bold()
+                        .paint(format!("Nothing to commit. Working tree clean."))
                 );
 
                 Ok(())
@@ -42,6 +44,34 @@ pub fn display_status_tree(
             }
         },
     )
+}
+
+/// Get the number of commits ahead of `origin`.
+pub fn display_commits_ahead(branch_name: &str, repo: &Repository) -> Result<(), NomadError> {
+    let head_oid = repo.head()?.peel(ObjectType::Commit)?.id();
+
+    let origin_branch = format!("origin/{branch_name}");
+    let last_commit_oid = repo.revparse_single(&origin_branch)?.id();
+
+    let (ahead, _behind) = repo.graph_ahead_behind(head_oid, last_commit_oid)?;
+
+    if ahead > 0 {
+        println!(
+            "{} of {} by {} commit{plurality}.\n  └── Run `{}` to publish your local changes.",
+            Style::new().underline().paint("Ahead"),
+            Colour::Blue.bold().paint(origin_branch),
+            Colour::Green.bold().paint(format!("{}", ahead)),
+            Style::new().bold().paint("nd git push"),
+            plurality = if ahead > 1 { "s" } else { "" }
+        );
+    } else {
+        println!(
+            "Up to date with {}.",
+            Colour::Blue.bold().paint(origin_branch)
+        );
+    }
+
+    Ok(())
 }
 
 /// Traverse the repo and build the status tree.
