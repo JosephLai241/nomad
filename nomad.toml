@@ -1,0 +1,60 @@
+# Configure nomad
+
+# ================================= INFO START =================================
+
+# Refer to the repository's README to learn more about how to use nomad:
+#
+#     https://github.com/JosephLai241/nomad
+
+# If you are unfamiliar with TOML, refer to the official site to learn more about
+# its syntax:
+#
+#     https://toml.io/en/
+
+# These are the default colors:
+#    * "black"
+#    * "blue"
+#    * "cyan"
+#    * "green"
+#    * "purple"
+#    * "red"
+#    * "white"
+#    * "yellow"
+
+# If you do not want to use the default colors, you can pick any of the
+# 3-digit Xterm 256 colors located here:
+#
+#    https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
+#
+# For example, if you want to set something to the color 172 (a shade of orange),
+# wrap the value in quotes, ie. "172".
+
+# ================================== INFO END ==================================
+
+# The default values are displayed below.
+
+# Uncomment the table and its items below to set the text displayed for each Git
+# item's status.
+
+#[git.markers]
+#conflicted_marker = "CONFLICT"
+#deleted_marker = "D"
+#modified_marker = "M"
+#renamed_marker = "R"
+#untracked_marker = "U"
+
+# Uncomment the table and its items below to set the colors of the Git markers.
+
+#[git.colors]
+#conflicted_color = "red"
+#deleted_color = "red"
+#modified_color = "yellow"
+#renamed_color = "172"          # A shade of orange
+#untracked_color = "243"        # A shade of gray
+
+# Uncomment the table and its items below to set the color of the text that is
+# matched by the pattern flag (`-p/--pattern`).
+
+#[regex]
+#match_color = "033"            # A shade of blue
+
