@@ -10,7 +10,7 @@ pub enum GitOptions {
     /// Enter a single or a list of numbers/labels delimited by a space.
     Add { item_labels: Vec<String> },
     /// The `git blame` command.
-    /// This may be used after running monad in a labeled mode.
+    /// This may be used after running nomad in a labeled mode.
     /// You can only call `git blame` on a single file.
     Blame(BlameOptions),
     /// The `git branch` command.
@@ -22,7 +22,9 @@ pub enum GitOptions {
     /// The `git diff` command.
     /// This may be used after running nomad in a labeled mode.
     Diff { item_labels: Vec<String> },
-    /// The `git restore` command.
+    /// The `git push` command.
+    Push,
+    /// The `git restore` command. This may be used after running nomad in a labeled mode.
     Restore(RestoreOptions),
     /// The `git status` command. Only display changed/unstaged files in the tree.
     Status,
