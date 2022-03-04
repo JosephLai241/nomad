@@ -5,6 +5,7 @@ mod errors;
 mod git;
 mod models;
 mod releases;
+mod switches;
 mod traverse;
 mod utils;
 
@@ -16,12 +17,14 @@ use git::{
     branch::display_branches,
     commit::commit_changes,
     diff::{bat_diffs, get_repo_diffs},
+    push::push_commits,
     restore::restore_files,
     stage::stage_files,
     status::display_status_tree,
     utils::{get_repo, get_repo_branch},
 };
 use releases::{build_release_list, check_for_update, update_self};
+use switches::{filetype::run_filetypes, git::run_git, release::run_releases};
 use traverse::utils::{build_types, build_walker, TypeOption};
 use utils::{
     bat::run_bat,
@@ -134,252 +137,14 @@ fn main() -> Result<(), NomadError> {
                     }
                 }
                 SubCommands::Filetype(filetype_option) => {
-                    let mut type_matcher = TypesBuilder::new();
-                    type_matcher.add_defaults();
-
-                    match filetype_option {
-                        FileTypeOptions::Match { filetypes, globs } => {
-                            match build_types(filetypes, globs, type_matcher, TypeOption::Match) {
-                                Ok(types) => {
-                                    match build_walker(&args, &target_directory, Some(types)) {
-                                        Ok(mut walker) => {
-                                            match traverse::walk_directory(
-                                                &args,
-                                                &target_directory,
-                                                &mut walker,
-                                            ) {
-                                                Ok((tree, config)) => {
-                                                    if let Some(filename) = args.export {
-                                                        if let Err(error) =
-                                                            utils::export::export_tree(
-                                                                config, &filename, tree,
-                                                            )
-                                                        {
-                                                            paint_error(error);
-                                                        }
-                                                    }
-                                                }
-                                                Err(error) => paint_error(error),
-                                            }
-                                        }
-                                        Err(error) => paint_error(error),
-                                    }
-                                }
-                                Err(error) => paint_error(error),
-                            }
-                        }
-                        FileTypeOptions::Negate { filetypes, globs } => {
-                            match build_types(filetypes, globs, type_matcher, TypeOption::Negate) {
-                                Ok(types) => {
-                                    match build_walker(&args, &target_directory, Some(types)) {
-                                        Ok(mut walker) => {
-                                            match traverse::walk_directory(
-                                                &args,
-                                                &target_directory,
-                                                &mut walker,
-                                            ) {
-                                                Ok((tree, config)) => {
-                                                    if let Some(filename) = args.export {
-                                                        if let Err(error) =
-                                                            utils::export::export_tree(
-                                                                config, &filename, tree,
-                                                            )
-                                                        {
-                                                            paint_error(error);
-                                                        }
-                                                    }
-                                                }
-                                                Err(error) => paint_error(error),
-                                            }
-                                        }
-                                        Err(error) => paint_error(error),
-                                    }
-                                }
-                                Err(error) => paint_error(error),
-                            }
-                        }
-                        FileTypeOptions::Options { filetype } => TabledItems::new(
-                            type_matcher.definitions(),
-                            vec!["Name".into(), "Globs".into()],
-                            120,
-                            filetype.to_owned(),
-                        )
-                        .display_table(),
-                    }
+                    run_filetypes(&args, filetype_option, &target_directory);
                 }
                 SubCommands::Git(git_command) => {
-                    if let Some(repo) = get_repo(&target_directory) {
-                        match git_command {
-                            GitOptions::Add { item_labels } => {
-                                if let Err(error) =
-                                    stage_files(item_labels, &repo, &target_directory)
-                                {
-                                    paint_error(NomadError::GitError {
-                                        context: "Unable to stage files".into(),
-                                        source: error,
-                                    });
-                                }
-                            }
-                            GitOptions::Blame(blame_options) => {
-                                match blame_options.file_number.parse::<i32>() {
-                                    Ok(file_number) => {
-                                        match indiscriminate_search(
-                                            &vec![file_number.to_string()],
-                                            Some(&repo),
-                                            SearchMode::Normal,
-                                            &target_directory,
-                                        ) {
-                                            Some(ref mut found_items) => match found_items.pop() {
-                                                Some(item) => {
-                                                    if &blame_options.lines.len() > &2 {
-                                                        println!(
-                                                            "\n{}\n",
-                                                            Colour::Red
-                                                                .bold()
-                                                                .paint("Line range only takes two values - a lower and upper bound")
-                                                        );
-                                                    } else {
-                                                        if let Err(error) = bat_blame(
-                                                            item,
-                                                            blame_options.lines.clone(),
-                                                            &repo,
-                                                            &target_directory,
-                                                        ) {
-                                                            paint_error(error);
-                                                        }
-                                                    }
-                                                }
-                                                None => println!(
-                                                    "\n{}\n",
-                                                    Colour::Red
-                                                        .bold()
-                                                        .paint("Could not find a file to blame!")
-                                                ),
-                                            },
-                                            None => println!(
-                                                "\n{}\n",
-                                                Colour::Red
-                                                    .bold()
-                                                    .paint("Could not find a file to blame!")
-                                            ),
-                                        }
-                                    }
-                                    Err(_) => paint_error(NomadError::GitBlameError),
-                                }
-                            }
-                            GitOptions::Branch => {
-                                if let Err(error) = display_branches(&args, &repo) {
-                                    paint_error(error);
-                                }
-                            }
-                            GitOptions::Commit { message } => {
-                                if let Err(error) = commit_changes(message, &repo) {
-                                    paint_error(error);
-                                }
-                            }
-                            GitOptions::Diff { item_labels } => match get_repo_diffs(&repo) {
-                                Ok(diff) => {
-                                    match indiscriminate_search(
-                                        item_labels,
-                                        Some(&repo),
-                                        SearchMode::GitDiff,
-                                        &target_directory,
-                                    ) {
-                                        Some(found_items) => {
-                                            if let Err(error) = bat_diffs(
-                                                diff,
-                                                Some(found_items),
-                                                &target_directory,
-                                            ) {
-                                                paint_error(error);
-                                            }
-                                        }
-                                        None => {
-                                            if let Err(error) =
-                                                bat_diffs(diff, None, &target_directory)
-                                            {
-                                                paint_error(error);
-                                            }
-                                        }
-                                    }
-                                }
-                                Err(error) => paint_error(NomadError::GitError {
-                                    context: "Unable to get Git diff".into(),
-                                    source: error,
-                                }),
-                            },
-                            GitOptions::Restore(restore_options) => {
-                                // TODO: MAKE AN ENUM FOR THE STAGE_FILES() FUNCTION
-                                //       TO EITHER ADD OR REMOVE FROM THE INDEX?
-                                if let Err(error) = restore_files(
-                                    &restore_options.item_labels,
-                                    git::restore::RestoreMode::Staged,
-                                    &repo,
-                                    &target_directory,
-                                ) {
-                                    paint_error(NomadError::GitError {
-                                        context: "Unable to restore files".into(),
-                                        source: error,
-                                    });
-                                }
-                            }
-                            GitOptions::Status => {
-                                if let Some(branch_name) = get_repo_branch(&repo) {
-                                    println!(
-                                        "\nOn branch: {}",
-                                        Colour::Green.bold().paint(format!("{branch_name}"))
-                                    );
-
-                                    if let Err(error) = display_commits_ahead(&branch_name, &repo) {
-                                        paint_error(error);
-                                    }
-                                }
-
-                                if let Err(error) =
-                                    display_status_tree(&args, &repo, &target_directory)
-                                {
-                                    paint_error(error);
-                                }
-                            }
-                        }
-                    } else {
-                        paint_error(NomadError::Error(anyhow!("Cannot run Git commands here!")));
-                    }
+                    run_git(&args, git_command, &target_directory);
                 }
-                SubCommands::Releases(release_option) => match release_option {
-                    ReleaseOptions::All => match build_release_list() {
-                        Ok(releases) => TabledItems::new(
-                            releases,
-                            vec![
-                                "Name".into(),
-                                "Version".into(),
-                                "Release Date".into(),
-                                "Description".into(),
-                                "Assets".into(),
-                            ],
-                            180,
-                            None,
-                        )
-                        .display_table(),
-                        Err(error) => paint_error(error),
-                    },
-                    ReleaseOptions::Info { release_version } => match build_release_list() {
-                        Ok(releases) => TabledItems::new(
-                            releases,
-                            vec![
-                                "Name".into(),
-                                "Version".into(),
-                                "Release Date".into(),
-                                "Description".into(),
-                                "Assets".into(),
-                            ],
-                            180,
-                            release_version.to_owned(),
-                        )
-                        .display_table(),
-                        Err(error) => paint_error(error),
-                    },
-                },
+                SubCommands::Releases(release_option) => {
+                    run_releases(release_option);
+                }
                 SubCommands::Upgrade => {
                     if let Err(error) = update_self() {
                         paint_error(error);
