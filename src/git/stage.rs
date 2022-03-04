@@ -7,12 +7,23 @@ use git2::{Error, Repository};
 
 use crate::utils::search::{indiscriminate_search, SearchMode};
 
+/// Contains variants for stage/restore modes.
+pub enum StageMode {
+    /// Stage files from the working directory into the index.
+    Stage,
+    /// Restore staged files back to the working directory.
+    RestoreStaged,
+    /// Restore files in the working directory back to their clean Git state.
+    RestoreWorkingDirectory,
+}
+
 /// Stage file(s) by adding them to the Git index (the staging area between the
 /// working directory and the repository). Then return the tree containing staged
 /// items (the Git index tree).
 pub fn stage_files(
     item_labels: &Vec<String>,
     repo: &Repository,
+    stage_mode: StageMode,
     target_directory: &str,
 ) -> Result<(), Error> {
     let mut index = repo.index()?;
@@ -31,9 +42,20 @@ pub fn stage_files(
                     target_file
                 };
 
-            if let Err(_) = index.add_path(relative_path) {
-                // May need to revisit this in the future to account for different errors. We'll see.
-                index.remove_path(relative_path)?;
+            match stage_mode {
+                StageMode::Stage => {
+                    if let Err(_) = index.add_path(relative_path) {
+                        // May need to revisit this in the future to account for different errors. We'll see.
+                        index.remove_path(relative_path)?;
+                    }
+                }
+                StageMode::RestoreStaged => {
+                    if let Err(_) = index.remove_path(relative_path) {
+                        // May need to revisit this in the future to account for different errors. We'll see.
+                        index.add_path(relative_path)?;
+                    }
+                }
+                StageMode::RestoreWorkingDirectory => {}
             }
 
             staged_files += 1;

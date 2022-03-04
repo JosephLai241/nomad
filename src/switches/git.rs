@@ -10,7 +10,7 @@ use crate::{
         diff::{bat_diffs, get_repo_diffs},
         push::push_commits,
         restore::{restore_files, RestoreMode},
-        stage::stage_files,
+        stage::{stage_files, StageMode},
         status::{display_commits_ahead, display_status_tree},
         utils::{get_repo, get_repo_branch},
     },
@@ -27,7 +27,9 @@ pub fn run_git(args: &Args, git_command: &GitOptions, target_directory: &str) {
     if let Some(repo) = get_repo(&target_directory) {
         match git_command {
             GitOptions::Add { item_labels } => {
-                if let Err(error) = stage_files(item_labels, &repo, &target_directory) {
+                if let Err(error) =
+                    stage_files(item_labels, &repo, StageMode::Stage, &target_directory)
+                {
                     paint_error(NomadError::GitError {
                         context: "Unable to stage files".into(),
                         source: error,
