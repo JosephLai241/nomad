@@ -11,6 +11,10 @@ pub enum NomadError {
     #[error("Bat error: {0}")]
     BatError(#[from] bat::error::Error),
 
+    /// Something went wrong when trying to get the application-specific directories.
+    #[error("Could not retrieve system application directories!")]
+    ApplicationError,
+
     /// Something went wrong when opening a file with an editor.
     #[error("Unable to open the file with {editor}: {reason}")]
     EditorError {
@@ -78,4 +82,8 @@ pub enum NomadError {
     /// Something went wrong when doing something with Serde JSON.
     #[error("Serde JSON error: {0}")]
     SerdeJSONError(#[from] serde_json::Error),
+
+    /// Something went wrong when deserializing/serializing the TOML config file.
+    #[error("TOML error: {0}")]
+    TOMLError(#[from] toml::de::Error),
 }

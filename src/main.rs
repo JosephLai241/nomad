@@ -1,6 +1,7 @@
 //! `nomad` - The next gen `tree` command.
 
 mod cli;
+mod config;
 mod errors;
 mod git;
 mod models;
@@ -9,23 +10,11 @@ mod switches;
 mod traverse;
 mod utils;
 
-use cli::{
-    filetype::FileTypeOptions, get_args, git::GitOptions, releases::ReleaseOptions, SubCommands,
-};
-use git::{
-    blame::bat_blame,
-    branch::display_branches,
-    commit::commit_changes,
-    diff::{bat_diffs, get_repo_diffs},
-    push::push_commits,
-    restore::restore_files,
-    stage::stage_files,
-    status::display_status_tree,
-    utils::{get_repo, get_repo_branch},
-};
-use releases::{build_release_list, check_for_update, update_self};
+use cli::{get_args, SubCommands};
+use config::toml::parse_config;
+use releases::update_self;
 use switches::{filetype::run_filetypes, git::run_git, release::run_releases};
-use traverse::utils::{build_types, build_walker, TypeOption};
+use traverse::utils::build_walker;
 use utils::{
     bat::run_bat,
     icons::{get_icons_by_extension, get_icons_by_name},
@@ -33,18 +22,16 @@ use utils::{
     paint::paint_error,
     paths::{canonicalize_path, get_current_directory},
     search::{indiscriminate_search, SearchMode},
-    table::{TableView, TabledItems},
 };
 
 use ansi_term::Colour;
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use errors::NomadError;
-use ignore::types::TypesBuilder;
 use lazy_static::lazy_static;
 
 use std::collections::HashMap;
 
-use crate::git::status::display_commits_ahead;
+use crate::cli::config::ConfigOptions;
 
 lazy_static! {
     /// The alphabet in `char`s.
@@ -83,6 +70,7 @@ lazy_static! {
 fn main() -> Result<(), NomadError> {
     //check_for_update()?;
 
+    let (nomad_config, config_path) = parse_config()?;
     let args = get_args();
 
     let target_directory = if let Some(ref directory) = args.directory {
@@ -121,6 +109,36 @@ fn main() -> Result<(), NomadError> {
                         None => {}
                     }
                 }
+                SubCommands::Config(config_options) => match config_options {
+                    ConfigOptions::Edit => {
+                        if let Some(config_path) = config_path {
+                            if let Err(error) = open_files(vec![config_path]) {
+                                paint_error(error)
+                            }
+                        } else {
+                            println!(
+                                "\n{}\n",
+                                Colour::Red
+                                    .bold()
+                                    .paint("Could not get the path to the configuration file!")
+                            );
+                        }
+                    }
+                    ConfigOptions::View => {
+                        if let Some(config_path) = config_path {
+                            if let Err(error) = run_bat(vec![config_path]) {
+                                paint_error(error)
+                            }
+                        } else {
+                            println!(
+                                "\n{}\n",
+                                Colour::Red
+                                    .bold()
+                                    .paint("Could not get the path to the configuration file!")
+                            );
+                        }
+                    }
+                },
                 SubCommands::Edit { item_labels } => {
                     match indiscriminate_search(
                         item_labels,
