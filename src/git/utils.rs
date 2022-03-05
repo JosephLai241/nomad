@@ -113,7 +113,7 @@ pub fn paint_git_item(
             .paint(format!("{formatted_filename}"))
             .to_string(),
         _ if marker == staged_modified => nomad_style
-            .staged_added_color
+            .staged_modified_color
             .paint(format!("{formatted_filename}"))
             .to_string(),
         _ if marker == staged_renamed => nomad_style
