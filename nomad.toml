@@ -21,13 +21,13 @@
 #    * "white"
 #    * "yellow"
 
-# If you do not want to use the default colors, you can pick any of the 3-digit
-# Xterm 256 colors located here:
+# If you do not want to use the default colors, you can set the color to an Xterm
+# 256 color's hex code located here:
 #
 #    https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
 #
-# For example, if you want to set something to the color 172 (a shade of orange),
-# wrap the value in quotes, ie. "172".
+# For example, if you want to set something to the color d78700 (a shade of orange),
+# wrap the value in quotes, ie. "d78700".
 
 # ================================== INFO END ==================================
 
@@ -48,13 +48,13 @@
 #[git.colors]
 #conflicted_color = "red"
 #deleted_color = "red"
-#modified_color = "yellow"
-#renamed_color = "172"          # A shade of orange
-#untracked_color = "243"        # A shade of gray
+#modified_color = "d78700"         # A shade of orange
+#renamed_color = "red"
+#untracked_color = "767676"        # A shade of gray
 
 # Uncomment the table and its items below to set the color of the text that is
 # matched by the pattern flag (`-p/--pattern`).
 
 #[regex]
-#match_color = "033"            # A shade of blue
+#match_color = "0087ff"            # A shade of blue
 
