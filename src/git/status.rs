@@ -4,6 +4,7 @@ use super::markers::get_status_markers;
 use crate::{
     cli::Args,
     errors::NomadError,
+    style::models::NomadStyle,
     traverse::{
         models::FoundItem,
         traits::{ToTree, TransformFound},
@@ -22,10 +23,11 @@ use std::{collections::HashMap, ffi::OsStr, path::Path};
 /// Build a tree that only contains items that are tracked in Git.
 pub fn display_status_tree(
     args: &Args,
+    nomad_style: &NomadStyle,
     repo: &Repository,
     target_directory: &str,
 ) -> Result<(), NomadError> {
-    get_status_markers(&repo, target_directory).map_or_else(
+    get_status_markers(nomad_style, &repo, target_directory).map_or_else(
         |error| Err(error),
         |marker_map| {
             if marker_map.is_empty() {
@@ -38,7 +40,7 @@ pub fn display_status_tree(
 
                 Ok(())
             } else {
-                build_status_tree(args, marker_map, target_directory)?;
+                build_status_tree(args, marker_map, nomad_style, target_directory)?;
 
                 Ok(())
             }
@@ -78,6 +80,7 @@ pub fn display_commits_ahead(branch_name: &str, repo: &Repository) -> Result<(),
 fn build_status_tree(
     args: &Args,
     marker_map: HashMap<String, String>,
+    nomad_style: &NomadStyle,
     target_directory: &str,
 ) -> Result<(StringItem, PrintConfig), NomadError> {
     let regex_expression = if let Some(ref pattern) = args.pattern {
@@ -119,7 +122,7 @@ fn build_status_tree(
         .sorted_by_key(|found_item| found_item.path.to_string())
         .collect::<Vec<FoundItem>>()
         .transform(target_directory)?
-        .to_tree(args, target_directory)?;
+        .to_tree(args, nomad_style, target_directory)?;
 
     Ok((tree, config))
 }

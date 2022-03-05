@@ -4,6 +4,7 @@ use ignore::types::TypesBuilder;
 
 use crate::{
     cli::{filetype::FileTypeOptions, Args},
+    style::models::NomadStyle,
     traverse::{
         utils::{build_types, build_walker, TypeOption},
         walk_directory,
@@ -16,7 +17,12 @@ use crate::{
 };
 
 /// `match` the filetype subcommand and execute it.
-pub fn run_filetypes(args: &Args, filetype_option: &FileTypeOptions, target_directory: &str) {
+pub fn run_filetypes(
+    args: &Args,
+    filetype_option: &FileTypeOptions,
+    nomad_style: &NomadStyle,
+    target_directory: &str,
+) {
     let mut type_matcher = TypesBuilder::new();
     type_matcher.add_defaults();
 
@@ -24,16 +30,18 @@ pub fn run_filetypes(args: &Args, filetype_option: &FileTypeOptions, target_dire
         FileTypeOptions::Match { filetypes, globs } => {
             match build_types(filetypes, globs, type_matcher, TypeOption::Match) {
                 Ok(types) => match build_walker(&args, &target_directory, Some(types)) {
-                    Ok(mut walker) => match walk_directory(&args, &target_directory, &mut walker) {
-                        Ok((tree, config)) => {
-                            if let Some(ref filename) = args.export {
-                                if let Err(error) = export_tree(config, &filename, tree) {
-                                    paint_error(error);
+                    Ok(mut walker) => {
+                        match walk_directory(&args, nomad_style, &target_directory, &mut walker) {
+                            Ok((tree, config)) => {
+                                if let Some(ref filename) = args.export {
+                                    if let Err(error) = export_tree(config, &filename, tree) {
+                                        paint_error(error);
+                                    }
                                 }
                             }
+                            Err(error) => paint_error(error),
                         }
-                        Err(error) => paint_error(error),
-                    },
+                    }
                     Err(error) => paint_error(error),
                 },
                 Err(error) => paint_error(error),
@@ -42,16 +50,18 @@ pub fn run_filetypes(args: &Args, filetype_option: &FileTypeOptions, target_dire
         FileTypeOptions::Negate { filetypes, globs } => {
             match build_types(filetypes, globs, type_matcher, TypeOption::Negate) {
                 Ok(types) => match build_walker(&args, &target_directory, Some(types)) {
-                    Ok(mut walker) => match walk_directory(&args, &target_directory, &mut walker) {
-                        Ok((tree, config)) => {
-                            if let Some(ref filename) = args.export {
-                                if let Err(error) = export_tree(config, &filename, tree) {
-                                    paint_error(error);
+                    Ok(mut walker) => {
+                        match walk_directory(&args, nomad_style, &target_directory, &mut walker) {
+                            Ok((tree, config)) => {
+                                if let Some(ref filename) = args.export {
+                                    if let Err(error) = export_tree(config, &filename, tree) {
+                                        paint_error(error);
+                                    }
                                 }
                             }
+                            Err(error) => paint_error(error),
                         }
-                        Err(error) => paint_error(error),
-                    },
+                    }
                     Err(error) => paint_error(error),
                 },
                 Err(error) => paint_error(error),

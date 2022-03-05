@@ -14,6 +14,7 @@ use crate::{
         status::{display_commits_ahead, display_status_tree},
         utils::{get_repo, get_repo_branch},
     },
+    style::models::NomadStyle,
     utils::{
         paint::paint_error,
         search::{indiscriminate_search, SearchMode},
@@ -23,13 +24,22 @@ use crate::{
 use ansi_term::Colour;
 use anyhow::anyhow;
 
-pub fn run_git(args: &Args, git_command: &GitOptions, target_directory: &str) {
+pub fn run_git(
+    args: &Args,
+    git_command: &GitOptions,
+    nomad_style: &NomadStyle,
+    target_directory: &str,
+) {
     if let Some(repo) = get_repo(&target_directory) {
         match git_command {
             GitOptions::Add { item_labels } => {
-                if let Err(error) =
-                    stage_files(item_labels, &repo, StageMode::Stage, &target_directory)
-                {
+                if let Err(error) = stage_files(
+                    item_labels,
+                    nomad_style,
+                    &repo,
+                    StageMode::Stage,
+                    &target_directory,
+                ) {
                     paint_error(NomadError::GitError {
                         context: "Unable to stage files".into(),
                         source: error,
@@ -40,6 +50,7 @@ pub fn run_git(args: &Args, git_command: &GitOptions, target_directory: &str) {
                 Ok(file_number) => {
                     match indiscriminate_search(
                         &vec![file_number.to_string()],
+                        nomad_style,
                         Some(&repo),
                         SearchMode::Normal,
                         &target_directory,
@@ -78,7 +89,7 @@ pub fn run_git(args: &Args, git_command: &GitOptions, target_directory: &str) {
                 Err(_) => paint_error(NomadError::GitBlameError),
             },
             GitOptions::Branch => {
-                if let Err(error) = display_branches(&args, &repo) {
+                if let Err(error) = display_branches(&args, nomad_style, &repo) {
                     paint_error(error);
                 }
             }
@@ -91,6 +102,7 @@ pub fn run_git(args: &Args, git_command: &GitOptions, target_directory: &str) {
                 Ok(diff) => {
                     match indiscriminate_search(
                         item_labels,
+                        nomad_style,
                         Some(&repo),
                         SearchMode::GitDiff,
                         &target_directory,
@@ -125,6 +137,7 @@ pub fn run_git(args: &Args, git_command: &GitOptions, target_directory: &str) {
                 if let Err(error) = restore_files(
                     &restore_options.item_labels,
                     RestoreMode::Staged,
+                    &nomad_style,
                     &repo,
                     &target_directory,
                 ) {
@@ -146,7 +159,9 @@ pub fn run_git(args: &Args, git_command: &GitOptions, target_directory: &str) {
                     }
                 }
 
-                if let Err(error) = display_status_tree(&args, &repo, &target_directory) {
+                if let Err(error) =
+                    display_status_tree(&args, nomad_style, &repo, &target_directory)
+                {
                     paint_error(error);
                 }
             }

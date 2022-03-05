@@ -2,14 +2,13 @@
 
 use crate::{
     git::utils::paint_git_item,
+    style::models::NomadStyle,
     utils::{
         meta::get_metadata,
         paint::{paint_directory, paint_symlink},
         paths::get_filename,
     },
 };
-
-use ansi_term::Colour;
 
 use std::path::Path;
 
@@ -58,6 +57,7 @@ pub fn format_content(
     matched: Option<(usize, usize)>,
     mute_git: bool,
     mute_icons: bool,
+    nomad_style: &NomadStyle,
     number: Option<i32>,
     plain: bool,
 ) -> String {
@@ -65,7 +65,7 @@ pub fn format_content(
     let metadata = get_metadata(item, plain);
 
     let mut item_string = if let (Some(marker), false, false) = (git_marker, mute_git, plain) {
-        let formatted_filename = paint_git_item(&filename, &marker, matched);
+        let formatted_filename = paint_git_item(&filename, &marker, nomad_style, matched);
 
         if mute_icons {
             format!("{marker} {formatted_filename}")
@@ -77,7 +77,7 @@ pub fn format_content(
             format!("{filename}")
         } else {
             filename = if let Some(ranges) = matched {
-                highlight_matched(filename, ranges)
+                highlight_matched(filename, nomad_style, ranges)
             } else {
                 filename
             };
@@ -96,13 +96,15 @@ pub fn format_content(
 }
 
 /// Reformat the filename if a pattern was provided and matched.
-pub fn highlight_matched(mut filename: String, ranges: (usize, usize)) -> String {
-    let matched_section = Colour::Fixed(033) // 033 is a shade of blue.
-        .bold()
+pub fn highlight_matched(
+    filename: String,
+    nomad_style: &NomadStyle,
+    ranges: (usize, usize),
+) -> String {
+    let matched_section = nomad_style
+        .match_color
         .paint(format!("{}", filename[ranges.0..ranges.1].to_string()))
         .to_string();
 
-    filename.replace_range(ranges.0..ranges.1, &matched_section);
-
-    filename
+    filename.replace(&filename[ranges.0..ranges.1].to_string(), &matched_section)
 }

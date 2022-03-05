@@ -4,6 +4,7 @@ use super::models::{FoundItem, TransformedItem};
 use crate::{
     cli::Args,
     errors::NomadError,
+    style::models::NomadStyle,
     traverse::{
         format::{format_content, format_directory},
         utils::{build_tree, check_nesting, get_file_icon, store_directory_contents},
@@ -100,6 +101,7 @@ pub trait ToTree {
     fn to_tree(
         self,
         args: &Args,
+        nomad_style: &NomadStyle,
         target_directory: &str,
     ) -> Result<(StringItem, PrintConfig), NomadError>;
 }
@@ -108,6 +110,7 @@ impl ToTree for Vec<TransformedItem> {
     fn to_tree(
         self,
         args: &Args,
+        nomad_style: &NomadStyle,
         target_directory: &str,
     ) -> Result<(StringItem, PrintConfig), NomadError> {
         let mut numbered_items: HashMap<String, String> = HashMap::new();
@@ -193,6 +196,7 @@ impl ToTree for Vec<TransformedItem> {
                     item.matched,
                     args.no_git,
                     args.no_icons,
+                    nomad_style,
                     number,
                     args.plain,
                 ));

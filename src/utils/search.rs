@@ -2,7 +2,7 @@
 
 use std::path::Path;
 
-use crate::git::markers::get_status_markers;
+use crate::{git::markers::get_status_markers, style::models::NomadStyle};
 
 use super::open::get_deserialized_json;
 
@@ -34,6 +34,7 @@ pub enum SearchMode {
 /// `item_labels`, all items within that directory are returned.
 pub fn indiscriminate_search(
     item_labels: &Vec<String>,
+    nomad_style: &NomadStyle,
     repo: Option<&Repository>,
     search_mode: SearchMode,
     target_directory: &str,
@@ -54,7 +55,9 @@ pub fn indiscriminate_search(
                     Some(directory_path) => match search_mode {
                         SearchMode::Git | SearchMode::GitDiff => {
                             if let Some(repo) = repo {
-                                if let Ok(marker_map) = get_status_markers(repo, target_directory) {
+                                if let Ok(marker_map) =
+                                    get_status_markers(nomad_style, repo, target_directory)
+                                {
                                     for file_path in marker_map.keys() {
                                         let path_parent = Path::new(file_path)
                                             .parent()

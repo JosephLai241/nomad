@@ -5,6 +5,7 @@ pub mod branch;
 pub mod commit;
 pub mod diff;
 pub mod markers;
+pub mod push;
 pub mod restore;
 pub mod stage;
 pub mod status;

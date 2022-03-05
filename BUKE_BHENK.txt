@@ -1,0 +1,62 @@
+nomad
+├── Cargo.toml
+├── LICENSE
+├── NOTES.md
+├── README.md
+├── asdf.asdf
+├── filetype_pattern_test.txt
+├── no_icon_tree.txt
+├── src
+│   ├── cli
+│   │   ├── filetype.rs
+│   │   ├── git.rs
+│   │   ├── mod.rs
+│   │   └── releases.rs
+│   ├── config
+│   │   ├── mod.rs
+│   │   ├── settings.rs
+│   │   └── toml.rs
+│   ├── errors.rs
+│   ├── git
+│   │   ├── blame.rs
+│   │   ├── branch.rs
+│   │   ├── commit.rs
+│   │   ├── diff.rs
+│   │   ├── markers.rs
+│   │   ├── mod.rs
+│   │   ├── restore.rs
+│   │   ├── stage.rs
+│   │   ├── status.rs
+│   │   └── utils.rs
+│   ├── main.rs
+│   ├── models
+│   │   └── mod.rs
+│   ├── releases
+│   │   └── mod.rs
+│   ├── traverse
+│   │   ├── format.rs
+│   │   ├── mod.rs
+│   │   ├── models.rs
+│   │   ├── traits.rs
+│   │   └── utils.rs
+│   ├── ui
+│   │   ├── mod.rs
+│   │   ├── stateful_widgets.rs
+│   │   └── utils
+│   │       └── mod.rs
+│   └── utils
+│       ├── bat.rs
+│       ├── export.rs
+│       ├── icons.rs
+│       ├── meta.rs
+│       ├── mod.rs
+│       ├── open.rs
+│       ├── paint.rs
+│       ├── paths.rs
+│       ├── search.rs
+│       ├── table.rs
+│       └── temp.rs
+├── test_nomad_tree.txt
+├── test_nomad_tree_1.txt
+├── test_nomad_tree_2.txt
+└── tree_test.txt

@@ -1,6 +1,6 @@
 //! Contains useful utilities that support Git functionality.
 
-use crate::{errors::NomadError, traverse::format::highlight_matched};
+use crate::{errors::NomadError, style::models::NomadStyle, traverse::format::highlight_matched};
 
 use ansi_term::Colour;
 use anyhow::{anyhow, Result};
@@ -69,39 +69,59 @@ pub fn get_last_commit(repo: &Repository) -> Result<Commit, NomadError> {
 }
 
 /// Add color/style to the filename depending on its Git status.
-pub fn paint_git_item(filename: &str, marker: &str, matched: Option<(usize, usize)>) -> String {
-    let staged_deleted = Colour::Red.bold().paint("SD").to_string();
-    let staged_modified = Colour::Yellow.bold().paint("SM").to_string();
-    let staged_new = Colour::Green.bold().paint("SA").to_string();
-    let staged_renamed = Colour::Fixed(172).bold().paint("SR").to_string();
-    let conflicted = Colour::Red.bold().paint("CONFLICT").to_string();
+pub fn paint_git_item(
+    filename: &str,
+    marker: &str,
+    nomad_style: &NomadStyle,
+    matched: Option<(usize, usize)>,
+) -> String {
+    let staged_deleted = &nomad_style
+        .staged_deleted_color
+        .paint(&nomad_style.staged_deleted_marker)
+        .to_string();
+    let staged_modified = &nomad_style
+        .staged_modified_color
+        .paint(&nomad_style.staged_modified_marker)
+        .to_string();
+    let staged_added = &nomad_style
+        .staged_added_color
+        .paint(&nomad_style.staged_added_marker)
+        .to_string();
+    let staged_renamed = &nomad_style
+        .staged_renamed_color
+        .paint(&nomad_style.staged_renamed_marker)
+        .to_string();
+    let conflicted = &nomad_style
+        .conflicted_color
+        .paint(&nomad_style.conflicted_marker)
+        .to_string();
 
     let formatted_filename = if let Some(ranges) = matched {
-        highlight_matched(filename.to_string(), ranges)
+        highlight_matched(filename.to_string(), nomad_style, ranges)
     } else {
         filename.to_string()
     };
 
     match marker.to_string() {
-        _ if marker == staged_deleted => Colour::Red
-            .bold()
+        _ if marker == staged_added => nomad_style
+            .staged_added_color
+            .paint(format!("{formatted_filename}"))
+            .to_string(),
+        _ if marker == staged_deleted => nomad_style
+            .staged_deleted_color
             .strikethrough()
             .paint(format!("{formatted_filename}"))
             .to_string(),
-        _ if marker == staged_modified => Colour::Yellow
-            .bold()
+        _ if marker == staged_modified => nomad_style
+            .staged_added_color
             .paint(format!("{formatted_filename}"))
             .to_string(),
-        _ if marker == staged_new => Colour::Green
-            .bold()
+        _ if marker == staged_renamed => nomad_style
+            .staged_renamed_color
             .paint(format!("{formatted_filename}"))
             .to_string(),
-        _ if marker == staged_renamed => Colour::Fixed(172)
-            .bold()
-            .paint(format!("{formatted_filename}"))
-            .to_string(),
-        _ if marker == conflicted => Colour::Red
-            .bold()
+        _ if marker == conflicted => nomad_style
+            .conflicted_color
             .paint(format!("{formatted_filename}"))
             .to_string(),
         _ => formatted_filename,

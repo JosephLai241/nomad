@@ -5,7 +5,10 @@ use std::path::Path;
 use ansi_term::Colour;
 use git2::{Error, Repository};
 
-use crate::utils::search::{indiscriminate_search, SearchMode};
+use crate::{
+    style::models::NomadStyle,
+    utils::search::{indiscriminate_search, SearchMode},
+};
 
 /// Contains variants for stage/restore modes.
 pub enum StageMode {
@@ -22,14 +25,20 @@ pub enum StageMode {
 /// items (the Git index tree).
 pub fn stage_files(
     item_labels: &Vec<String>,
+    nomad_style: &NomadStyle,
     repo: &Repository,
     stage_mode: StageMode,
     target_directory: &str,
 ) -> Result<(), Error> {
     let mut index = repo.index()?;
 
-    let found_items =
-        indiscriminate_search(item_labels, Some(repo), SearchMode::Git, target_directory);
+    let found_items = indiscriminate_search(
+        item_labels,
+        nomad_style,
+        Some(repo),
+        SearchMode::Git,
+        target_directory,
+    );
 
     let mut staged_files = 0;
     if let Some(found_items) = found_items {

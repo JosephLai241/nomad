@@ -10,7 +10,8 @@ use self::{
     traits::{ToTree, TransformFound},
 };
 use crate::{
-    cli::Args, errors::NomadError, git::markers::extend_marker_map, utils::paths::canonicalize_path,
+    cli::Args, errors::NomadError, git::markers::extend_marker_map, style::models::NomadStyle,
+    utils::paths::canonicalize_path,
 };
 
 use anyhow::{private, Result};
@@ -23,6 +24,7 @@ use std::{collections::HashMap, ffi::OsStr, path::Path};
 /// Traverse the directory and display files and directories accordingly.
 pub fn walk_directory(
     args: &Args,
+    nomad_style: &NomadStyle,
     target_directory: &str,
     walker: &mut Walk,
 ) -> Result<(StringItem, PrintConfig), NomadError> {
@@ -38,6 +40,7 @@ pub fn walk_directory(
     let mut git_markers: HashMap<String, String> = HashMap::new();
     extend_marker_map(
         &mut git_markers,
+        nomad_style,
         Path::new(target_directory).to_str().unwrap_or("?"),
     );
 
@@ -45,7 +48,11 @@ pub fn walk_directory(
         .filter_map(|dir_entry| {
             if let Ok(entry) = dir_entry {
                 if entry.path().is_dir() {
-                    extend_marker_map(&mut git_markers, entry.path().to_str().unwrap_or("?"));
+                    extend_marker_map(
+                        &mut git_markers,
+                        nomad_style,
+                        entry.path().to_str().unwrap_or("?"),
+                    );
                     None
                 } else {
                     if let Some(ref regex) = regex_expression {
@@ -90,7 +97,7 @@ pub fn walk_directory(
         })
         .collect::<Vec<FoundItem>>()
         .transform(target_directory)?
-        .to_tree(args, target_directory)?;
+        .to_tree(args, nomad_style, target_directory)?;
 
     Ok((tree, config))
 }
