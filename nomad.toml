@@ -1,4 +1,7 @@
+# ===============
 # Configure nomad
+# ===============
+
 
 # ================================= INFO START =================================
 
@@ -10,6 +13,8 @@
 # its syntax:
 #
 #     https://toml.io/en/
+
+# ----------------------------------- COLORS -----------------------------------
 
 # These are the default colors:
 #    * "black"
@@ -31,40 +36,47 @@
 
 # ================================== INFO END ==================================
 
-# The default values are displayed below.
+# The default values for each item are displayed below.
 
-# Uncomment the table and its items below to set the text displayed for each Git
+
+#
+# Uncomment the items below this table to set the text displayed for each Git
 # item's status.
-
-#[git.markers]
+#
+[git.markers]
 #conflicted_marker = "CONFLICT"
 #deleted_marker = "D"
 #modified_marker = "M"
 #renamed_marker = "R"
 #untracked_marker = "U"
 
+#staged_added_marker = "SA"
 #staged_deleted_marker = "SD"
 #staged_modified_marker = "SM"
-#staged_added_marker = "SA"
 #staged_renamed_marker = "SR"
 
-# Uncomment the table and its items below to set the colors of the Git markers.
 
-#[git.colors]
+#
+# Uncomment the items below this table to set the colors of the Git markers.
+#
+[git.colors]
 #conflicted_color = "red"
 #deleted_color = "red"
 #modified_color = "d78700"          # A shade of orange.
 #renamed_color = "red"
 #untracked_color = "767676"         # A shade of gray.
 
+#staged_added_color = "green"
 #staged_deleted_color = "red"
 #staged_modified_color = "d78700"   # A shade of orange.
 #staged_renamed_color = "red"
-#staged_added_color = "green"
 
-# Uncomment the table and its items below to set the color of the text that is
+
+#
+# Uncomment the item below this table to set the color of the text that is
 # matched by the pattern flag (`-p/--pattern`).
-
-#[regex]
+#
+[regex]
 #match_color = "0087ff"             # A shade of blue.
+
 
