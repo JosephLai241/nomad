@@ -1,15 +1,14 @@
 //! Apply colors to a directory's contents.
 
+use super::paths::get_filename;
+use crate::errors::NomadError;
+
 use ansi_term::Colour;
 
 use std::{
     fs::read_link,
     path::{Path, PathBuf},
 };
-
-use crate::errors::NomadError;
-
-use super::paths::get_filename;
 
 /// Format and display a `NomadError`.
 pub fn paint_error(error: NomadError) {
