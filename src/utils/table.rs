@@ -44,6 +44,79 @@ pub trait TableView {
     }
 }
 
+impl TableView for TabledItems<String> {
+    /// Display a table for `String`s.
+    fn display_table(self) {
+        let mut table = Table::new();
+
+        table.max_column_width = self.table_width;
+        table.style = TableStyle::rounded();
+
+        table.add_row(Row::new(self.labels.iter().map(|label| {
+            TableCell::new(Colour::White.bold().paint(label).to_string())
+        })));
+
+        for item in self.items {
+            table.add_row(Row::new(vec![TableCell::new(item)]));
+        }
+
+        println!("\n{}", table.render());
+    }
+}
+
+impl TableView for TabledItems<(&str, &String)> {
+    /// Display a table for items that need to be contained in a `(String, String)`.
+    fn display_table(self) {
+        let mut table = Table::new();
+
+        table.max_column_width = self.table_width;
+        table.style = TableStyle::rounded();
+
+        table.add_row(Row::new(
+            self.labels
+                .iter()
+                .map(|label| TableCell::new(Colour::White.bold().paint(label).to_string()))
+                .collect::<Vec<TableCell>>(),
+        ));
+
+        for (git_status, marker) in self.items {
+            table.add_row(Row::new(vec![
+                TableCell::new(git_status),
+                TableCell::new(marker),
+            ]));
+        }
+
+        println!("\n{}", table.render());
+    }
+}
+
+impl TableView for TabledItems<(&str, &String, &String)> {
+    /// Display a table for items that need to be contained in a `(String, String, String)`.
+    fn display_table(self) {
+        let mut table = Table::new();
+
+        table.max_column_width = self.table_width;
+        table.style = TableStyle::rounded();
+
+        table.add_row(Row::new(
+            self.labels
+                .iter()
+                .map(|label| TableCell::new(Colour::White.bold().paint(label).to_string()))
+                .collect::<Vec<TableCell>>(),
+        ));
+
+        for (git_status, marker, filename_style) in self.items {
+            table.add_row(Row::new(vec![
+                TableCell::new(git_status),
+                TableCell::new(marker),
+                TableCell::new(filename_style),
+            ]));
+        }
+
+        println!("\n{}", table.render());
+    }
+}
+
 impl TableView for TabledItems<FileTypeDef> {
     /// List all filetypes and their associated globs. Or optionally search for
     /// a filetype

@@ -14,7 +14,7 @@ mod utils;
 use cli::{get_args, SubCommands};
 use config::toml::parse_config;
 use releases::update_self;
-use switches::{filetype::run_filetypes, git::run_git, release::run_releases};
+use switches::{config::run_config, filetype::run_filetypes, git::run_git, release::run_releases};
 use traverse::utils::build_walker;
 use utils::{
     bat::run_bat,
@@ -25,14 +25,13 @@ use utils::{
     search::{indiscriminate_search, SearchMode},
 };
 
-use ansi_term::Colour;
 use anyhow::Result;
 use errors::NomadError;
 use lazy_static::lazy_static;
 
 use std::collections::HashMap;
 
-use crate::{cli::config::ConfigOptions, style::paint::process_settings};
+use crate::style::paint::process_settings;
 
 lazy_static! {
     /// The alphabet in `char`s.
@@ -113,36 +112,9 @@ fn main() -> Result<(), NomadError> {
                         None => {}
                     }
                 }
-                SubCommands::Config(config_options) => match config_options {
-                    ConfigOptions::Edit => {
-                        if let Some(config_path) = config_path {
-                            if let Err(error) = open_files(vec![config_path]) {
-                                paint_error(error)
-                            }
-                        } else {
-                            println!(
-                                "\n{}\n",
-                                Colour::Red
-                                    .bold()
-                                    .paint("Could not get the path to the configuration file!")
-                            );
-                        }
-                    }
-                    ConfigOptions::View => {
-                        if let Some(config_path) = config_path {
-                            if let Err(error) = run_bat(vec![config_path]) {
-                                paint_error(error)
-                            }
-                        } else {
-                            println!(
-                                "\n{}\n",
-                                Colour::Red
-                                    .bold()
-                                    .paint("Could not get the path to the configuration file!")
-                            );
-                        }
-                    }
-                },
+                SubCommands::Config(config_options) => {
+                    run_config(config_options, config_path, &nomad_style);
+                }
                 SubCommands::Edit { item_labels } => {
                     match indiscriminate_search(
                         item_labels,
