@@ -24,7 +24,6 @@ pub fn process_settings(nomad_config: NomadConfig) -> NomadStyle {
 fn process_git_settings(nomad_style: &mut NomadStyle, git_settings: &Git) {
     if let Some(colors) = &git_settings.colors {
         nomad_style.conflicted_color = set_color(&colors.conflicted_color, Colour::Red.bold());
-        nomad_style.conflicted_color = set_color(&colors.conflicted_color, Colour::Red.bold());
         nomad_style.deleted_color = set_color(&colors.deleted_color, Colour::Red.bold());
         nomad_style.modified_color = set_color(&colors.modified_color, Colour::Yellow.bold());
         nomad_style.renamed_color = set_color(&colors.renamed_color, Colour::Red.bold());
