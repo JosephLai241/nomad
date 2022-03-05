@@ -45,6 +45,8 @@ pub trait TableView {
 }
 
 impl TableView for TabledItems<FileTypeDef> {
+    /// List all filetypes and their associated globs. Or optionally search for
+    /// a filetype
     fn display_table(self) {
         let mut table = Table::new();
 
