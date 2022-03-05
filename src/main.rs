@@ -6,6 +6,7 @@ mod errors;
 mod git;
 mod models;
 mod releases;
+mod style;
 mod switches;
 mod traverse;
 mod utils;
@@ -31,7 +32,7 @@ use lazy_static::lazy_static;
 
 use std::collections::HashMap;
 
-use crate::cli::config::ConfigOptions;
+use crate::{cli::config::ConfigOptions, style::paint::process_settings};
 
 lazy_static! {
     /// The alphabet in `char`s.
@@ -70,8 +71,10 @@ lazy_static! {
 fn main() -> Result<(), NomadError> {
     //check_for_update()?;
 
-    let (nomad_config, config_path) = parse_config()?;
     let args = get_args();
+
+    let (nomad_config, config_path) = parse_config()?;
+    let nomad_style = process_settings(nomad_config);
 
     let target_directory = if let Some(ref directory) = args.directory {
         canonicalize_path(directory).map_or_else(
@@ -97,6 +100,7 @@ fn main() -> Result<(), NomadError> {
                 SubCommands::Bat { item_labels } => {
                     match indiscriminate_search(
                         item_labels,
+                        &nomad_style,
                         None,
                         SearchMode::Normal,
                         &target_directory,
@@ -142,6 +146,7 @@ fn main() -> Result<(), NomadError> {
                 SubCommands::Edit { item_labels } => {
                     match indiscriminate_search(
                         item_labels,
+                        &nomad_style,
                         None,
                         SearchMode::Normal,
                         &target_directory,
@@ -155,10 +160,10 @@ fn main() -> Result<(), NomadError> {
                     }
                 }
                 SubCommands::Filetype(filetype_option) => {
-                    run_filetypes(&args, filetype_option, &target_directory);
+                    run_filetypes(&args, filetype_option, &nomad_style, &target_directory);
                 }
                 SubCommands::Git(git_command) => {
-                    run_git(&args, git_command, &target_directory);
+                    run_git(&args, git_command, &nomad_style, &target_directory);
                 }
                 SubCommands::Releases(release_option) => {
                     run_releases(release_option);
@@ -173,7 +178,12 @@ fn main() -> Result<(), NomadError> {
             // Run `nomad` in normal mode.
             match build_walker(&args, &target_directory, None) {
                 Ok(mut walker) => {
-                    match traverse::walk_directory(&args, &target_directory, &mut walker) {
+                    match traverse::walk_directory(
+                        &args,
+                        &nomad_style,
+                        &target_directory,
+                        &mut walker,
+                    ) {
                         Ok((tree, config)) => {
                             if let Some(filename) = args.export {
                                 if let Err(error) =
