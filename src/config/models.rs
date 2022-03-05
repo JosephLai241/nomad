@@ -31,6 +31,14 @@ pub struct Markers {
     pub modified_marker: Option<String>,
     /// The string that marks a renamed file.
     pub renamed_marker: Option<String>,
+    /// The string that marks a staged added file.
+    pub staged_added_marker: Option<String>,
+    /// The string that marks a staged deleted file.
+    pub staged_deleted_marker: Option<String>,
+    /// The string that marks a staged modified file.
+    pub staged_modified_marker: Option<String>,
+    /// The string that marks a staged renamed file.
+    pub staged_renamed_marker: Option<String>,
     /// The string that marks an untracked file.
     pub untracked_marker: Option<String>,
 }
@@ -46,6 +54,14 @@ pub struct Colors {
     pub modified_color: Option<String>,
     /// The color of the renamed file's marker.
     pub renamed_color: Option<String>,
+    /// The color of the staged added file's marker.
+    pub staged_added_color: Option<String>,
+    /// The color of the staged deleted file's marker.
+    pub staged_deleted_color: Option<String>,
+    /// The color of the staged modified file's marker.
+    pub staged_modified_color: Option<String>,
+    /// The color of the staged renamed file's marker.
+    pub staged_renamed_color: Option<String>,
     /// The color of the untracked file's marker.
     pub untracked_color: Option<String>,
 }
