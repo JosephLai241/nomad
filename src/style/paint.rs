@@ -25,16 +25,16 @@ fn process_git_settings(nomad_style: &mut NomadStyle, git_settings: &Git) {
     if let Some(colors) = &git_settings.colors {
         nomad_style.conflicted_color = set_color(&colors.conflicted_color, Colour::Red.bold());
         nomad_style.deleted_color = set_color(&colors.deleted_color, Colour::Red.bold());
-        nomad_style.modified_color = set_color(&colors.modified_color, Colour::Yellow.bold());
+        nomad_style.modified_color = set_color(&colors.modified_color, Colour::Fixed(172).bold());
         nomad_style.renamed_color = set_color(&colors.renamed_color, Colour::Red.bold());
         nomad_style.staged_added_color =
             set_color(&colors.staged_added_color, Colour::Green.bold());
         nomad_style.staged_deleted_color =
             set_color(&colors.staged_deleted_color, Colour::Red.bold());
         nomad_style.staged_modified_color =
-            set_color(&colors.staged_modified_color, Colour::Yellow.bold());
+            set_color(&colors.staged_modified_color, Colour::Fixed(172).bold());
         nomad_style.staged_renamed_color =
-            set_color(&colors.staged_renamed_color, Colour::Fixed(172).bold());
+            set_color(&colors.staged_renamed_color, Colour::Red.bold());
         nomad_style.untracked_color = set_color(&colors.untracked_color, Colour::Fixed(243).bold());
     }
 
