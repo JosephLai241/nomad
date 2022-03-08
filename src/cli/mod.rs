@@ -36,7 +36,7 @@ pub struct Args {
     pub disrespect: bool,
 
     #[structopt(long = "export", help = "Export the tree to a file")]
-    pub export: Option<String>,
+    pub export: Option<Option<String>>,
 
     #[structopt(
         short = "l",
@@ -118,6 +118,8 @@ pub enum SubCommands {
     Filetype(FileTypeOptions),
     /// Run commonly used Git commands.
     Git(GitOptions),
+    /// Enter interactive mode.
+    Interactive,
     /// Retrieve releases for this program (retrieved from GitHub).
     Releases(ReleaseOptions),
     /// Upgrade `nomad`.
