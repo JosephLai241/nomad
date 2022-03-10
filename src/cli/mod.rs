@@ -64,6 +64,9 @@ pub struct Args {
     )]
     pub metadata: bool,
 
+    #[structopt(long = "no-colors", help = "Do not display any colors")]
+    pub no_colors: bool,
+
     #[structopt(long = "no-git", help = "Do not display Git status markers")]
     pub no_git: bool,
 
