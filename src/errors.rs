@@ -47,6 +47,10 @@ pub enum NomadError {
     #[error("IO error: {0}")]
     IOError(#[from] io::Error),
 
+    /// Something went wrong with the MPSC receiver.
+    #[error("MPSC error: {0}")]
+    MPSCError(#[from] std::sync::mpsc::RecvError),
+
     /// Nothing was found.
     #[error("No items were found!")]
     NothingFound,
@@ -86,4 +90,8 @@ pub enum NomadError {
     /// Something went wrong when deserializing/serializing the TOML config file.
     #[error("TOML error: {0}")]
     TOMLError(#[from] toml::de::Error),
+
+    /// Something went wrong when decoding to UTF-8.
+    #[error("UTF-8 error: {0}")]
+    UTF8Error(#[from] std::str::Utf8Error),
 }
