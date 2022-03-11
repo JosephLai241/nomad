@@ -6,8 +6,8 @@ pub mod stateful_widgets;
 pub mod widgets;
 
 use self::{
-    app::{App, PopupMode, UIMode},
-    layouts::{get_settings_area, get_single_line_popup_area},
+    app::{reset_args, App, PopupMode, UIMode},
+    layouts::{get_error_popup_area, get_settings_area, get_single_line_popup_area},
     widgets::{
         cat_view, error_view, get_breadcrumbs, help_view, normal_view, nothing_found_view,
         HELP_TEXT,
@@ -96,8 +96,19 @@ pub fn enter_interactive_mode(
                 .split(frame.size());
 
             match &app.ui_mode {
-                UIMode::Breadcrumbs | UIMode::Normal => {
-                    frame.render_widget(get_breadcrumbs(&app), chunks[0]);
+                UIMode::Breadcrumbs | UIMode::Inspect | UIMode::Normal => {
+                    let nav_chunks = Layout::default()
+                        .direction(Direction::Horizontal)
+                        .constraints([Constraint::Percentage(93), Constraint::Percentage(7)])
+                        .split(chunks[0]);
+
+                    frame.render_widget(get_breadcrumbs(&app), nav_chunks[0]);
+                    frame.render_widget(
+                        Paragraph::new("help:❓")
+                            .alignment(Alignment::Center)
+                            .block(Block::default().borders(Borders::ALL)),
+                        nav_chunks[1],
+                    );
 
                     let normal_chunks = Layout::default()
                         .direction(Direction::Horizontal)
@@ -111,7 +122,8 @@ pub fn enter_interactive_mode(
                     );
 
                     let centered_right_chunk = Layout::default()
-                        .direction(Direction::Vertical).constraints([
+                        .direction(Direction::Vertical)
+                        .constraints([
                             Constraint::Percentage(40),
                             Constraint::Percentage(5),
                             Constraint::Percentage(10),
@@ -129,30 +141,31 @@ pub fn enter_interactive_mode(
                                 frame.render_widget(
                                     Paragraph::new("<EMPTY>")
                                         .alignment(Alignment::Center)
-                                        .style(Style::default()
-                                        .add_modifier(Modifier::BOLD)
-                                        .fg(Color::Red)),
-                                    centered_right_chunk
+                                        .style(
+                                            Style::default()
+                                                .add_modifier(Modifier::BOLD)
+                                                .fg(Color::Red),
+                                        ),
+                                    centered_right_chunk,
                                 );
                             }
-                        }
+                        },
                         None => {
                             frame.render_widget(
-                                Paragraph::new("Press <ENTER> to refresh the TUI with the contents of this directory.")
+                                Paragraph::new("press <ENTER> or 'r' to enter this directory")
                                     .alignment(Alignment::Center),
-                                centered_right_chunk
+                                centered_right_chunk,
                             );
                         }
                     }
 
-
                     match &app.popup_mode {
                         PopupMode::Disabled => {}
                         PopupMode::Error(error) => {
-                            let popup_area = get_single_line_popup_area(chunks[1]);
+                            let error_area = get_error_popup_area(chunks[1]);
 
-                            frame.render_widget(Clear, popup_area);
-                            frame.render_widget(error_view(&error), popup_area);
+                            frame.render_widget(Clear, error_area);
+                            frame.render_widget(error_view(&error), error_area);
                         }
                         PopupMode::Export => {}
                         PopupMode::NothingFound => {
@@ -265,7 +278,11 @@ pub fn enter_interactive_mode(
                             KeyCode::Char('d') => match app.ui_mode {
                                 UIMode::Normal => {
                                     args.dirs = !args.dirs;
-                                    app.refresh(args, nomad_style, target_directory)?;
+                                    if let Err(error) =
+                                        app.refresh(args, nomad_style, target_directory)
+                                    {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
                                 }
                                 _ => {}
                             },
@@ -282,7 +299,11 @@ pub fn enter_interactive_mode(
                             KeyCode::Char('g') => match app.ui_mode {
                                 UIMode::Normal => {
                                     args.no_git = !args.no_git;
-                                    app.refresh(args, nomad_style, target_directory)?;
+                                    if let Err(error) =
+                                        app.refresh(args, nomad_style, target_directory)
+                                    {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
                                 }
                                 _ => {}
                             },
@@ -290,7 +311,11 @@ pub fn enter_interactive_mode(
                             KeyCode::Char('h') => match app.ui_mode {
                                 UIMode::Normal => {
                                     args.hidden = !args.hidden;
-                                    app.refresh(args, nomad_style, target_directory)?;
+                                    if let Err(error) =
+                                        app.refresh(args, nomad_style, target_directory)
+                                    {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
                                 }
                                 UIMode::Breadcrumbs => {
                                     if app.breadcrumbs.state.selected().is_none() {
@@ -306,7 +331,11 @@ pub fn enter_interactive_mode(
                             KeyCode::Char('i') => match app.ui_mode {
                                 UIMode::Normal => {
                                     args.no_icons = !args.no_icons;
-                                    app.refresh(args, nomad_style, target_directory)?;
+                                    if let Err(error) =
+                                        app.refresh(args, nomad_style, target_directory)
+                                    {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
                                 }
                                 _ => {}
                             },
@@ -314,7 +343,11 @@ pub fn enter_interactive_mode(
                             KeyCode::Char('l') => match app.ui_mode {
                                 UIMode::Normal => {
                                     args.label_directories = !args.label_directories;
-                                    app.refresh(args, nomad_style, target_directory)?;
+                                    if let Err(error) =
+                                        app.refresh(args, nomad_style, target_directory)
+                                    {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
                                 }
                                 UIMode::Breadcrumbs => {
                                     if app.breadcrumbs.state.selected().is_none() {
@@ -330,7 +363,11 @@ pub fn enter_interactive_mode(
                             KeyCode::Char('m') => match app.ui_mode {
                                 UIMode::Normal => {
                                     args.metadata = !args.metadata;
-                                    app.refresh(args, nomad_style, target_directory)?;
+                                    if let Err(error) =
+                                        app.refresh(args, nomad_style, target_directory)
+                                    {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
                                 }
                                 _ => {}
                             },
@@ -338,7 +375,11 @@ pub fn enter_interactive_mode(
                             KeyCode::Char('n') => match app.ui_mode {
                                 UIMode::Normal => {
                                     args.numbers = !args.numbers;
-                                    app.refresh(args, nomad_style, target_directory)?;
+                                    if let Err(error) =
+                                        app.refresh(args, nomad_style, target_directory)
+                                    {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
                                 }
                                 _ => {}
                             },
@@ -346,7 +387,11 @@ pub fn enter_interactive_mode(
                             KeyCode::Char('p') => match app.ui_mode {
                                 UIMode::Normal => {
                                     args.plain = !args.plain;
-                                    app.refresh(args, nomad_style, target_directory)?;
+                                    if let Err(error) =
+                                        app.refresh(args, nomad_style, target_directory)
+                                    {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
                                 }
                                 _ => {}
                             },
@@ -357,6 +402,17 @@ pub fn enter_interactive_mode(
                                 terminal.show_cursor()?;
                                 break;
                             }
+                            // Reload the tree.
+                            KeyCode::Char('r') => match app.ui_mode {
+                                UIMode::Normal => {
+                                    if let Err(error) =
+                                        app.refresh(args, nomad_style, target_directory)
+                                    {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
+                                }
+                                _ => {}
+                            },
                             // In Normal mode, display all settings.
                             KeyCode::Char('s') => match app.ui_mode {
                                 UIMode::Normal => app.popup_mode = PopupMode::Settings,
@@ -373,7 +429,11 @@ pub fn enter_interactive_mode(
                                     //
                                     //
                                     //args.export = !args.plain;
-                                    app.refresh(args, nomad_style, target_directory)?;
+                                    if let Err(error) =
+                                        app.refresh(args, nomad_style, target_directory)
+                                    {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
                                 }
                                 _ => {}
                             },
@@ -381,7 +441,11 @@ pub fn enter_interactive_mode(
                             KeyCode::Char('D') => match app.ui_mode {
                                 UIMode::Normal => {
                                     args.disrespect = !args.disrespect;
-                                    app.refresh(args, nomad_style, target_directory)?;
+                                    if let Err(error) =
+                                        app.refresh(args, nomad_style, target_directory)
+                                    {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
                                 }
                                 _ => {}
                             },
@@ -389,14 +453,23 @@ pub fn enter_interactive_mode(
                             KeyCode::Char('L') => match app.ui_mode {
                                 UIMode::Normal => {
                                     args.all_labels = !args.all_labels;
-                                    app.refresh(args, nomad_style, target_directory)?;
+                                    if let Err(error) =
+                                        app.refresh(args, nomad_style, target_directory)
+                                    {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
                                 }
                                 _ => {}
                             },
-                            // Reload the tree.
+                            // Reset all arguments.
                             KeyCode::Char('R') => match app.ui_mode {
                                 UIMode::Normal => {
-                                    app.refresh(args, nomad_style, target_directory)?;
+                                    reset_args(args);
+                                    if let Err(error) =
+                                        app.refresh(args, nomad_style, target_directory)
+                                    {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
                                 }
                                 _ => {}
                             },
@@ -415,11 +488,10 @@ pub fn enter_interactive_mode(
                                         .select(Some(app.breadcrumbs.items.len() - 1));
                                     app.ui_mode = UIMode::Normal;
                                 }
-                                UIMode::Help => {
+                                UIMode::Help | UIMode::Inspect => {
                                     app.ui_mode = UIMode::Normal;
                                     app.scroll = 0;
                                 }
-                                UIMode::Inspect => app.ui_mode = UIMode::Normal,
                                 UIMode::Normal => app.ui_mode = UIMode::Breadcrumbs,
                                 _ => {}
                             },
@@ -432,7 +504,7 @@ pub fn enter_interactive_mode(
                             //     + If a file is selected, enter the file and enable scrolling.
                             KeyCode::Enter => match app.ui_mode {
                                 UIMode::Breadcrumbs => {
-                                    app.refresh(
+                                    if let Err(error) = app.refresh(
                                         args,
                                         nomad_style,
                                         &format!(
@@ -448,17 +520,27 @@ pub fn enter_interactive_mode(
                                                 .join("/")
                                                 .to_string()
                                         ),
-                                    )?;
-                                    app.ui_mode = UIMode::Normal;
+                                    ) {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    } else {
+                                        app.ui_mode = UIMode::Normal;
+                                    }
                                 }
-                                UIMode::Normal => {
-                                    // TODO: CHECK IF SELECTED ITEM IS A DIR OR FILE
-                                    //       IF FILE:
-                                    //          EDIT THE FILE BY OPENING IT WITH THE EDITOR
-                                    //       IF DIR:
-                                    //          REFRESH THE APP LIKE IF IT WERE IN BREADCRUMBS MODE
-                                    //
-                                }
+                                UIMode::Normal => match app.selected_is_dir()? {
+                                    Some(is_dir) => {
+                                        if is_dir {
+                                            if let Err(error) =
+                                                app.refresh(args, nomad_style, target_directory)
+                                            {
+                                                app.popup_mode =
+                                                    PopupMode::Error(error.to_string());
+                                            }
+                                        } else {
+                                            app.ui_mode = UIMode::Inspect;
+                                        }
+                                    }
+                                    None => {}
+                                },
                                 _ => {}
                             },
 
@@ -503,14 +585,16 @@ pub fn enter_interactive_mode(
                             },
                             // Scroll up the directory tree, file, settings, or help menu.
                             KeyCode::Up | KeyCode::Char('k') => match app.ui_mode {
-                                UIMode::Help => {
+                                UIMode::Help | UIMode::Inspect => {
                                     if app.scroll != 0 {
                                         app.scroll -= 1;
                                     }
                                 }
                                 UIMode::Normal => {
                                     app.directory_tree.previous();
-                                    app.cat_file()?;
+                                    if let Err(error) = app.cat_file() {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
                                 }
                                 _ => {}
                             },
@@ -521,9 +605,16 @@ pub fn enter_interactive_mode(
                                         app.scroll += 1
                                     }
                                 }
+                                UIMode::Inspect => {
+                                    // TODO: ADD ANOTHER FIELD IN THE APP THAT STORES THE NUMBER OF
+                                    // LINES IN A FILE?
+                                    app.scroll += 1;
+                                }
                                 UIMode::Normal => {
                                     app.directory_tree.next();
-                                    app.cat_file()?;
+                                    if let Err(error) = app.cat_file() {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
                                 }
                                 _ => {}
                             },
@@ -531,15 +622,29 @@ pub fn enter_interactive_mode(
                             // Scroll to the top or beginning of a widget.
                             KeyCode::Char('0') => match app.ui_mode {
                                 UIMode::Normal => {
-                                    app.directory_items.state.select(Some(0));
+                                    if let Some(ref mut directory_items) = app.directory_items {
+                                        directory_items.state.select(Some(0));
+                                    }
                                     app.directory_tree.state.select(Some(0));
+
+                                    if let Err(error) = app.cat_file() {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
                                 }
-                                UIMode::Help => app.scroll = 0,
+                                UIMode::Help | UIMode::Inspect => app.scroll = 0,
                                 _ => {}
                             },
                             _ => {}
                         }
                     }
+                    PopupMode::Error(_) => match event.code {
+                        _ => {
+                            disable_raw_mode()?;
+                            execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
+                            terminal.show_cursor()?;
+                            break;
+                        }
+                    },
                     PopupMode::Export | PopupMode::PatternInput => match event.code {
                         KeyCode::Backspace => {
                             app.user_input.pop();
@@ -549,7 +654,11 @@ pub fn enter_interactive_mode(
                         }
                         KeyCode::Enter => {
                             app.collected_input.push(app.user_input.drain(..).collect());
-                            app.pattern_search(args, nomad_style, target_directory)?;
+                            if let Err(error) =
+                                app.pattern_search(args, nomad_style, target_directory)
+                            {
+                                app.popup_mode = PopupMode::Error(error.to_string());
+                            }
                         }
                         KeyCode::Esc => {
                             app.user_input.clear();
