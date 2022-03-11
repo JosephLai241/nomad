@@ -1,6 +1,6 @@
 //! Create an application state for the TUI.
 
-use super::stateful_widgets::StatefulWidget;
+use super::stateful_widgets::{StatefulWidget, WidgetMode};
 use crate::{
     cli::Args,
     errors::NomadError,
@@ -90,12 +90,29 @@ impl<'a> App<'a> {
         target_directory: &str,
     ) -> Result<App<'a>, NomadError> {
         let (tree, items) = get_tree(args, nomad_style, target_directory)?;
+        let mut directory_tree = StatefulWidget::new(tree, ListState::default(), WidgetMode::Files);
+        let mut directory_items = StatefulWidget::new(
+            match items {
+                Some(paths) => paths,
+                None => Vec::new(),
+            },
+            ListState::default(),
+            WidgetMode::Files,
+        );
+
+        directory_tree.state.select(Some(0));
+        directory_items.state.select(Some(0));
 
         Ok(App {
-            app_settings: StatefulWidget::new(get_settings(args), TableState::default()),
+            app_settings: StatefulWidget::new(
+                get_settings(args),
+                TableState::default(),
+                WidgetMode::Standard,
+            ),
             breadcrumbs: StatefulWidget::new(
                 get_breadcrumbs(target_directory)?,
                 ListState::default(),
+                WidgetMode::Standard,
             ),
             collected_input: Vec::new(),
             current_directory: Path::new(target_directory)
@@ -104,14 +121,8 @@ impl<'a> App<'a> {
                 .to_str()
                 .unwrap_or("?")
                 .to_string(),
-            directory_items: StatefulWidget::new(
-                match items {
-                    Some(paths) => paths,
-                    None => Vec::new(),
-                },
-                ListState::default(),
-            ),
-            directory_tree: StatefulWidget::new(tree, ListState::default()),
+            directory_items,
+            directory_tree,
             file_contents: None,
             popup_mode: PopupMode::Disabled,
             scroll: 0,
@@ -157,22 +168,30 @@ impl<'a> App<'a> {
     ) -> Result<(), NomadError> {
         self.popup_mode = PopupMode::Reloading;
 
-        self.app_settings = StatefulWidget::new(get_settings(args), TableState::default());
+        self.app_settings = StatefulWidget::new(
+            get_settings(args),
+            TableState::default(),
+            WidgetMode::Standard,
+        );
         self.file_contents = None;
         self.scroll = 0;
 
-        self.breadcrumbs =
-            StatefulWidget::new(get_breadcrumbs(target_directory)?, ListState::default());
+        self.breadcrumbs = StatefulWidget::new(
+            get_breadcrumbs(target_directory)?,
+            ListState::default(),
+            WidgetMode::Standard,
+        );
 
         let (tree, items) = get_tree(args, nomad_style, target_directory)?;
 
-        self.directory_tree = StatefulWidget::new(tree, ListState::default());
+        self.directory_tree = StatefulWidget::new(tree, ListState::default(), WidgetMode::Files);
         self.directory_items = StatefulWidget::new(
             match items {
                 Some(paths) => paths,
                 None => Vec::new(),
             },
             ListState::default(),
+            WidgetMode::Files,
         );
 
         self.popup_mode = PopupMode::Disabled;
