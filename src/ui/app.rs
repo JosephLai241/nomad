@@ -67,11 +67,11 @@ pub struct App<'a> {
     /// The current directory of the tree that is displayed.
     pub current_directory: String,
     /// All items in the target directory.
-    pub directory_items: StatefulWidget<String, ListState>,
+    pub directory_items: Option<StatefulWidget<String, ListState>>,
     /// The directory tree.
     pub directory_tree: StatefulWidget<String, ListState>,
     /// Stores `None` or `Some(file contents)`.
-    pub file_contents: Option<Vec<String>>,
+    pub file_contents: Option<Option<Vec<String>>>,
     /// Hold the current popup mode.
     pub popup_mode: PopupMode,
     /// Hold the scroll position for `Scroll` mode.
@@ -91,17 +91,24 @@ impl<'a> App<'a> {
     ) -> Result<App<'a>, NomadError> {
         let (tree, items) = get_tree(args, nomad_style, target_directory)?;
         let mut directory_tree = StatefulWidget::new(tree, ListState::default(), WidgetMode::Files);
-        let mut directory_items = StatefulWidget::new(
-            match items {
-                Some(paths) => paths,
-                None => Vec::new(),
-            },
-            ListState::default(),
-            WidgetMode::Files,
-        );
+        let mut directory_items = if args.dirs {
+            None
+        } else {
+            Some(StatefulWidget::new(
+                match items {
+                    Some(paths) => paths,
+                    None => Vec::new(),
+                },
+                ListState::default(),
+                WidgetMode::Files,
+            ))
+        };
 
         directory_tree.state.select(Some(0));
-        directory_items.state.select(Some(0));
+
+        if let Some(ref mut directory_items) = directory_items {
+            directory_items.state.select(Some(0));
+        }
 
         Ok(App {
             app_settings: StatefulWidget::new(
@@ -131,26 +138,56 @@ impl<'a> App<'a> {
         })
     }
 
-    /// `cat` the selected file if the selected item is a file.
-    pub fn cat_file(&mut self) -> Result<(), NomadError> {
+    /// Check if the selected item is a directory.
+    /// Returns `true` if it is, returns `false` if it is a file.
+    pub fn selected_is_dir(&self) -> Result<Option<bool>, NomadError> {
         match self.directory_tree.state.selected() {
-            Some(index) => {
-                let selected_item = &self.directory_items.items[index];
+            Some(index) => match &self.directory_items {
+                Some(directory_items) => {
+                    let selected_item = &directory_items.items[index];
 
-                if Path::new(selected_item).canonicalize()?.is_dir() {
+                    if Path::new(&selected_item).canonicalize()?.is_dir() {
+                        Ok(Some(true))
+                    } else {
+                        Ok(Some(false))
+                    }
+                }
+                None => Ok(Some(true)), // `args.dirs` is `true` if `self.directory_items` is `None`.
+            },
+            None => Ok(None),
+        }
+    }
+
+    /// `cat` the selected item if it is a file.
+    pub fn cat_file(&mut self) -> Result<(), NomadError> {
+        match self.selected_is_dir()? {
+            Some(is_dir) => {
+                if is_dir {
                     self.file_contents = None;
                 } else {
-                    let mut buffer = Vec::new();
-                    let mut file = File::open(&self.directory_items.items[index])?;
+                    match self.directory_tree.state.selected() {
+                        Some(index) => match &self.directory_items {
+                            Some(directory_items) => {
+                                let mut buffer = Vec::new();
+                                let mut file = File::open(&directory_items.items[index])?;
 
-                    file.read_to_end(&mut buffer)?;
+                                file.read_to_end(&mut buffer)?;
 
-                    self.file_contents = Some(
-                        String::from_utf8_lossy(&buffer)
-                            .split("\n")
-                            .map(|line| line.to_string())
-                            .collect::<Vec<String>>(),
-                    )
+                                self.file_contents = if buffer.is_empty() {
+                                    Some(None)
+                                } else {
+                                    Some(Some(
+                                        String::from_utf8_lossy(&buffer)
+                                            .split("\n")
+                                            .map(|line| line.to_string())
+                                            .collect::<Vec<String>>(),
+                                    ))
+                                }
+                            }
+                            None => self.file_contents = None, // `args.dirs` is `true` if `self.directory_items` is `None`.
+                        },
+                        None => self.file_contents = None,
+                    }
                 }
             }
             None => self.file_contents = None,
@@ -159,12 +196,22 @@ impl<'a> App<'a> {
         Ok(())
     }
 
+    /// Get the current directory from the breadcrumbs.
+    fn get_target_by_breadcrumbs(&self) -> String {
+        let end = match self.breadcrumbs.state.selected() {
+            Some(index) => index + 1,
+            None => self.breadcrumbs.items.len(),
+        };
+
+        format!("/{}", self.breadcrumbs.items[..end].join("/"))
+    }
+
     /// Update the app's `breadcrumbs`, `directory_items`, and `directory_tree`.
     pub fn refresh(
         &mut self,
         args: &Args,
         nomad_style: &NomadStyle,
-        target_directory: &str, // TODO: THIS SHOULDN'T BE USED FOR THE REFRESH
+        target_directory: &str,
     ) -> Result<(), NomadError> {
         self.popup_mode = PopupMode::Reloading;
 
@@ -176,23 +223,58 @@ impl<'a> App<'a> {
         self.file_contents = None;
         self.scroll = 0;
 
+        let crumb_path = self.get_target_by_breadcrumbs();
+        let new_directory = match self.ui_mode {
+            UIMode::Breadcrumbs => target_directory,
+            UIMode::Normal => match &self.directory_items {
+                Some(directory_items) => match self.ui_mode {
+                    UIMode::Breadcrumbs => target_directory,
+                    UIMode::Normal => match self.selected_is_dir()? {
+                        Some(is_dir) => {
+                            if is_dir {
+                                match self.directory_tree.state.selected() {
+                                    Some(index) => &directory_items.items[index],
+                                    None => target_directory,
+                                }
+                            } else {
+                                &crumb_path
+                            }
+                        }
+                        None => &crumb_path,
+                    },
+                    _ => &crumb_path,
+                },
+                None => &crumb_path,
+            },
+            _ => &crumb_path,
+        };
+
         self.breadcrumbs = StatefulWidget::new(
-            get_breadcrumbs(target_directory)?,
+            get_breadcrumbs(&new_directory)?,
             ListState::default(),
             WidgetMode::Standard,
         );
 
-        let (tree, items) = get_tree(args, nomad_style, target_directory)?;
+        let (tree, items) = get_tree(args, nomad_style, &new_directory)?;
 
         self.directory_tree = StatefulWidget::new(tree, ListState::default(), WidgetMode::Files);
-        self.directory_items = StatefulWidget::new(
-            match items {
-                Some(paths) => paths,
-                None => Vec::new(),
-            },
-            ListState::default(),
-            WidgetMode::Files,
-        );
+        self.directory_items = if args.dirs {
+            None
+        } else {
+            Some(StatefulWidget::new(
+                match items {
+                    Some(paths) => paths,
+                    None => Vec::new(),
+                },
+                ListState::default(),
+                WidgetMode::Files,
+            ))
+        };
+
+        self.directory_tree.state.select(Some(0));
+        if let Some(ref mut directory_items) = self.directory_items {
+            directory_items.state.select(Some(0));
+        }
 
         self.popup_mode = PopupMode::Disabled;
 
@@ -338,4 +420,53 @@ fn get_tree(
             .collect::<Vec<String>>(),
         directory_items,
     ))
+}
+
+/// Reset all settings to its original value.
+pub fn reset_args(args: &mut Args) {
+    if args.all_labels {
+        args.all_labels = false;
+    }
+    if args.dirs {
+        args.dirs = false;
+    }
+    if args.disrespect {
+        args.disrespect = false;
+    }
+    if args.export.is_some() {
+        args.export = None;
+    }
+    if args.hidden {
+        args.hidden = false;
+    }
+    if args.label_directories {
+        args.label_directories = false;
+    }
+    if args.max_depth.is_some() {
+        args.max_depth = None;
+    }
+    if args.max_filesize.is_some() {
+        args.max_filesize = None;
+    }
+    if args.metadata {
+        args.metadata = false;
+    }
+    if args.no_git {
+        args.no_git = false;
+    }
+    if args.no_icons {
+        args.no_icons = false;
+    }
+    if args.numbers {
+        args.numbers = false;
+    }
+    if args.pattern.is_some() {
+        args.pattern = None;
+    }
+    if args.plain {
+        args.plain = false;
+    }
+    if args.statistics {
+        args.statistics = false;
+    }
 }
