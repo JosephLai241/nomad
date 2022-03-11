@@ -409,7 +409,12 @@ pub fn enter_interactive_mode(
                             // * Breadcrumbs or Normal mode - cycles between the two modes.
                             // * Help - exits the help screen.
                             KeyCode::Esc => match app.ui_mode {
-                                UIMode::Breadcrumbs => app.ui_mode = UIMode::Normal,
+                                UIMode::Breadcrumbs => {
+                                    app.breadcrumbs
+                                        .state
+                                        .select(Some(app.breadcrumbs.items.len() - 1));
+                                    app.ui_mode = UIMode::Normal;
+                                }
                                 UIMode::Help => {
                                     app.ui_mode = UIMode::Normal;
                                     app.scroll = 0;
