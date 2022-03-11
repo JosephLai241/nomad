@@ -20,7 +20,7 @@ pub struct FoundItem {
 pub struct TransformedItem {
     /// The filepath broken down into its individual components.
     pub components: Vec<String>,
-    /// The depth of the file relative to the root of the Git repository.
+    /// The depth of the file relative to the root of the directory.
     pub depth: i32,
     /// Indicates whether this is a directory.
     pub is_dir: bool,

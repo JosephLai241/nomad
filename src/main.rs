@@ -9,15 +9,18 @@ mod releases;
 mod style;
 mod switches;
 mod traverse;
+mod ui;
 mod utils;
 
 use cli::{get_args, SubCommands};
 use config::toml::parse_config;
 use releases::update_self;
 use switches::{config::run_config, filetype::run_filetypes, git::run_git, release::run_releases};
-use traverse::utils::build_walker;
+use traverse::{modes::NomadMode, utils::build_walker, walk_directory};
+use ui::enter_interactive_mode;
 use utils::{
     bat::run_bat,
+    export::{export_tree, ExportMode},
     icons::{get_icons_by_extension, get_icons_by_name},
     open::open_files,
     paint::paint_error,
@@ -45,7 +48,7 @@ lazy_static! {
     static ref NAME_ICON_MAP: HashMap<&'static str, &'static str> = get_icons_by_name();
     /// Xterm 256 color codes (excludes grayscale colors).
     ///
-    /// Corresponds with the first three color tabledefaults here:
+    /// Corresponds with the first three color tables here:
     ///     https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
     static ref XTERM_COLORS: Vec<u8> = vec![
         016, 017, 018, 019, 020, 021, 022, 023, 024, 025, 026, 027, 028, 029, 030,
@@ -70,7 +73,7 @@ lazy_static! {
 fn main() -> Result<(), NomadError> {
     //check_for_update()?;
 
-    let args = get_args();
+    let mut args = get_args();
 
     let (nomad_config, config_path) = parse_config()?;
     let nomad_style = process_settings(nomad_config);
@@ -98,6 +101,7 @@ fn main() -> Result<(), NomadError> {
             match sub_command {
                 SubCommands::Bat { item_labels } => {
                     match indiscriminate_search(
+                        &args,
                         item_labels,
                         &nomad_style,
                         None,
@@ -117,6 +121,7 @@ fn main() -> Result<(), NomadError> {
                 }
                 SubCommands::Edit { item_labels } => {
                     match indiscriminate_search(
+                        &args,
                         item_labels,
                         &nomad_style,
                         None,
@@ -137,6 +142,17 @@ fn main() -> Result<(), NomadError> {
                 SubCommands::Git(git_command) => {
                     run_git(&args, git_command, &nomad_style, &target_directory);
                 }
+                SubCommands::Interactive => {
+                    // ANSI escape codes do not correctly render in the alternate screen,
+                    // which is why `--no-colors` has to be enabled.
+                    args.no_colors = true;
+
+                    if let Err(error) =
+                        enter_interactive_mode(&mut args, &nomad_style, &target_directory)
+                    {
+                        paint_error(error);
+                    }
+                }
                 SubCommands::Releases(release_option) => {
                     run_releases(release_option);
                 }
@@ -150,16 +166,17 @@ fn main() -> Result<(), NomadError> {
             // Run `nomad` in normal mode.
             match build_walker(&args, &target_directory, None) {
                 Ok(mut walker) => {
-                    match traverse::walk_directory(
+                    match walk_directory(
                         &args,
+                        NomadMode::Normal,
                         &nomad_style,
                         &target_directory,
                         &mut walker,
                     ) {
-                        Ok((tree, config)) => {
-                            if let Some(filename) = args.export {
+                        Ok((tree, config, _)) => {
+                            if let Some(export) = args.export {
                                 if let Err(error) =
-                                    utils::export::export_tree(config, &filename, tree)
+                                    export_tree(config, ExportMode::Normal, &export, tree)
                                 {
                                     paint_error(error);
                                 }

@@ -6,6 +6,7 @@ use ansi_term::Colour;
 use git2::{Error, Repository};
 
 use crate::{
+    cli::Args,
     style::models::NomadStyle,
     utils::search::{indiscriminate_search, SearchMode},
 };
@@ -24,6 +25,7 @@ pub enum StageMode {
 /// working directory and the repository). Then return the tree containing staged
 /// items (the Git index tree).
 pub fn stage_files(
+    args: &Args,
     item_labels: &Vec<String>,
     nomad_style: &NomadStyle,
     repo: &Repository,
@@ -33,6 +35,7 @@ pub fn stage_files(
     let mut index = repo.index()?;
 
     let found_items = indiscriminate_search(
+        args,
         item_labels,
         nomad_style,
         Some(repo),

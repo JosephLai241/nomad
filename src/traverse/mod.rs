@@ -2,11 +2,13 @@
 
 pub mod format;
 pub mod models;
+pub mod modes;
 pub mod traits;
 pub mod utils;
 
 use self::{
     models::FoundItem,
+    modes::NomadMode,
     traits::{ToTree, TransformFound},
 };
 use crate::{
@@ -24,10 +26,11 @@ use std::{collections::HashMap, ffi::OsStr, path::Path};
 /// Traverse the directory and display files and directories accordingly.
 pub fn walk_directory(
     args: &Args,
+    nomad_mode: NomadMode,
     nomad_style: &NomadStyle,
     target_directory: &str,
     walker: &mut Walk,
-) -> Result<(StringItem, PrintConfig), NomadError> {
+) -> Result<(StringItem, PrintConfig, Option<Vec<String>>), NomadError> {
     let regex_expression = if let Some(ref pattern) = args.pattern {
         match Regex::new(&pattern.clone()) {
             Ok(regex) => Some(regex),
@@ -39,16 +42,18 @@ pub fn walk_directory(
 
     let mut git_markers: HashMap<String, String> = HashMap::new();
     extend_marker_map(
+        args,
         &mut git_markers,
         nomad_style,
         Path::new(target_directory).to_str().unwrap_or("?"),
     );
 
-    let (tree, config) = walker
+    let (tree, config, directory_items) = walker
         .filter_map(|dir_entry| {
             if let Ok(entry) = dir_entry {
                 if entry.path().is_dir() {
                     extend_marker_map(
+                        args,
                         &mut git_markers,
                         nomad_style,
                         entry.path().to_str().unwrap_or("?"),
@@ -97,7 +102,7 @@ pub fn walk_directory(
         })
         .collect::<Vec<FoundItem>>()
         .transform(target_directory)?
-        .to_tree(args, nomad_style, target_directory)?;
+        .to_tree(args, nomad_mode, nomad_style, target_directory)?;
 
-    Ok((tree, config))
+    Ok((tree, config, directory_items))
 }

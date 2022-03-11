@@ -1,6 +1,7 @@
 //! Formatting items in the tree.
 
 use crate::{
+    cli::Args,
     git::utils::paint_git_item,
     style::models::NomadStyle,
     utils::{
@@ -13,25 +14,19 @@ use crate::{
 use std::path::Path;
 
 /// Format how directories are displayed in the tree.
-pub fn format_directory(
-    label: Option<String>,
-    item: &Path,
-    include_metadata: bool,
-    mute_icons: bool,
-    plain: bool,
-) -> String {
+pub fn format_directory(args: &Args, label: Option<String>, item: &Path) -> String {
     let icon = "\u{f115}".to_string(); // 
-    let metadata = get_metadata(item, plain);
+    let metadata = get_metadata(args, item);
 
     let directory_label = if item.is_symlink() {
         paint_symlink(item)
-    } else if plain {
+    } else if args.plain || args.no_colors {
         get_filename(item)
     } else {
         paint_directory(item)
     };
 
-    let mut formatted = if mute_icons || plain {
+    let mut formatted = if args.no_icons || args.plain {
         format!("{directory_label}")
     } else {
         format!("{icon} {directory_label}")
@@ -41,7 +36,7 @@ pub fn format_directory(
         formatted = format!("[{label}] {formatted}");
     }
 
-    if include_metadata {
+    if args.metadata {
         return format!("{metadata} {formatted}");
     }
 
@@ -50,31 +45,34 @@ pub fn format_directory(
 
 /// Format how directory contents are displayed in the tree.
 pub fn format_content(
+    args: &Args,
     git_marker: Option<String>,
     icon: String,
     item: &Path,
-    include_metadata: bool,
     matched: Option<(usize, usize)>,
-    mute_git: bool,
-    mute_icons: bool,
     nomad_style: &NomadStyle,
     number: Option<i32>,
-    plain: bool,
 ) -> String {
     let mut filename = get_filename(item);
-    let metadata = get_metadata(item, plain);
+    let metadata = get_metadata(args, item);
 
-    let mut item_string = if let (Some(marker), false, false) = (git_marker, mute_git, plain) {
-        let formatted_filename = paint_git_item(&filename, &marker, nomad_style, matched);
-
-        if mute_icons {
-            format!("{marker} {formatted_filename}")
+    let mut item_string = if let (Some(marker), false) = (git_marker, args.no_git || args.plain) {
+        if args.no_colors {
+            format!("{marker} {icon} {filename}")
         } else {
-            format!("{marker} {icon} {formatted_filename}")
+            let formatted_filename = paint_git_item(&filename, &marker, nomad_style, matched);
+
+            if args.no_icons {
+                format!("{marker} {formatted_filename}")
+            } else {
+                format!("{marker} {icon} {formatted_filename}")
+            }
         }
     } else {
-        if mute_icons || plain {
+        if args.no_icons || args.plain {
             format!("{filename}")
+        } else if args.no_colors {
+            format!("{icon} {filename}")
         } else {
             filename = if let Some(ranges) = matched {
                 highlight_matched(filename, nomad_style, ranges)
@@ -88,7 +86,7 @@ pub fn format_content(
     if let Some(number) = number {
         item_string = format!("[{number}] {item_string}");
     }
-    if include_metadata {
+    if args.metadata {
         item_string = format!("{metadata} {item_string}")
     }
 

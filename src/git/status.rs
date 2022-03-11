@@ -7,6 +7,7 @@ use crate::{
     style::models::NomadStyle,
     traverse::{
         models::FoundItem,
+        modes::NomadMode,
         traits::{ToTree, TransformFound},
     },
 };
@@ -26,8 +27,8 @@ pub fn display_status_tree(
     nomad_style: &NomadStyle,
     repo: &Repository,
     target_directory: &str,
-) -> Result<(), NomadError> {
-    get_status_markers(nomad_style, &repo, target_directory).map_or_else(
+) -> Result<Option<(StringItem, PrintConfig)>, NomadError> {
+    get_status_markers(args, nomad_style, &repo, target_directory).map_or_else(
         |error| Err(error),
         |marker_map| {
             if marker_map.is_empty() {
@@ -38,11 +39,14 @@ pub fn display_status_tree(
                         .paint(format!("Nothing to commit. Working tree clean."))
                 );
 
-                Ok(())
+                Ok(None)
             } else {
-                build_status_tree(args, marker_map, nomad_style, target_directory)?;
-
-                Ok(())
+                Ok(Some(build_status_tree(
+                    args,
+                    marker_map,
+                    nomad_style,
+                    target_directory,
+                )?))
             }
         },
     )
@@ -63,7 +67,7 @@ pub fn display_commits_ahead(branch_name: &str, repo: &Repository) -> Result<(),
             Style::new().underline().paint("Ahead"),
             Colour::Blue.bold().paint(origin_branch),
             Colour::Green.bold().paint(format!("{}", ahead)),
-            Style::new().bold().paint("nd git push"),
+            Style::new().bold().paint("git push"),
             plurality = if ahead > 1 { "s" } else { "" }
         );
     } else {
@@ -92,7 +96,7 @@ fn build_status_tree(
         None
     };
 
-    let (tree, config) = marker_map
+    let (tree, config, _) = marker_map
         .iter()
         .filter_map(|(relative_path, marker)| {
             if let Some(ref regex) = regex_expression {
@@ -122,7 +126,7 @@ fn build_status_tree(
         .sorted_by_key(|found_item| found_item.path.to_string())
         .collect::<Vec<FoundItem>>()
         .transform(target_directory)?
-        .to_tree(args, nomad_style, target_directory)?;
+        .to_tree(args, NomadMode::Normal, nomad_style, target_directory)?;
 
     Ok((tree, config))
 }

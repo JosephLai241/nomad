@@ -1,6 +1,9 @@
 //! Exposing traits for directory traversal/item parsing.
 
-use super::models::{FoundItem, TransformedItem};
+use super::{
+    models::{FoundItem, TransformedItem},
+    modes::NomadMode,
+};
 use crate::{
     cli::Args,
     errors::NomadError,
@@ -101,18 +104,20 @@ pub trait ToTree {
     fn to_tree(
         self,
         args: &Args,
+        nomad_mode: NomadMode,
         nomad_style: &NomadStyle,
         target_directory: &str,
-    ) -> Result<(StringItem, PrintConfig), NomadError>;
+    ) -> Result<(StringItem, PrintConfig, Option<Vec<String>>), NomadError>;
 }
 
 impl ToTree for Vec<TransformedItem> {
     fn to_tree(
         self,
         args: &Args,
+        nomad_mode: NomadMode,
         nomad_style: &NomadStyle,
         target_directory: &str,
-    ) -> Result<(StringItem, PrintConfig), NomadError> {
+    ) -> Result<(StringItem, PrintConfig, Option<Vec<String>>), NomadError> {
         let mut numbered_items: HashMap<String, String> = HashMap::new();
         let mut labeled_items: HashMap<String, String> = HashMap::new();
 
@@ -131,7 +136,13 @@ impl ToTree for Vec<TransformedItem> {
             path: target_directory.to_string(),
         };
 
-        let (config, mut tree) = build_tree(args.metadata, args.plain, Path::new(target_directory));
+        let mut directory_items = Vec::new();
+        match nomad_mode {
+            NomadMode::Interactive => directory_items.push(target_directory.to_string()),
+            _ => {}
+        }
+
+        let (config, mut tree) = build_tree(&args, Path::new(target_directory));
 
         let start = Instant::now();
         for item in self.iter() {
@@ -169,13 +180,7 @@ impl ToTree for Vec<TransformedItem> {
                     None
                 };
 
-                tree.begin_child(format_directory(
-                    label,
-                    Path::new(&item.path),
-                    args.metadata,
-                    args.no_icons,
-                    args.plain,
-                ));
+                tree.begin_child(format_directory(&args, label, Path::new(&item.path)));
 
                 num_directories += 1;
             } else if item.is_file && !args.dirs {
@@ -189,16 +194,13 @@ impl ToTree for Vec<TransformedItem> {
 
                 let icon = get_file_icon(Path::new(&item.path));
                 tree.add_empty_child(format_content(
+                    &args,
                     item.marker.clone(),
                     icon,
                     Path::new(&item.path),
-                    args.metadata,
                     item.matched,
-                    args.no_git,
-                    args.no_icons,
                     nomad_style,
                     number,
-                    args.plain,
                 ));
 
                 num_files += 1;
@@ -206,21 +208,44 @@ impl ToTree for Vec<TransformedItem> {
 
             current_depth = item.depth as usize;
             previous_item = item;
+
+            match nomad_mode {
+                NomadMode::Interactive => directory_items.push(
+                    Path::new(&item.path)
+                        .canonicalize()?
+                        .to_str()
+                        .unwrap_or("?")
+                        .to_string(),
+                ),
+                _ => {}
+            }
         }
 
         store_directory_contents(labeled_items, numbered_items)?;
 
         let final_tree = tree.build();
 
-        println!();
-        print_tree_with(&final_tree, &config)?;
-        println!();
+        match nomad_mode {
+            NomadMode::Normal => {
+                println!();
+                print_tree_with(&final_tree, &config)?;
+                println!();
+            }
+            _ => {}
+        }
 
         if args.statistics {
             let duration = start.elapsed().as_millis();
             println!("| {num_directories} directories | {num_files} files | {duration} ms |\n");
         }
 
-        Ok((final_tree, config))
+        Ok((
+            final_tree,
+            config,
+            match nomad_mode {
+                NomadMode::Interactive => Some(directory_items),
+                NomadMode::Normal => None,
+            },
+        ))
     }
 }

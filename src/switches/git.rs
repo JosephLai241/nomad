@@ -16,6 +16,7 @@ use crate::{
     },
     style::models::NomadStyle,
     utils::{
+        export::{export_tree, ExportMode},
         paint::paint_error,
         search::{indiscriminate_search, SearchMode},
     },
@@ -34,6 +35,7 @@ pub fn run_git(
         match git_command {
             GitOptions::Add { item_labels } => {
                 if let Err(error) = stage_files(
+                    args,
                     item_labels,
                     nomad_style,
                     &repo,
@@ -49,6 +51,7 @@ pub fn run_git(
             GitOptions::Blame(blame_options) => match blame_options.file_number.parse::<i32>() {
                 Ok(file_number) => {
                     match indiscriminate_search(
+                        args,
                         &vec![file_number.to_string()],
                         nomad_style,
                         Some(&repo),
@@ -101,6 +104,7 @@ pub fn run_git(
             GitOptions::Diff { item_labels } => match get_repo_diffs(&repo) {
                 Ok(diff) => {
                     match indiscriminate_search(
+                        args,
                         item_labels,
                         nomad_style,
                         Some(&repo),
@@ -135,6 +139,7 @@ pub fn run_git(
                 // TODO: MAKE AN ENUM FOR THE STAGE_FILES() FUNCTION
                 //       TO EITHER ADD OR REMOVE FROM THE INDEX?
                 if let Err(error) = restore_files(
+                    args,
                     &restore_options.item_labels,
                     RestoreMode::Staged,
                     &nomad_style,
@@ -159,10 +164,21 @@ pub fn run_git(
                     }
                 }
 
-                if let Err(error) =
-                    display_status_tree(&args, nomad_style, &repo, &target_directory)
-                {
-                    paint_error(error);
+                match display_status_tree(&args, nomad_style, &repo, &target_directory) {
+                    Ok(tree_items) => {
+                        if let Some((tree, config)) = tree_items {
+                            if let Some(export) = &args.export {
+                                if let Err(error) =
+                                    export_tree(config, ExportMode::GitStatus, &export, tree)
+                                {
+                                    paint_error(error);
+                                }
+                            }
+                        }
+                    }
+                    Err(error) => {
+                        paint_error(error);
+                    }
                 }
             }
         }

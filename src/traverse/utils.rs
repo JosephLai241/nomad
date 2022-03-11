@@ -128,11 +128,7 @@ pub fn get_file_icon(item_path: &Path) -> String {
 }
 
 /// Build a `ptree` object and set the tree's style/configuration.
-pub fn build_tree(
-    include_metadata: bool,
-    plain: bool,
-    target_directory: &Path,
-) -> (PrintConfig, TreeBuilder) {
+pub fn build_tree(args: &Args, target_directory: &Path) -> (PrintConfig, TreeBuilder) {
     let directory_icon = &"\u{f115}"; // 
 
     let plain_directory_name = target_directory
@@ -141,18 +137,22 @@ pub fn build_tree(
         .to_str()
         .unwrap_or("?")
         .to_string();
-    let directory_name = if plain {
+    let directory_name = if args.plain {
         plain_directory_name
     } else {
-        format!(
-            "{directory_icon} {}",
-            Colour::Blue.bold().paint(plain_directory_name).to_string()
-        )
+        if args.no_colors {
+            format!("{directory_icon} {plain_directory_name}")
+        } else {
+            format!(
+                "{directory_icon} {}",
+                Colour::Blue.bold().paint(plain_directory_name).to_string()
+            )
+        }
     };
 
     let mut tree_label = directory_name;
-    if include_metadata {
-        let metadata = get_metadata(target_directory, plain);
+    if args.metadata {
+        let metadata = get_metadata(&args, target_directory);
         tree_label = format!("{metadata} {tree_label}");
     }
 
