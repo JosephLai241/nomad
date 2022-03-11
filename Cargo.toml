@@ -1,10 +1,10 @@
 [package]
 authors = ["Joseph Lai <joseph.lai241@protonmail.com>"]
-categories = ["tree", "directory-traversal", "command-line-tool"]
+categories = ["command-line-utilities", "development-tools", "filesystem", "visualization"]
 description = "The next gen tree command"
 edition = "2021"
 homepage = "https://github.com/JosephLai241/nomad"
-keywords = ["tree", "directory traversal", "command-line tool"]
+keywords = ["command-line-tool", "developer-tool", "git", "regex", "tree"]
 license = "MIT"
 name = "nomad"
 readme = "README.md"
