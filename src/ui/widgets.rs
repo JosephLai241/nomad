@@ -153,19 +153,26 @@ pub fn normal_view<'a>(app: &App) -> List<'a> {
 /// Display the `cat`ed file.
 pub fn cat_view<'a>(app: &App) -> Option<Option<Paragraph<'a>>> {
     match &app.file_contents {
-        Some(contents) => {
-            if contents.is_empty() {
-                Some(None)
-            } else {
-                Some(Some(
-                    Paragraph::new(contents.iter().join("\n").to_string()).block(
+        Some(file) => match file {
+            Some(contents) => Some(Some(
+                Paragraph::new(contents.iter().join("\n").to_string())
+                    .block(
                         Block::default()
                             .borders(Borders::ALL)
-                            .border_style(Style::default().fg(Color::Blue)),
-                    ),
-                ))
-            }
-        }
+                            .border_style(match app.ui_mode {
+                                UIMode::Inspect => Style::default().fg(Color::Blue),
+                                _ => Style::default(),
+                            })
+                            .title(match app.ui_mode {
+                                UIMode::Inspect => " 🧐 ",
+                                _ => "",
+                            }),
+                    )
+                    .scroll((app.scroll, 0))
+                    .wrap(Wrap { trim: false }),
+            )),
+            None => Some(None),
+        },
         None => None,
     }
 }
@@ -199,18 +206,15 @@ pub fn help_view<'a>(app: &App) -> Paragraph<'a> {
 
 /// Display a message containing the error that was raised.
 pub fn error_view<'a>(error_message: &'a str) -> Paragraph<'a> {
-    Paragraph::new(error_message)
+    Paragraph::new(format!("\n{error_message}"))
         .alignment(Alignment::Center)
         .block(
             Block::default()
                 .borders(Borders::ALL)
                 .border_style(Style::default().fg(Color::Red))
-                .style(
-                    Style::default()
-                        .add_modifier(Modifier::BOLD)
-                        .add_modifier(Modifier::ITALIC)
-                        .fg(Color::Red),
-                ),
+                .style(Style::default().add_modifier(Modifier::BOLD).fg(Color::Red))
+                .title(" ⚠️   ERROR  ⚠️  ")
+                .title_alignment(Alignment::Center),
         )
         .wrap(Wrap { trim: false })
 }
