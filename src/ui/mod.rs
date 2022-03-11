@@ -3,11 +3,13 @@
 pub mod app;
 pub mod layouts;
 pub mod stateful_widgets;
+pub mod utils;
 pub mod widgets;
 
 use self::{
-    app::{reset_args, App, PopupMode, UIMode},
+    app::{App, PopupMode, UIMode},
     layouts::{get_error_popup_area, get_settings_area, get_single_line_popup_area},
+    utils::reset_args,
     widgets::{
         cat_view, error_view, get_breadcrumbs, help_view, normal_view, nothing_found_view,
         HELP_TEXT,
