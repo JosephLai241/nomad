@@ -38,15 +38,15 @@ pub struct Args {
     #[structopt(long = "export", help = "Export the tree to a file")]
     pub export: Option<Option<String>>,
 
+    #[structopt(long = "hidden", help = "Display hidden files")]
+    pub hidden: bool,
+
     #[structopt(
         short = "l",
         long = "label-directories",
         help = "Label directories with characters"
     )]
     pub label_directories: bool,
-
-    #[structopt(long = "hidden", help = "Display hidden files")]
-    pub hidden: bool,
 
     #[structopt(long = "max-depth", help = "Set the maximum depth to recurse")]
     pub max_depth: Option<usize>,
