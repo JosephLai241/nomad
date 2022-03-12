@@ -11,7 +11,11 @@ use crate::{
     },
 };
 
-use std::path::Path;
+use ansi_term::Colour;
+
+use std::{ffi::OsStr, path::Path};
+
+use super::models::TransformedBranch;
 
 /// Format how directories are displayed in the tree.
 pub fn format_directory(args: &Args, label: Option<String>, item: &Path) -> String {
@@ -105,4 +109,44 @@ pub fn highlight_matched(
         .to_string();
 
     filename.replace(&filename[ranges.0..ranges.1].to_string(), &matched_section)
+}
+
+/// Format how the branch looks depending on its metadata.
+pub fn format_branch(
+    item: &TransformedBranch,
+    nomad_style: &NomadStyle,
+    number: Option<i32>,
+) -> String {
+    let mut branch_name = Path::new(&item.full_branch)
+        .file_name()
+        .unwrap_or(&OsStr::new("?"))
+        .to_str()
+        .unwrap_or("?")
+        .to_string();
+
+    if item.is_current_branch {
+        branch_name = Colour::Green
+            .bold()
+            .paint(format!("{branch_name}"))
+            .to_string();
+    }
+
+    if let Some(ranges) = item.matched {
+        branch_name = highlight_matched(branch_name, nomad_style, ranges);
+    }
+
+    if let Some(marker) = &item.marker {
+        branch_name = format!("{marker} {branch_name}");
+    }
+    if let Some(number) = number {
+        branch_name = format!("[{number}] {branch_name}");
+    }
+    if item.is_head {
+        branch_name.push_str(&format!(" [{}]", Colour::Red.bold().paint("HEAD")));
+    }
+    if let Some(upstream) = &item.upstream {
+        branch_name.push_str(&upstream);
+    }
+
+    branch_name
 }

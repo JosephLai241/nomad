@@ -91,9 +91,16 @@ pub fn run_git(
                 }
                 Err(_) => paint_error(NomadError::GitBlameError),
             },
-            GitOptions::Branch => {
-                if let Err(error) = display_branches(&args, nomad_style, &repo) {
-                    paint_error(error);
+            GitOptions::Branch(branch_options) => {
+                match display_branches(&args, branch_options, nomad_style, &repo, &target_directory)
+                {
+                    Ok(tree_items) => match tree_items {
+                        Some((tree, config, _)) => {
+                            // TODO: MAKE A NEW EXPORT FLAG FOR BRANCH_OPTIONS?
+                        }
+                        None => {}
+                    },
+                    Err(error) => paint_error(error),
                 }
             }
             GitOptions::Commit { message } => {

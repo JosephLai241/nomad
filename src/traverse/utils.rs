@@ -25,6 +25,8 @@ use std::{
     path::{Component, Path},
 };
 
+use super::modes::NomadMode;
+
 /// Contains options for `Types` building.
 pub enum TypeOption {
     /// Build a `Types` that matches a filetype.
@@ -128,32 +130,51 @@ pub fn get_file_icon(item_path: &Path) -> String {
 }
 
 /// Build a `ptree` object and set the tree's style/configuration.
-pub fn build_tree(args: &Args, target_directory: &Path) -> (PrintConfig, TreeBuilder) {
+pub fn build_tree(
+    args: &Args,
+    nomad_mode: &NomadMode,
+    target_directory: &Path,
+) -> (PrintConfig, TreeBuilder) {
     let directory_icon = &"\u{f115}"; // 
 
-    let plain_directory_name = target_directory
+    let plain_name = target_directory
         .file_name()
         .unwrap_or(OsStr::new("?"))
         .to_str()
         .unwrap_or("?")
         .to_string();
-    let directory_name = if args.plain {
-        plain_directory_name
-    } else {
-        if args.no_colors {
-            format!("{directory_icon} {plain_directory_name}")
-        } else {
-            format!(
-                "{directory_icon} {}",
-                Colour::Blue.bold().paint(plain_directory_name).to_string()
-            )
+    let directory_name = match nomad_mode {
+        NomadMode::GitBranch => format!(
+            "{} {} [{}]",
+            "\u{f1d3}",
+            Colour::Blue.bold().paint(plain_name),
+            Colour::Fixed(172).bold().paint("BRANCHES")
+        ),
+        _ => {
+            if args.plain {
+                plain_name
+            } else {
+                if args.no_colors {
+                    format!("{directory_icon} {plain_name}")
+                } else {
+                    format!(
+                        "{directory_icon} {}",
+                        Colour::Blue.bold().paint(plain_name).to_string()
+                    )
+                }
+            }
         }
     };
 
     let mut tree_label = directory_name;
-    if args.metadata {
-        let metadata = get_metadata(&args, target_directory);
-        tree_label = format!("{metadata} {tree_label}");
+    match nomad_mode {
+        NomadMode::GitBranch => {}
+        _ => {
+            if args.metadata {
+                let metadata = get_metadata(&args, target_directory);
+                tree_label = format!("{metadata} {tree_label}");
+            }
+        }
     }
 
     let tree = TreeBuilder::new(tree_label);
@@ -173,16 +194,21 @@ pub fn build_tree(args: &Args, target_directory: &Path) -> (PrintConfig, TreeBui
 pub fn check_nesting(
     current_depth: usize,
     item: &Path,
+    nomad_mode: &NomadMode,
     previous_item: &Path,
     target_directory: &str,
     tree: &mut TreeBuilder,
 ) {
     let mut item_depth = 0;
-    for component in item
-        .strip_prefix(target_directory)
-        .unwrap_or(Path::new("?"))
-        .components()
-    {
+    let item_components = match nomad_mode {
+        NomadMode::GitBranch => item.components(),
+        _ => item
+            .strip_prefix(target_directory)
+            .unwrap_or(Path::new("?"))
+            .components(),
+    };
+
+    for component in item_components {
         match component {
             Component::Normal(_) => item_depth += 1,
             _ => {}
