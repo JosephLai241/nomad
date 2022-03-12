@@ -33,8 +33,6 @@ pub enum PopupMode {
     Disabled,
     /// Render a popup with the error message if applicable.
     Error(String),
-    /// Render a popup that accepts a target filename to export the current tree.
-    Export,
     /// Nothing was found after a pattern was provided.
     NothingFound,
     /// Render a popup that accepts a pattern.
