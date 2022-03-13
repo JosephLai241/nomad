@@ -1,6 +1,7 @@
 //! Struct used to store colors/styles for `nomad`.
 
 use ansi_term::{Colour, Style};
+use ptree::print_config::UTF_CHARS;
 use tui::style::Color;
 
 /// Contains styles used throughout `nomad`.
@@ -143,11 +144,11 @@ impl Default for NomadStyle {
             tree: TreeStyle {
                 indent: 4,
                 indent_chars: IndentStyles {
-                    down: "|".to_string(),
-                    down_and_right: "├".to_string(),
-                    empty: " ".to_string(),
-                    right: "─".to_string(),
-                    turn_right: "└".to_string(),
+                    down: UTF_CHARS.down.to_string(),
+                    down_and_right: UTF_CHARS.down_and_right.to_string(),
+                    empty: UTF_CHARS.empty.to_string(),
+                    right: UTF_CHARS.right.to_string(),
+                    turn_right: UTF_CHARS.turn_right.to_string(),
                 },
                 padding: 1,
             },

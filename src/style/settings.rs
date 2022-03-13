@@ -1,6 +1,7 @@
 //! Configure style settings for `nomad`.
 
 use ansi_term::Colour;
+use ptree::print_config::UTF_CHARS;
 
 use crate::config::models::{IndentCharacters, NomadConfig};
 
@@ -53,22 +54,22 @@ pub fn process_settings(nomad_config: NomadConfig) -> NomadStyle {
 fn process_indent_chars(indent_chars: IndentCharacters, nomad_style: &mut NomadStyle) {
     nomad_style.tree.indent_chars.down = match indent_chars.down {
         Some(character) => character,
-        None => "|".to_string(),
+        None => UTF_CHARS.down.to_string(),
     };
     nomad_style.tree.indent_chars.down_and_right = match indent_chars.down_and_right {
         Some(character) => character,
-        None => "├".to_string(),
+        None => UTF_CHARS.down_and_right.to_string(),
     };
     nomad_style.tree.indent_chars.empty = match indent_chars.empty {
         Some(character) => character,
-        None => " ".to_string(),
+        None => UTF_CHARS.empty.to_string(),
     };
     nomad_style.tree.indent_chars.right = match indent_chars.right {
         Some(character) => character,
-        None => "─".to_string(),
+        None => UTF_CHARS.right.to_string(),
     };
     nomad_style.tree.indent_chars.turn_right = match indent_chars.turn_right {
         Some(character) => character,
-        None => "└".to_string(),
+        None => UTF_CHARS.turn_right.to_string(),
     };
 }
