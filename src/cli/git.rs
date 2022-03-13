@@ -7,13 +7,13 @@ use structopt::StructOpt;
 pub enum GitOptions {
     /// The `git add` command.
     /// This may be used after running nomad in a labeled mode.
-    /// Enter a single or a list of numbers/labels delimited by a space.
     Add { item_labels: Vec<String> },
     /// The `git blame` command.
     /// This may be used after running nomad in a labeled mode.
     /// You can only call `git blame` on a single file.
     Blame(BlameOptions),
-    /// The `git branch` command.
+    /// The `git branch` command. Displays branches in tree form by default (this behavior may be
+    /// disabled).
     Branch(BranchOptions),
     /// The `git commit` command.
     /// Optionally include a message after the command, ie. `git commit "YOUR MESSAGE HERE"`
