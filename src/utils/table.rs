@@ -65,7 +65,7 @@ impl TableView for TabledItems<String> {
 }
 
 impl TableView for TabledItems<(&str, &String)> {
-    /// Display a table for items that need to be contained in a `(String, String)`.
+    /// Display a table for items that need to be contained in a `(&str, &String)`.
     fn display_table(self) {
         let mut table = Table::new();
 
@@ -91,7 +91,7 @@ impl TableView for TabledItems<(&str, &String)> {
 }
 
 impl TableView for TabledItems<(&str, &String, &String)> {
-    /// Display a table for items that need to be contained in a `(String, String, String)`.
+    /// Display a table for items that need to be contained in a `(&str, &String, &String)`.
     fn display_table(self) {
         let mut table = Table::new();
 
@@ -119,7 +119,7 @@ impl TableView for TabledItems<(&str, &String, &String)> {
 
 impl TableView for TabledItems<FileTypeDef> {
     /// List all filetypes and their associated globs. Or optionally search for
-    /// a filetype
+    /// a filetype.
     fn display_table(self) {
         let mut table = Table::new();
 
