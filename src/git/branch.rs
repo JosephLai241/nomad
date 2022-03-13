@@ -227,7 +227,7 @@ fn display_flat_branch(
         None => "".to_string(),
     };
     let head_label = if branch.is_head() {
-        format!(" [{}] ", Colour::Red.bold().paint("HEAD"))
+        format!(" [{}]", Colour::Red.bold().paint("HEAD"))
     } else {
         "".to_string()
     };
