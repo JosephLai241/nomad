@@ -26,36 +26,41 @@ pub fn run_config(
                     (
                         "Conflicted",
                         &nomad_style
+                            .git
                             .conflicted_color
-                            .paint(&nomad_style.conflicted_marker)
+                            .paint(&nomad_style.git.conflicted_marker)
                             .to_string(),
                     ),
                     (
                         "Deleted",
                         &nomad_style
+                            .git
                             .deleted_color
-                            .paint(&nomad_style.deleted_marker)
+                            .paint(&nomad_style.git.deleted_marker)
                             .to_string(),
                     ),
                     (
                         "Modified",
                         &nomad_style
+                            .git
                             .modified_color
-                            .paint(&nomad_style.modified_marker)
+                            .paint(&nomad_style.git.modified_marker)
                             .to_string(),
                     ),
                     (
                         "Renamed",
                         &nomad_style
+                            .git
                             .renamed_color
-                            .paint(&nomad_style.renamed_marker)
+                            .paint(&nomad_style.git.renamed_marker)
                             .to_string(),
                     ),
                     (
                         "Untracked",
                         &nomad_style
+                            .git
                             .untracked_color
-                            .paint(&nomad_style.untracked_marker)
+                            .paint(&nomad_style.git.untracked_marker)
                             .to_string(),
                     ),
                 ],
@@ -70,18 +75,25 @@ pub fn run_config(
                     (
                         "Staged Added",
                         &nomad_style
+                            .git
                             .staged_added_color
-                            .paint(&nomad_style.staged_added_marker)
+                            .paint(&nomad_style.git.staged_added_marker)
                             .to_string(),
-                        &nomad_style.staged_added_color.paint("nomad.rs").to_string(),
+                        &nomad_style
+                            .git
+                            .staged_added_color
+                            .paint("nomad.rs")
+                            .to_string(),
                     ),
                     (
                         "Staged Deleted",
                         &nomad_style
+                            .git
                             .staged_deleted_color
-                            .paint(&nomad_style.staged_deleted_marker)
+                            .paint(&nomad_style.git.staged_deleted_marker)
                             .to_string(),
                         &nomad_style
+                            .git
                             .staged_deleted_color
                             .strikethrough()
                             .paint("nomad.rs")
@@ -90,10 +102,12 @@ pub fn run_config(
                     (
                         "Staged Modified",
                         &nomad_style
+                            .git
                             .staged_modified_color
-                            .paint(&nomad_style.staged_modified_marker)
+                            .paint(&nomad_style.git.staged_modified_marker)
                             .to_string(),
                         &nomad_style
+                            .git
                             .staged_modified_color
                             .paint("nomad.rs")
                             .to_string(),
@@ -101,10 +115,12 @@ pub fn run_config(
                     (
                         "Staged Renamed",
                         &nomad_style
+                            .git
                             .staged_renamed_color
-                            .paint(&nomad_style.staged_renamed_marker)
+                            .paint(&nomad_style.git.staged_renamed_marker)
                             .to_string(),
                         &nomad_style
+                            .git
                             .staged_renamed_color
                             .paint("nomad.rs")
                             .to_string(),
