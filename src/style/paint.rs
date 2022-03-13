@@ -1,82 +1,137 @@
-//! Set the styles for `nomad`.
+//! Set the colors and markers for `nomad`.
 
 use super::models::NomadStyle;
-use crate::config::models::{Git, NomadConfig};
+use crate::config::models::{TUIGit, TreeGit};
 
 use ansi_term::{Colour, Style};
-
-/// Return a struct containing user-specified or default settings.
-pub fn process_settings(nomad_config: NomadConfig) -> NomadStyle {
-    let mut nomad_style = NomadStyle::default();
-
-    if let Some(git_settings) = nomad_config.git {
-        process_git_settings(&mut nomad_style, &git_settings);
-    }
-
-    if let Some(regex_config) = nomad_config.regex {
-        nomad_style.match_color = set_color(&regex_config.match_color, Colour::Fixed(033).bold());
-    }
-
-    nomad_style
-}
+use tui::style::Color;
 
 /// Process the Git markers from `NomadConfig`.
-fn process_git_settings(nomad_style: &mut NomadStyle, git_settings: &Git) {
+pub fn process_git_settings(nomad_style: &mut NomadStyle, git_settings: &TreeGit) {
     if let Some(colors) = &git_settings.colors {
-        nomad_style.conflicted_color = set_color(&colors.conflicted_color, Colour::Red.bold());
-        nomad_style.deleted_color = set_color(&colors.deleted_color, Colour::Red.bold());
-        nomad_style.modified_color = set_color(&colors.modified_color, Colour::Fixed(172).bold());
-        nomad_style.renamed_color = set_color(&colors.renamed_color, Colour::Red.bold());
-        nomad_style.staged_added_color =
-            set_color(&colors.staged_added_color, Colour::Green.bold());
-        nomad_style.staged_deleted_color =
-            set_color(&colors.staged_deleted_color, Colour::Red.bold());
-        nomad_style.staged_modified_color =
-            set_color(&colors.staged_modified_color, Colour::Fixed(172).bold());
-        nomad_style.staged_renamed_color =
-            set_color(&colors.staged_renamed_color, Colour::Red.bold());
-        nomad_style.untracked_color = set_color(&colors.untracked_color, Colour::Fixed(243).bold());
+        nomad_style.git.conflicted_color = match &colors.conflicted_color {
+            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
+            None => Colour::Red.bold(),
+        };
+        nomad_style.git.deleted_color = match &colors.deleted_color {
+            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
+            None => Colour::Red.bold(),
+        };
+        nomad_style.git.modified_color = match &colors.modified_color {
+            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
+            None => Colour::Fixed(172).bold(),
+        };
+        nomad_style.git.renamed_color = match &colors.renamed_color {
+            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
+            None => Colour::Red.bold(),
+        };
+        nomad_style.git.staged_added_color = match &colors.staged_added_color {
+            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
+            None => Colour::Green.bold(),
+        };
+        nomad_style.git.staged_deleted_color = match &colors.staged_deleted_color {
+            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
+            None => Colour::Red.bold(),
+        };
+        nomad_style.git.staged_modified_color = match &colors.staged_modified_color {
+            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
+            None => Colour::Fixed(172).bold(),
+        };
+        nomad_style.git.staged_renamed_color = match &colors.staged_renamed_color {
+            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
+            None => Colour::Red.bold(),
+        };
+        nomad_style.git.untracked_color = match &colors.untracked_color {
+            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
+            None => Colour::Fixed(243).bold(),
+        };
     }
 
     if let Some(markers) = &git_settings.markers {
-        nomad_style.conflicted_marker =
-            set_marker(&markers.conflicted_marker, "CONFLICT".to_string());
-        nomad_style.deleted_marker = set_marker(&markers.deleted_marker, "D".to_string());
-        nomad_style.modified_marker = set_marker(&markers.modified_marker, "M".to_string());
-        nomad_style.renamed_marker = set_marker(&markers.renamed_marker, "R".to_string());
-        nomad_style.staged_added_marker =
-            set_marker(&markers.staged_added_marker, "SA".to_string());
-        nomad_style.staged_deleted_marker =
-            set_marker(&markers.staged_deleted_marker, "SD".to_string());
-        nomad_style.staged_modified_marker =
-            set_marker(&markers.staged_modified_marker, "SM".to_string());
-        nomad_style.staged_renamed_marker =
-            set_marker(&markers.staged_renamed_marker, "SR".to_string());
-        nomad_style.untracked_marker = set_marker(&markers.untracked_marker, "U".to_string());
+        nomad_style.git.conflicted_marker = match &markers.conflicted_marker {
+            Some(marker) => marker.to_string(),
+            None => "CONFLICT".to_string(),
+        };
+        nomad_style.git.deleted_marker = match &markers.deleted_marker {
+            Some(marker) => marker.to_string(),
+            None => "D".to_string(),
+        };
+        nomad_style.git.modified_marker = match &markers.modified_marker {
+            Some(marker) => marker.to_string(),
+            None => "M".to_string(),
+        };
+        nomad_style.git.renamed_marker = match &markers.renamed_marker {
+            Some(marker) => marker.to_string(),
+            None => "R".to_string(),
+        };
+        nomad_style.git.staged_added_marker = match &markers.staged_added_marker {
+            Some(marker) => marker.to_string(),
+            None => "SA".to_string(),
+        };
+        nomad_style.git.staged_deleted_marker = match &markers.staged_deleted_marker {
+            Some(marker) => marker.to_string(),
+            None => "SD".to_string(),
+        };
+        nomad_style.git.staged_modified_marker = match &markers.staged_modified_marker {
+            Some(marker) => marker.to_string(),
+            None => "SM".to_string(),
+        };
+        nomad_style.git.staged_renamed_marker = match &markers.staged_renamed_marker {
+            Some(marker) => marker.to_string(),
+            None => "SR".to_string(),
+        };
+        nomad_style.git.untracked_marker = match &markers.untracked_marker {
+            Some(marker) => marker.to_string(),
+            None => "U".to_string(),
+        };
     }
 }
 
-/// A helper function to set the color to a custom color or the default color.
-fn set_color(color: &Option<String>, default_color: Style) -> Style {
-    if let Some(color) = color {
-        convert_to_style(color)
-    } else {
-        default_color
+/// Process the TUI settings from `NomadConfig`.
+pub fn process_tui_settings(nomad_style: &mut NomadStyle, git_settings: &TUIGit) {
+    if let Some(colors) = &git_settings.colors {
+        nomad_style.tui.conflicted_color = match &colors.conflicted_color {
+            Some(color) => convert_to_tui_color(&color.to_lowercase()),
+            None => Color::Red,
+        };
+        nomad_style.tui.deleted_color = match &colors.deleted_color {
+            Some(color) => convert_to_tui_color(&color.to_lowercase()),
+            None => Color::Red,
+        };
+        nomad_style.tui.modified_color = match &colors.modified_color {
+            Some(color) => convert_to_tui_color(&color.to_lowercase()),
+            None => Color::Indexed(172),
+        };
+        nomad_style.tui.renamed_color = match &colors.renamed_color {
+            Some(color) => convert_to_tui_color(&color.to_lowercase()),
+            None => Color::Red,
+        };
+        nomad_style.tui.staged_added_color = match &colors.staged_added_color {
+            Some(color) => convert_to_tui_color(&color.to_lowercase()),
+            None => Color::Green,
+        };
+        nomad_style.tui.staged_deleted_color = match &colors.staged_deleted_color {
+            Some(color) => convert_to_tui_color(&color.to_lowercase()),
+            None => Color::Red,
+        };
+        nomad_style.tui.staged_modified_color = match &colors.staged_modified_color {
+            Some(color) => convert_to_tui_color(&color.to_lowercase()),
+            None => Color::Indexed(172),
+        };
+        nomad_style.tui.staged_renamed_color = match &colors.staged_renamed_color {
+            Some(color) => convert_to_tui_color(&color.to_lowercase()),
+            None => Color::Red,
+        };
+        nomad_style.tui.untracked_color = match &colors.untracked_color {
+            Some(color) => convert_to_tui_color(&color.to_lowercase()),
+            None => Color::Indexed(243),
+        };
     }
 }
 
-/// A helper function to set the Git marker to a custom marker or the default marker.
-fn set_marker(marker: &Option<String>, default_marker: String) -> String {
-    if let Some(marker) = marker {
-        marker.to_string()
-    } else {
-        default_marker
-    }
-}
-
-/// Parse the default or 256 Xterm color into a `Style`.
-fn convert_to_style(color: &str) -> Style {
-    let style = match color {
+/// Parse the default or 256 Xterm color into an `ansi_term::Style`.
+pub fn convert_to_ansi_style(color: &str) -> Style {
+    match color {
         "black" => Colour::Black.bold(),
         "blue" => Colour::Blue.bold(),
         "cyan" => Colour::Cyan.bold(),
@@ -86,9 +141,30 @@ fn convert_to_style(color: &str) -> Style {
         "white" => Colour::White.bold(),
         "yellow" => Colour::Yellow.bold(),
         _ => Colour::Fixed(convert_hex_code(color)).bold(),
-    };
+    }
+}
 
-    style
+/// Parse the default or 256 Xterm color into a `tui::style::Color`.
+fn convert_to_tui_color(color: &str) -> Color {
+    match color {
+        "black" => Color::Black,
+        "blue" => Color::Blue,
+        "cyan" => Color::Cyan,
+        "darkgray" => Color::DarkGray,
+        "gray" => Color::Gray,
+        "green" => Color::Green,
+        "lightblue" => Color::LightBlue,
+        "lightcyan" => Color::LightCyan,
+        "lightgreen" => Color::LightGreen,
+        "lightmagenta" => Color::LightMagenta,
+        "lightred" => Color::LightRed,
+        "lightyellow" => Color::LightYellow,
+        "magenta" => Color::Magenta,
+        "red" => Color::Red,
+        "white" => Color::White,
+        "yellow" => Color::Yellow,
+        _ => Color::Indexed(convert_hex_code(color)),
+    }
 }
 
 /// Convert a hex code into a `u8`.

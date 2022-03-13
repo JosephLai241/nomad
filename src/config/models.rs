@@ -5,19 +5,70 @@ use serde::{Deserialize, Serialize};
 /// Contains all settings specified in `nomad.toml`.
 #[derive(Debug, Deserialize, Serialize)]
 pub struct NomadConfig {
-    /// Contains all settings for all things related to Git.
-    pub git: Option<Git>,
+    /// Contains settings for the standard tree.
+    pub tree: Option<TreeSettings>,
+    /// Contains settings for the TUI.
+    pub tui: Option<TUISettings>,
+}
+
+/// Contains settings for the standard tree.
+#[derive(Debug, Deserialize, Serialize)]
+pub struct TreeSettings {
+    /// Contains settings for all things related to Git in the standard tree.
+    pub git: Option<TreeGit>,
+    /// Contains the indentation setting.
+    pub indent: Option<usize>,
+    /// Contains indent characters for the tree itself.
+    pub indent_chars: Option<IndentCharacters>,
+    /// Contains the padding setting.
+    pub padding: Option<usize>,
     /// Contains the setting for the color of the regex match.
     pub regex: Option<Regex>,
 }
 
-/// Contains settings for all things related to Git.
+/// Contains settings for the TUI.
 #[derive(Debug, Deserialize, Serialize)]
-pub struct Git {
-    /// Contains settings for each Git marker.
-    pub colors: Option<Colors>,
+pub struct TUISettings {
+    /// Contains settings for all things related to Git in the TUI.
+    pub git: Option<TUIGit>,
+}
+
+/// Contains indent characters for the tree itself.
+#[derive(Debug, Deserialize, Serialize)]
+pub struct IndentCharacters {
+    /// The character used for pointing straight down.
+    pub down: Option<String>,
+    /// The character used for pointing down and to the right.
+    pub down_and_right: Option<String>,
+    /// The character used for empty sections.
+    pub empty: Option<String>,
+    /// The character used for pointing right.
+    pub right: Option<String>,
+    /// The character used for turning from down to right.
+    pub turn_right: Option<String>,
+}
+
+/// Contains settings for all things related to Git in the standard tree.
+#[derive(Debug, Deserialize, Serialize)]
+pub struct TreeGit {
     /// Contains settings for the color of each Git marker.
+    pub colors: Option<Colors>,
+    /// Contains settings for each Git marker.
     pub markers: Option<Markers>,
+}
+
+/// Contains the setting for the color of the regex match.
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Regex {
+    /// The color the matched substring.
+    pub match_color: Option<String>,
+}
+
+/// Contains settings for all things related to Git in the TUI.
+#[derive(Debug, Deserialize, Serialize)]
+pub struct TUIGit {
+    /// Contains settings for the color of each Git marker.
+    pub colors: Option<Colors>,
 }
 
 /// Contains settings for each Git marker.
@@ -46,29 +97,22 @@ pub struct Markers {
 /// Contains settings for the color of each Git marker.
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Colors {
-    /// The color of the conflicting file's marker.
+    /// The color associated with conflicting files.
     pub conflicted_color: Option<String>,
-    /// The color of the deleted file's marker.
+    /// The color associated with deleted files.
     pub deleted_color: Option<String>,
-    /// The color of the modified file's marker.
+    /// The color associated with modified files.
     pub modified_color: Option<String>,
-    /// The color of the renamed file's marker.
+    /// The color associated with renamed files.
     pub renamed_color: Option<String>,
-    /// The color of the staged added file's marker.
+    /// The color associated with staged added files.
     pub staged_added_color: Option<String>,
-    /// The color of the staged deleted file's marker.
+    /// The color associated with staged deleted files.
     pub staged_deleted_color: Option<String>,
-    /// The color of the staged modified file's marker.
+    /// The color associated with staged modified files.
     pub staged_modified_color: Option<String>,
-    /// The color of the staged renamed file's marker.
+    /// The color associated with staged renamed files.
     pub staged_renamed_color: Option<String>,
-    /// The color of the untracked file's marker.
+    /// The color associated with untracked files.
     pub untracked_color: Option<String>,
-}
-
-/// Contains the setting for the color of the regex match.
-#[derive(Debug, Deserialize, Serialize)]
-pub struct Regex {
-    /// The color the matched substring.
-    pub match_color: Option<String>,
 }

@@ -14,17 +14,7 @@
 #
 #     https://toml.io/en/
 
-# ----------------------------------- COLORS -----------------------------------
-
-# These are the default colors:
-#    * "black"
-#    * "blue"
-#    * "cyan"
-#    * "green"
-#    * "purple"
-#    * "red"
-#    * "white"
-#    * "yellow"
+# ------------------------------- CUSTOM COLORS --------------------------------
 
 # If you do not want to use the default colors, you can set the color to an Xterm
 # 256 color's hex code located here:
@@ -34,16 +24,36 @@
 # For example, if you want to set something to the color d78700 (a shade of orange),
 # wrap the value in quotes, ie. "d78700".
 
+# ------------------------------------------------------------------------------
+
 # ================================== INFO END ==================================
 
 # The default values for each item are displayed below.
+
+#
+# Uncomment the items below this table to set the tree's style.
+#
+[tree]
+#indent = 4
+#padding = 1
+
+
+#
+# Uncomment the items below this table to set the tree's indent characters.
+#
+[tree.indent_chars]
+#down = "|"
+#down_and_right = "├"
+#empty = " "
+#right = "─"
+#turn_right = "└"
 
 
 #
 # Uncomment the items below this table to set the text displayed for each Git
 # item's status.
 #
-[git.markers]
+[tree.git.markers]
 #conflicted_marker = "CONFLICT"
 #deleted_marker = "D"
 #modified_marker = "M"
@@ -59,7 +69,18 @@
 #
 # Uncomment the items below this table to set the colors of the Git markers.
 #
-[git.colors]
+# Default colors
+# --------------
+#    * "black"
+#    * "blue"
+#    * "cyan"
+#    * "green"
+#    * "purple"
+#    * "red"
+#    * "white"
+#    * "yellow"
+#
+[tree.git.colors]
 #conflicted_color = "red"
 #deleted_color = "red"
 #modified_color = "d78700"          # A shade of orange.
@@ -76,7 +97,53 @@
 # Uncomment the item below this table to set the color of the text that is
 # matched by the pattern flag (`-p/--pattern`).
 #
-[regex]
+# Default colors
+# --------------
+#    * "black"
+#    * "blue"
+#    * "cyan"
+#    * "green"
+#    * "purple"
+#    * "red"
+#    * "white"
+#    * "yellow"
+#
+[tree.regex]
 #match_color = "0087ff"             # A shade of blue.
+
+
+#
+# Uncomment the items below this table to set the Git colors in the TUI.
+#
+# Default colors
+# --------------
+#    * "black"
+#    * "blue"
+#    * "cyan"
+#    * "darkgray"
+#    * "gray"
+#    * "green"
+#    * "lightblue"
+#    * "lightcyan"
+#    * "lightgreen"
+#    * "lightmagenta"
+#    * "lightred"
+#    * "lightyellow"
+#    * "magenta"
+#    * "red"
+#    * "white"
+#    * "yellow"
+#
+[tui.git.colors]
+#conflicted_color = "red"
+#deleted_color = "red"
+#modified_color = "d78700"          # A shade of orange.
+#renamed_color = "red"
+#untracked_color = "767676"         # A shade of gray.
+
+#staged_added_color = "green"
+#staged_deleted_color = "red"
+#staged_modified_color = "d78700"   # A shade of orange.
+#staged_renamed_color = "red"
 
 
