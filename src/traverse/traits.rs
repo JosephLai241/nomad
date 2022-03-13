@@ -226,7 +226,12 @@ impl ToTree for Vec<TransformedItem> {
             None
         };
 
-        let (config, mut tree) = build_tree(&args, &nomad_mode, Path::new(target_directory));
+        let (config, mut tree) = build_tree(
+            &args,
+            &nomad_mode,
+            &nomad_style,
+            Path::new(target_directory),
+        );
 
         let start = Instant::now();
         for item in self.iter() {
@@ -383,7 +388,8 @@ impl ToTree for Vec<TransformedBranch> {
             upstream: None,
         };
 
-        let (config, mut tree) = build_tree(args, &nomad_mode, Path::new(target_directory));
+        let (config, mut tree) =
+            build_tree(args, &nomad_mode, &nomad_style, Path::new(target_directory));
 
         for item in self.iter() {
             check_nesting(

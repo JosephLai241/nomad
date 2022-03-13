@@ -3,6 +3,7 @@
 use crate::{
     cli::Args,
     errors::NomadError,
+    style::models::NomadStyle,
     utils::{
         meta::get_metadata,
         temp::{create_temp_dir, get_json_file, write_to_json},
@@ -133,6 +134,7 @@ pub fn get_file_icon(item_path: &Path) -> String {
 pub fn build_tree(
     args: &Args,
     nomad_mode: &NomadMode,
+    nomad_style: &NomadStyle,
     target_directory: &Path,
 ) -> (PrintConfig, TreeBuilder) {
     let directory_icon = &"\u{f115}"; // 
@@ -178,16 +180,31 @@ pub fn build_tree(
     }
 
     let tree = TreeBuilder::new(tree_label);
+    let config = build_tree_style(nomad_style);
 
+    (config, tree)
+}
+
+/// Build a new `Style` based on the settings in `NomadStyle`.
+fn build_tree_style(nomad_style: &NomadStyle) -> PrintConfig {
     let mut branch_style = Style::default();
+
     branch_style.bold = true;
     branch_style.foreground = Some(Color::White);
 
     let mut config = PrintConfig::default();
-    config.branch = branch_style;
-    config.indent = 4;
 
-    (config, tree)
+    config.branch = branch_style;
+    config.indent = nomad_style.tree.indent;
+    config.padding = nomad_style.tree.padding;
+
+    config.characters.down = nomad_style.tree.indent_chars.down.to_string();
+    config.characters.down_and_right = nomad_style.tree.indent_chars.down_and_right.to_string();
+    config.characters.empty = nomad_style.tree.indent_chars.empty.to_string();
+    config.characters.right = nomad_style.tree.indent_chars.right.to_string();
+    config.characters.turn_right = nomad_style.tree.indent_chars.turn_right.to_string();
+
+    config
 }
 
 /// Run checks to ensure tree nesting is correct. Make any corrections if applicable.
