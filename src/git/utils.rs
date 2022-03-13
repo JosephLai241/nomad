@@ -76,24 +76,29 @@ pub fn paint_git_item(
     matched: Option<(usize, usize)>,
 ) -> String {
     let staged_deleted = &nomad_style
+        .git
         .staged_deleted_color
-        .paint(&nomad_style.staged_deleted_marker)
+        .paint(&nomad_style.git.staged_deleted_marker)
         .to_string();
     let staged_modified = &nomad_style
+        .git
         .staged_modified_color
-        .paint(&nomad_style.staged_modified_marker)
+        .paint(&nomad_style.git.staged_modified_marker)
         .to_string();
     let staged_added = &nomad_style
+        .git
         .staged_added_color
-        .paint(&nomad_style.staged_added_marker)
+        .paint(&nomad_style.git.staged_added_marker)
         .to_string();
     let staged_renamed = &nomad_style
+        .git
         .staged_renamed_color
-        .paint(&nomad_style.staged_renamed_marker)
+        .paint(&nomad_style.git.staged_renamed_marker)
         .to_string();
     let conflicted = &nomad_style
+        .git
         .conflicted_color
-        .paint(&nomad_style.conflicted_marker)
+        .paint(&nomad_style.git.conflicted_marker)
         .to_string();
 
     let formatted_filename = if let Some(ranges) = matched {
@@ -104,23 +109,28 @@ pub fn paint_git_item(
 
     match marker.to_string() {
         _ if marker == staged_added => nomad_style
+            .git
             .staged_added_color
             .paint(format!("{formatted_filename}"))
             .to_string(),
         _ if marker == staged_deleted => nomad_style
+            .git
             .staged_deleted_color
             .strikethrough()
             .paint(format!("{formatted_filename}"))
             .to_string(),
         _ if marker == staged_modified => nomad_style
+            .git
             .staged_modified_color
             .paint(format!("{formatted_filename}"))
             .to_string(),
         _ if marker == staged_renamed => nomad_style
+            .git
             .staged_renamed_color
             .paint(format!("{formatted_filename}"))
             .to_string(),
         _ if marker == conflicted => nomad_style
+            .git
             .conflicted_color
             .paint(format!("{formatted_filename}"))
             .to_string(),

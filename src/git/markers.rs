@@ -50,91 +50,100 @@ pub fn get_status_markers(
             let marker = match repo_item.status() {
                 s if s.contains(Status::INDEX_DELETED) => {
                     if args.no_colors {
-                        nomad_style.staged_deleted_marker.clone()
+                        nomad_style.git.staged_deleted_marker.clone()
                     } else {
                         nomad_style
+                            .git
                             .staged_deleted_color
-                            .paint(&nomad_style.staged_deleted_marker)
+                            .paint(&nomad_style.git.staged_deleted_marker)
                             .to_string()
                     }
                 }
                 s if s.contains(Status::INDEX_MODIFIED) => {
                     if args.no_colors {
-                        nomad_style.staged_modified_marker.clone()
+                        nomad_style.git.staged_modified_marker.clone()
                     } else {
                         nomad_style
+                            .git
                             .staged_modified_color
-                            .paint(&nomad_style.staged_modified_marker)
+                            .paint(&nomad_style.git.staged_modified_marker)
                             .to_string()
                     }
                 }
                 s if s.contains(Status::INDEX_NEW) => {
                     if args.no_colors {
-                        nomad_style.staged_added_marker.clone()
+                        nomad_style.git.staged_added_marker.clone()
                     } else {
                         nomad_style
+                            .git
                             .staged_added_color
-                            .paint(&nomad_style.staged_added_marker)
+                            .paint(&nomad_style.git.staged_added_marker)
                             .to_string()
                     }
                 }
                 s if s.contains(Status::INDEX_RENAMED) => {
                     if args.no_colors {
-                        nomad_style.staged_renamed_marker.clone()
+                        nomad_style.git.staged_renamed_marker.clone()
                     } else {
                         nomad_style
+                            .git
                             .staged_renamed_color
-                            .paint(&nomad_style.staged_renamed_marker)
+                            .paint(&nomad_style.git.staged_renamed_marker)
                             .to_string()
                     }
                 }
                 s if s.contains(Status::WT_DELETED) => {
                     if args.no_colors {
-                        nomad_style.deleted_marker.clone()
+                        nomad_style.git.deleted_marker.clone()
                     } else {
                         nomad_style
+                            .git
                             .deleted_color
-                            .paint(&nomad_style.deleted_marker)
+                            .paint(&nomad_style.git.deleted_marker)
                             .to_string()
                     }
                 }
                 s if s.contains(Status::WT_MODIFIED) => {
                     if args.no_colors {
-                        nomad_style.modified_marker.clone()
+                        nomad_style.git.modified_marker.clone()
                     } else {
                         nomad_style
+                            .git
                             .modified_color
-                            .paint(&nomad_style.modified_marker)
+                            .paint(&nomad_style.git.modified_marker)
                             .to_string()
                     }
                 }
                 s if s.contains(Status::WT_NEW) => {
                     if args.no_colors {
-                        nomad_style.untracked_marker.clone()
+                        nomad_style.git.untracked_marker.clone()
                     } else {
                         nomad_style
+                            .git
                             .untracked_color
-                            .paint(&nomad_style.untracked_marker)
+                            .paint(&nomad_style.git.untracked_marker)
                             .to_string()
                     }
                 }
                 s if s.contains(Status::WT_RENAMED) => {
                     if args.no_colors {
-                        nomad_style.renamed_marker.clone()
+                        nomad_style.git.renamed_marker.clone()
                     } else {
                         nomad_style
+                            .git
                             .renamed_color
-                            .paint(&nomad_style.renamed_marker)
+                            .paint(&nomad_style.git.renamed_marker)
                             .to_string()
                     }
                 }
                 s if s.contains(Status::CONFLICTED) => {
                     if args.no_colors {
-                        nomad_style.conflicted_marker.clone()
+                        nomad_style.git.conflicted_marker.clone()
                     } else {
                         nomad_style
+                            .git
                             .conflicted_color
-                            .paint(&nomad_style.conflicted_marker)
+                            .paint(&nomad_style.git.conflicted_marker)
                             .to_string()
                     }
                 }
