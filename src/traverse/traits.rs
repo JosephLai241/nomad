@@ -8,6 +8,7 @@ use super::{
 use crate::{
     cli::Args,
     errors::NomadError,
+    loc::{loc_in_dir, loc_in_file},
     style::models::NomadStyle,
     traverse::{
         format::{format_content, format_directory},
@@ -219,6 +220,12 @@ impl ToTree for Vec<TransformedItem> {
             _ => {}
         }
 
+        let tokei = if args.loc {
+            Some(loc_in_dir(target_directory))
+        } else {
+            None
+        };
+
         let (config, mut tree) = build_tree(&args, &nomad_mode, Path::new(target_directory));
 
         let start = Instant::now();
@@ -271,15 +278,36 @@ impl ToTree for Vec<TransformedItem> {
                 };
 
                 let icon = get_file_icon(Path::new(&item.path));
-                tree.add_empty_child(format_content(
-                    &args,
-                    item.marker.clone(),
-                    icon,
-                    Path::new(&item.path),
-                    item.matched,
-                    nomad_style,
-                    number,
-                ));
+
+                if args.loc {
+                    tree.begin_child(format_content(
+                        &args,
+                        item.marker.clone(),
+                        icon,
+                        Path::new(&item.path),
+                        item.matched,
+                        nomad_style,
+                        number,
+                    ));
+
+                    if let Some(ref tokei) = tokei {
+                        for stat in loc_in_file(&item.path, tokei) {
+                            tree.add_empty_child(stat);
+                        }
+
+                        tree.end_child();
+                    }
+                } else {
+                    tree.add_empty_child(format_content(
+                        &args,
+                        item.marker.clone(),
+                        icon,
+                        Path::new(&item.path),
+                        item.matched,
+                        nomad_style,
+                        number,
+                    ));
+                }
 
                 num_files += 1;
             }

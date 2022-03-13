@@ -22,7 +22,7 @@ pub struct Args {
     #[structopt(
         short = "L",
         long = "all-labels",
-        help = "Display both file numbers and directory labels. Equivalent to `nd -n -l`"
+        help = "Display both file numbers and directory labels. Alias for `nd -n -l`"
     )]
     pub all_labels: bool,
 
@@ -48,6 +48,12 @@ pub struct Args {
     )]
     pub label_directories: bool,
 
+    #[structopt(
+        long = "loc",
+        help = "Display code statistics (lines of code, blanks, and comments) for each item"
+    )]
+    pub loc: bool,
+
     #[structopt(long = "max-depth", help = "Set the maximum depth to recurse")]
     pub max_depth: Option<usize>,
 
@@ -72,6 +78,12 @@ pub struct Args {
 
     #[structopt(long = "no-icons", help = "Do not display icons")]
     pub no_icons: bool,
+
+    #[structopt(
+        long = "no-tree",
+        help = "Only display `tokei` (lines of code counter) statistics. This only applies if `--loc` is provided"
+    )]
+    pub no_tree: bool,
 
     #[structopt(
         short = "n",
@@ -102,6 +114,12 @@ pub struct Args {
 
     #[structopt(subcommand)]
     pub sub_commands: Option<SubCommands>,
+
+    #[structopt(
+        long = "summary",
+        help = "Display `tokei` (lines of code counter) statistics. This only applies if `--loc` is provided"
+    )]
+    pub summarize: bool,
 }
 
 #[derive(Debug, PartialEq, StructOpt)]
@@ -109,10 +127,14 @@ pub enum SubCommands {
     ///`bat` (the Rust alternative to the `cat` command) a file.
     /// This may be used after running nomad in a labeled mode.
     Bat { item_labels: Vec<String> },
-    /// Edit or read the configuration file `nomad.toml`.
+    /// Customize/configure nomad.
     ///
-    /// NOTE - You DO NOT have to create this file yourself. nomad will create
-    /// it for you if it does not already exist.
+    /// Edit or read the self-instantiated configuration file `nomad.toml`.
+    ///
+    /// === NOTE ===
+    ///
+    /// You DO NOT have to create this file yourself. nomad will create
+    /// it for you if it does not already exist on your system.
     Config(ConfigOptions),
     /// Edit a file with your default $EDITOR or with Neovim, Vim, Vi, or Nano.
     /// This may be used after running nomad in a labeled mode.
@@ -120,12 +142,13 @@ pub enum SubCommands {
     /// Filter directory items by filetype.
     Filetype(FileTypeOptions),
     /// Run commonly used Git commands.
+    /// Some commands may be used after running nomad in a labeled mode.
     Git(GitOptions),
     /// Enter interactive mode.
     Interactive,
     /// Retrieve releases for this program (retrieved from GitHub).
     Releases(ReleaseOptions),
-    /// Upgrade `nomad`.
+    /// Upgrade nomad.
     Upgrade,
 }
 

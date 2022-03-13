@@ -1,9 +1,12 @@
-//! `nomad` - The next gen `tree` command.
+//! `nomad` - The next gen [`tree`] command.
+//!
+//! [`tree`]: https://linux.die.net/man/1/tree
 
 mod cli;
 mod config;
 mod errors;
 mod git;
+mod loc;
 mod models;
 mod releases;
 mod style;
@@ -14,6 +17,7 @@ mod utils;
 
 use cli::{get_args, SubCommands};
 use config::toml::parse_config;
+use loc::loc_in_dir;
 use releases::update_self;
 use switches::{config::run_config, filetype::run_filetypes, git::run_git, release::run_releases};
 use traverse::{modes::NomadMode, utils::build_walker, walk_directory};
@@ -34,22 +38,23 @@ use lazy_static::lazy_static;
 
 use std::collections::HashMap;
 
-use crate::style::paint::process_settings;
+use crate::style::settings::process_settings;
 
 lazy_static! {
-    /// The alphabet in `char`s.
+    /// The alphabet in `Vec<char>`.
     static ref ALPHABET: Vec<char> = vec![
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
         'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
     ];
-    /// A HashMap containing file extensions with a corresponding icon.
+    /// A `HashMap` containing file extensions with a corresponding icon.
     static ref EXTENSION_ICON_MAP: HashMap<&'static str, &'static str> = get_icons_by_extension();
-    /// A HashMap containing file names with a corresponding icon.
+    /// A `HashMap` containing file names with a corresponding icon.
     static ref NAME_ICON_MAP: HashMap<&'static str, &'static str> = get_icons_by_name();
     /// Xterm 256 color codes (excludes grayscale colors).
     ///
-    /// Corresponds with the first three color tables here:
-    ///     https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
+    /// Corresponds with the first three [color tables here].
+    ///
+    /// [color tables here]: https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
     static ref XTERM_COLORS: Vec<u8> = vec![
         016, 017, 018, 019, 020, 021, 022, 023, 024, 025, 026, 027, 028, 029, 030,
         031, 032, 033, 034, 035, 036, 037, 038, 039, 040, 041, 042, 043, 044, 045,
@@ -164,6 +169,9 @@ fn main() -> Result<(), NomadError> {
             }
         } else {
             // Run `nomad` in normal mode.
+            if args.loc && args.no_tree {
+                loc_in_dir(&target_directory);
+            }
             match build_walker(&args, &target_directory, None) {
                 Ok(mut walker) => {
                     match walk_directory(
