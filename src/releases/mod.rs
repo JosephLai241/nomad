@@ -23,21 +23,31 @@ pub fn check_for_update() -> Result<(), NomadError> {
         .build()?
         .fetch();
 
-    if let Ok(mut releases) = releases {
-        let latest_release = releases.pop();
+    match releases {
+        Ok(mut releases) => {
+            let latest_release = releases.pop();
 
-        if let Some(latest) = latest_release {
-            if latest.version != cargo_crate_version!().to_string() {
-                println!(
-                    "\nNew release available! {} ==> {}\nRun `nd upgrade` to upgrade to the newest version.\n",
-                    Colour::Red.bold().paint(cargo_crate_version!()),
-                    Colour::Green.bold().paint(latest.version)
-                );
+            if let Some(latest) = latest_release {
+                if latest.version != cargo_crate_version!().to_string() {
+                    println!(
+                        "\nNew release available! {} ==> {}\nRun `nd upgrade` to upgrade to the newest version.\n",
+                        Colour::Red.bold().paint(cargo_crate_version!()),
+                        Colour::Green.bold().paint(latest.version)
+                    );
+                } else {
+                    println!(
+                        "{}",
+                        Colour::Green
+                            .bold()
+                            .paint("\nYou are using the latest version of nomad! 💯\n")
+                    )
+                }
             }
-        }
-    }
 
-    Ok(())
+            Ok(())
+        }
+        Err(error) => Err(NomadError::SelfUpgradeError(error)),
+    }
 }
 
 /// Return a list of `Release` objects containing release information.

@@ -161,7 +161,9 @@ fn main() -> Result<(), NomadError> {
                 }
                 SubCommands::Upgrade(upgrade_options) => {
                     if upgrade_options.check {
-                        check_for_update()?;
+                        if let Err(error) = check_for_update() {
+                            paint_error(error);
+                        }
                     } else {
                         if let Err(error) = update_self() {
                             paint_error(error);
