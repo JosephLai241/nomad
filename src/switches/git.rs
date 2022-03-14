@@ -8,7 +8,6 @@ use crate::{
         branch::display_branches,
         commit::commit_changes,
         diff::{bat_diffs, get_repo_diffs},
-        push::push_commits,
         restore::{restore_files, RestoreMode},
         stage::{stage_files, StageMode},
         status::{display_commits_ahead, display_status_tree},
@@ -134,11 +133,6 @@ pub fn run_git(
                     source: error,
                 }),
             },
-            GitOptions::Push => {
-                if let Err(error) = push_commits(&repo) {
-                    paint_error(error);
-                }
-            }
             GitOptions::Restore(restore_options) => {
                 // TODO: MAKE AN ENUM FOR THE STAGE_FILES() FUNCTION
                 //       TO EITHER ADD OR REMOVE FROM THE INDEX?
