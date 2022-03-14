@@ -147,7 +147,7 @@ pub fn normal_view<'a>(app: &App) -> List<'a> {
                     _ => Style::default(),
                 }),
         )
-        .highlight_style(Style::default().bg(Color::Blue).fg(Color::Black))
+        .highlight_style(Style::default().bg(app.get_git_color()).fg(Color::Black))
 }
 
 /// Display the `cat`ed file.

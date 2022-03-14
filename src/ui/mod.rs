@@ -17,15 +17,17 @@ use crate::{cli::Args, errors::NomadError, style::models::NomadStyle};
 
 use anyhow::Result;
 use crossterm::{
-    event::{self, Event as CEvent, KeyCode},
+    event::{poll, read, Event as CEvent, KeyCode},
     execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    terminal::{
+        disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen, SetTitle,
+    },
 };
 use tui::{backend::CrosstermBackend, Terminal};
 
 use std::{
     io::stdout,
-    sync::mpsc,
+    sync::mpsc::channel,
     thread,
     time::{Duration, Instant},
 };
@@ -47,17 +49,22 @@ pub fn enter_interactive_mode(
     enable_raw_mode()?;
 
     let mut stdout = stdout();
-    execute!(stdout, EnterAlternateScreen)?;
+    execute!(
+        stdout,
+        EnterAlternateScreen,
+        SetTitle("nomad  |  interactive")
+    )?;
 
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
     // Set up input handling.
-    let (sender, receiver) = mpsc::channel();
+    let (sender, receiver) = channel();
 
     let tick_rate = Duration::from_millis(100);
     thread::spawn(move || {
         let mut last_tick = Instant::now();
+
         loop {
             // Poll for a tick rate duration. Send a tick event if there are no events.
             let timeout = tick_rate
@@ -65,9 +72,14 @@ pub fn enter_interactive_mode(
                 .unwrap_or_else(|| Duration::from_secs(0));
 
             // Check if there is an event. If there is, send the event key on the channel.
-            if event::poll(timeout).unwrap() {
-                if let CEvent::Key(key) = event::read().unwrap() {
-                    sender.send(Event::Input(key)).unwrap();
+            if poll(timeout).unwrap() {
+                match read() {
+                    Ok(c_event) => {
+                        if let CEvent::Key(key) = c_event {
+                            sender.send(Event::Input(key)).unwrap_or(());
+                        }
+                    }
+                    Err(_) => sender.send(Event::Tick).unwrap_or(()),
                 }
             }
 
@@ -294,7 +306,6 @@ pub fn enter_interactive_mode(
                                     app.scroll = 0;
                                 }
                                 UIMode::Normal => app.ui_mode = UIMode::Breadcrumbs,
-                                _ => {}
                             },
                             // Different operations dependent on the UI mode:
                             // * Breadcrumbs
@@ -499,7 +510,6 @@ pub fn enter_interactive_mode(
 
                         _ => {}
                     },
-                    _ => {}
                 }
             }
             Event::Tick => {}

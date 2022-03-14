@@ -46,7 +46,7 @@ pub fn render_ui(app: &mut App, args: &mut Args, frame: &mut Frame<CrosstermBack
                 .split(chunks[1]);
 
             frame.render_stateful_widget(
-                normal_view(&app),
+                normal_view(app),
                 normal_chunks[0],
                 &mut app.directory_tree.state,
             );
@@ -124,13 +124,6 @@ pub fn render_ui(app: &mut App, args: &mut Args, frame: &mut Frame<CrosstermBack
 
                     args.pattern = None;
                 }
-                PopupMode::Reloading => {
-                    let reloading_popup_area = get_single_line_popup_area(chunks[1]);
-                    frame.render_widget(
-                        Paragraph::new("RELOADING...").alignment(Alignment::Center),
-                        reloading_popup_area,
-                    );
-                }
                 PopupMode::Settings => {
                     let settings_area = get_settings_area(chunks[1]);
                     let settings_table = Table::new(app.app_settings.items.clone())
@@ -182,6 +175,5 @@ pub fn render_ui(app: &mut App, args: &mut Args, frame: &mut Frame<CrosstermBack
 
             frame.render_widget(help_view(&app), center_chunks[1]);
         }
-        _ => {}
     }
 }

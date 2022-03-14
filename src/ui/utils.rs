@@ -12,7 +12,7 @@ use crate::{
     cli::Args,
     errors::NomadError,
     style::models::NomadStyle,
-    traverse::{modes::NomadMode, utils::build_walker, walk_directory},
+    traverse::{models::DirItem, modes::NomadMode, utils::build_walker, walk_directory},
 };
 
 /// Return all app settings formatted in `Row`s.
@@ -110,7 +110,7 @@ pub fn get_tree(
     args: &Args,
     nomad_style: &NomadStyle,
     target_directory: &str,
-) -> Result<(Vec<String>, Option<Vec<String>>), NomadError> {
+) -> Result<(Vec<String>, Option<Vec<DirItem>>), NomadError> {
     let (tree, config, directory_items) = walk_directory(
         args,
         NomadMode::Interactive,

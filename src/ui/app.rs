@@ -1,14 +1,17 @@
 //! Create an application state for the TUI.
 
-use std::{ffi::OsStr, fs::File, io::Read, path::Path};
+use std::{fs::File, io::Read, path::Path};
 
-use tui::widgets::{ListState, Row, TableState};
+use tui::{
+    style::Color,
+    widgets::{ListState, Row, TableState},
+};
 
 use super::{
     stateful_widgets::{StatefulWidget, WidgetMode},
     utils::{get_breadcrumbs, get_settings, get_tree},
 };
-use crate::{cli::Args, errors::NomadError, style::models::NomadStyle};
+use crate::{cli::Args, errors::NomadError, style::models::NomadStyle, traverse::models::DirItem};
 
 /// Contains the different modes that may be evoked based on user interaction.
 ///
@@ -22,9 +25,6 @@ pub enum UIMode {
     Inspect,
     /// Normal mode.
     Normal,
-    /// The UI is reloading its `App` data.
-    /// This is evoked when the user enters a new directory.
-    Loading,
 }
 
 /// Contains the different popup modes that may be evoked based on user interaction.
@@ -37,8 +37,6 @@ pub enum PopupMode {
     NothingFound,
     /// Render a popup that accepts a pattern.
     PatternInput,
-    /// Render a popup indicating the tree is reloading.
-    Reloading,
     /// Render the settings menu as a popup.
     Settings,
 }
@@ -54,11 +52,13 @@ pub struct App<'a> {
     /// The current directory of the tree that is displayed.
     pub current_directory: String,
     /// All items in the target directory.
-    pub directory_items: Option<StatefulWidget<String, ListState>>,
+    pub directory_items: Option<StatefulWidget<DirItem, ListState>>,
     /// The directory tree.
     pub directory_tree: StatefulWidget<String, ListState>,
     /// Stores `None` or `Some(file contents)`.
     pub file_contents: Option<Option<Vec<String>>>,
+    /// Store the `NomadStyle` struct.
+    pub nomad_style: &'a NomadStyle,
     /// Hold the current popup mode.
     pub popup_mode: PopupMode,
     /// Hold the scroll position for `Scroll` mode.
@@ -73,7 +73,7 @@ impl<'a> App<'a> {
     /// Create a new interactive instance with the target directory.
     pub fn new(
         args: &Args,
-        nomad_style: &NomadStyle,
+        nomad_style: &'a NomadStyle,
         target_directory: &str,
     ) -> Result<App<'a>, NomadError> {
         let (tree, items) = get_tree(args, nomad_style, target_directory)?;
@@ -110,14 +110,13 @@ impl<'a> App<'a> {
             ),
             collected_input: Vec::new(),
             current_directory: Path::new(target_directory)
-                .file_name()
-                .unwrap_or(&OsStr::new("?"))
                 .to_str()
                 .unwrap_or("?")
                 .to_string(),
             directory_items,
             directory_tree,
             file_contents: None,
+            nomad_style,
             popup_mode: PopupMode::Disabled,
             scroll: 0,
             ui_mode: UIMode::Normal,
@@ -133,7 +132,7 @@ impl<'a> App<'a> {
                 Some(directory_items) => {
                     let selected_item = &directory_items.items[index];
 
-                    if Path::new(&selected_item).canonicalize()?.is_dir() {
+                    if Path::new(&selected_item.path).canonicalize()?.is_dir() {
                         Ok(Some(true))
                     } else {
                         Ok(Some(false))
@@ -156,7 +155,7 @@ impl<'a> App<'a> {
                         Some(index) => match &self.directory_items {
                             Some(directory_items) => {
                                 let mut buffer = Vec::new();
-                                let mut file = File::open(&directory_items.items[index])?;
+                                let mut file = File::open(&directory_items.items[index].path)?;
 
                                 file.read_to_end(&mut buffer)?;
 
@@ -193,15 +192,15 @@ impl<'a> App<'a> {
         format!("/{}", self.breadcrumbs.items[..end].join("/"))
     }
 
-    /// Update the app's `breadcrumbs`, `directory_items`, and `directory_tree`.
+    /// Refresh the tree and update the app's `breadcrumbs`, `directory_items`,
+    /// and `directory_tree`.
     pub fn refresh(
         &mut self,
         args: &Args,
-        nomad_style: &NomadStyle,
+        nomad_style: &'a NomadStyle,
         target_directory: &str,
     ) -> Result<(), NomadError> {
-        self.popup_mode = PopupMode::Reloading;
-
+        self.nomad_style = nomad_style;
         self.app_settings = StatefulWidget::new(
             get_settings(args),
             TableState::default(),
@@ -211,30 +210,33 @@ impl<'a> App<'a> {
         self.scroll = 0;
 
         let crumb_path = self.get_target_by_breadcrumbs();
+        let current_directory_clone = self.current_directory.clone();
+
         let new_directory = match self.ui_mode {
             UIMode::Breadcrumbs => target_directory,
             UIMode::Normal => match &self.directory_items {
-                Some(directory_items) => match self.ui_mode {
-                    UIMode::Breadcrumbs => target_directory,
-                    UIMode::Normal => match self.selected_is_dir()? {
-                        Some(is_dir) => {
-                            if is_dir {
-                                match self.directory_tree.state.selected() {
-                                    Some(index) => &directory_items.items[index],
+                Some(directory_items) => match self.selected_is_dir()? {
+                    Some(is_dir) => {
+                        if is_dir {
+                            match self.popup_mode {
+                                PopupMode::PatternInput => &current_directory_clone,
+                                _ => match self.directory_tree.state.selected() {
+                                    Some(index) => &directory_items.items[index].path,
                                     None => target_directory,
-                                }
-                            } else {
-                                &crumb_path
+                                },
                             }
+                        } else {
+                            &crumb_path
                         }
-                        None => &crumb_path,
-                    },
-                    _ => &crumb_path,
+                    }
+                    None => &crumb_path,
                 },
                 None => &crumb_path,
             },
             _ => &crumb_path,
         };
+
+        self.current_directory = Path::new(new_directory).to_str().unwrap_or("?").to_string();
 
         self.breadcrumbs = StatefulWidget::new(
             get_breadcrumbs(&new_directory)?,
@@ -268,15 +270,13 @@ impl<'a> App<'a> {
         Ok(())
     }
 
-    /// Refresh the app after the user searched for a pattern.
+    /// Refresh the `App` after the user searched for a pattern.
     pub fn pattern_search(
         &mut self,
         args: &mut Args,
-        nomad_style: &NomadStyle,
+        nomad_style: &'a NomadStyle,
         target_directory: &str,
     ) -> Result<(), NomadError> {
-        self.popup_mode = PopupMode::Reloading;
-
         args.pattern = self.collected_input.pop();
 
         if let Err(error) = self.refresh(args, nomad_style, target_directory) {
@@ -289,5 +289,42 @@ impl<'a> App<'a> {
         }
 
         Ok(())
+    }
+
+    /// Return the color of the highlighted item if it contains Git changes.
+    pub fn get_git_color(&self) -> Color {
+        let conflicted = &self.nomad_style.git.conflicted_marker;
+        let deleted = &self.nomad_style.git.deleted_marker;
+        let modified = &self.nomad_style.git.modified_marker;
+        let renamed = &self.nomad_style.git.renamed_marker;
+        let staged_added = &self.nomad_style.git.staged_added_marker;
+        let staged_deleted = &self.nomad_style.git.staged_deleted_marker;
+        let staged_modified = &self.nomad_style.git.staged_modified_marker;
+        let staged_renamed = &self.nomad_style.git.staged_renamed_marker;
+        let untracked = &self.nomad_style.git.untracked_marker;
+
+        match self.directory_tree.state.selected() {
+            Some(index) => match &self.directory_items {
+                Some(directory_items) => match &directory_items.items[index].marker {
+                    Some(marker) => match marker.to_string() {
+                        _ if marker == conflicted => self.nomad_style.tui.conflicted_color,
+                        _ if marker == deleted => self.nomad_style.tui.deleted_color,
+                        _ if marker == modified => self.nomad_style.tui.modified_color,
+                        _ if marker == renamed => self.nomad_style.tui.renamed_color,
+                        _ if marker == staged_added => self.nomad_style.tui.staged_added_color,
+                        _ if marker == staged_deleted => self.nomad_style.tui.staged_deleted_color,
+                        _ if marker == staged_modified => {
+                            self.nomad_style.tui.staged_modified_color
+                        }
+                        _ if marker == staged_renamed => self.nomad_style.tui.staged_renamed_color,
+                        _ if marker == untracked => self.nomad_style.tui.untracked_color,
+                        _ => Color::Blue,
+                    },
+                    None => Color::Blue,
+                },
+                None => Color::Blue,
+            },
+            None => Color::Blue,
+        }
     }
 }
