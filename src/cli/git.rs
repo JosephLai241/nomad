@@ -22,8 +22,6 @@ pub enum GitOptions {
     /// The `git diff` command.
     /// This may be used after running nomad in a labeled mode.
     Diff { item_labels: Vec<String> },
-    /// The `git push` command.
-    Push,
     /// The `git restore` command. This may be used after running nomad in a labeled mode.
     Restore(RestoreOptions),
     /// The `git status` command. Only display changed/unstaged files in the tree.
