@@ -68,12 +68,9 @@ pub fn run_git(
                                             .paint("Line range only takes two values - a lower and upper bound")
                                     );
                                 } else {
-                                    if let Err(error) = bat_blame(
-                                        item,
-                                        blame_options.lines.clone(),
-                                        &repo,
-                                        &target_directory,
-                                    ) {
+                                    if let Err(error) =
+                                        bat_blame(item, blame_options, &repo, &target_directory)
+                                    {
                                         paint_error(error);
                                     }
                                 }

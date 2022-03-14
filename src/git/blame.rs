@@ -6,22 +6,36 @@ use std::{
     path::Path,
 };
 
-use crate::{errors::NomadError, XTERM_COLORS};
+use crate::{cli, errors::NomadError, utils::meta::convert_time, XTERM_COLORS};
 
 use ansi_term::Colour;
 use anyhow::Result;
 use bat::{Input, PagingMode, PrettyPrinter, WrappingMode};
 use git2::{BlameOptions, Repository};
+use lazy_static::lazy_static;
 use rand::{prelude::SliceRandom, thread_rng};
+
+lazy_static! {
+    /// Blacklisted colors for Git blame. These colors are darker and may be difficult
+    /// to read or are too similar to the default shade of white.
+    static ref BLACKLIST: Vec<u8> = vec![
+        000, 001, 004, 005, 015, 016, 017, 018, 019, 020, 049, 051, 052, 053, 054,
+        055, 056, 057, 058, 059, 060, 061, 062, 081, 085, 086, 087, 088, 089, 090,
+        091, 092, 121, 122, 123, 124, 125, 126, 157, 158, 159, 192, 193, 194, 195,
+        218, 224, 225, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239,
+        240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254,
+        255
+    ];
+}
 
 /// Use `bat` to display the Git blame.
 pub fn bat_blame(
     filename: String,
-    ranges: Vec<usize>,
+    blame_options: &cli::git::BlameOptions,
     repo: &Repository,
     target_directory: &str,
 ) -> Result<(), NomadError> {
-    let blame_meta = get_blame(&filename, &ranges, repo, target_directory)?;
+    let blame_meta = get_blame(blame_options, &filename, repo, target_directory)?;
     let joined_blame = blame_meta.blame.join("\n");
 
     let mut printer = PrettyPrinter::new();
@@ -33,14 +47,11 @@ pub fn bat_blame(
             blame_meta.relative_path,
             Colour::Green.paint(blame_meta.authors.to_string()),
             Colour::Yellow.paint(blame_meta.emails.to_string()),
-            if !ranges.is_empty() {
+            if let Some(ranges) = blame_meta.lines {
                 format!(
                     " Lines {} to {} |",
-                    Colour::Fixed(193).paint(format!("{}", ranges.get(0).unwrap_or(&0))),
-                    Colour::Fixed(193).paint(format!(
-                        "{}",
-                        ranges.get(1).unwrap_or(&blame_meta.blame.len())
-                    ))
+                    Colour::Fixed(193).paint(format!("{}", ranges.0)),
+                    Colour::Fixed(193).paint(format!("{}", ranges.1))
                 )
             } else {
                 "".to_string()
@@ -61,7 +72,7 @@ pub fn bat_blame(
         .true_color(true)
         .wrapping_mode(WrappingMode::Character);
 
-    if ranges.is_empty() {
+    if blame_options.lines.is_empty() {
         printer.line_numbers(true);
     }
 
@@ -80,6 +91,8 @@ struct BlameMeta {
     pub blame: Vec<String>,
     /// The total number of different emails for this file.
     pub emails: usize,
+    /// The line numbers that were targeted in the blame.
+    pub lines: Option<(usize, usize)>,
     /// The relative path of the file.
     pub relative_path: String,
 }
@@ -87,8 +100,8 @@ struct BlameMeta {
 /// Traverse the Git blame hunks, format each line, and return a Vec containing the
 /// formatted lines in the blame.
 fn get_blame(
+    cli_blame_options: &cli::git::BlameOptions,
     filename: &str,
-    ranges: &Vec<usize>,
     repo: &Repository,
     target_directory: &str,
 ) -> Result<BlameMeta, NomadError> {
@@ -98,9 +111,9 @@ fn get_blame(
         .track_copies_same_commit_moves(true)
         .track_copies_same_file(true);
 
-    if !ranges.is_empty() {
-        blame_options.min_line(*ranges.get(0).unwrap_or(&0));
-        blame_options.max_line(*ranges.get(1).unwrap_or(&usize::MAX));
+    if !cli_blame_options.lines.is_empty() {
+        blame_options.min_line(*cli_blame_options.lines.get(0).unwrap_or(&0));
+        blame_options.max_line(*cli_blame_options.lines.get(1).unwrap_or(&usize::MAX));
     }
 
     let relative_path = Path::new(&filename)
@@ -119,6 +132,7 @@ fn get_blame(
     let mut found_emails: HashSet<String> = HashSet::new();
     let mut formatted_blame: Vec<String> = Vec::new();
 
+    let mut final_line_num: usize = 0;
     for (index, line) in reader.lines().enumerate() {
         if let (Ok(line), Some(hunk)) = (line, blame.get_line(index + 1)) {
             let author = hunk
@@ -142,15 +156,35 @@ fn get_blame(
                 found_emails.insert(email.clone());
             }
 
+            let mut formatted_author = if author.len() > 12 {
+                format!("{}..", &author[..11])
+            } else {
+                author.clone()
+            };
+
+            let formatted_meta = if cli_blame_options.emails {
+                let formatted_email = if email.len() > 26 {
+                    format!("{}..", &email[..25])
+                } else {
+                    email.clone()
+                };
+
+                format!("{:<27}", formatted_email)
+            } else {
+                let timestamp = convert_time(hunk.final_signature().when().seconds());
+
+                format!("{:<24}", timestamp)
+            };
+
+            formatted_author = format!("{:<13}", formatted_author);
+
             let commit_id = repo.find_commit(hunk.final_commit_id())?.id().to_string();
 
-            // TODO: ADD STRING FORMATTING SO THAT ALL LINES HAVE THE SAME AMOUNT
-            // OF SPACING FOLLOWING "|"
             formatted_blame.push(format!(
                 "{} {} {} | {}",
                 Colour::Fixed(028).paint(&commit_id[..7]),
-                Colour::Fixed(193).paint(&author),
-                Colour::Fixed(194).paint(&email),
+                Colour::Fixed(193).paint(&formatted_author).to_string(),
+                Colour::Fixed(194).paint(&formatted_meta).to_string(),
                 match found_authors.get(&author) {
                     Some(assigned_color) => {
                         match assigned_color {
@@ -161,6 +195,8 @@ fn get_blame(
                     None => line,
                 }
             ));
+
+            final_line_num = index + 1;
         }
     }
 
@@ -168,6 +204,18 @@ fn get_blame(
         authors: found_authors.len(),
         blame: formatted_blame,
         emails: found_emails.len(),
+        lines: if !cli_blame_options.lines.is_empty() {
+            Some((
+                cli_blame_options
+                    .lines
+                    .get(0)
+                    .unwrap_or(&usize::MIN)
+                    .to_owned(),
+                final_line_num,
+            ))
+        } else {
+            None
+        },
         relative_path: relative_path.to_str().unwrap_or("?").to_string(),
     })
 }
@@ -182,22 +230,15 @@ fn get_random_color(
     if author == you {
         None
     } else {
-        let mut new_color = false;
+        let taken_colors = Vec::from_iter(found_authors.values().filter_map(|color| match color {
+            Some(color) => Some(color.to_owned()),
+            None => None,
+        }));
         let mut color = XTERM_COLORS.choose(&mut thread_rng()).unwrap_or(&007);
 
+        let mut new_color = false;
         while !new_color {
-            // The Vec<u8> contains dark colors, which could make it hard to read text
-            // in the terminal.
-            if Vec::from_iter(found_authors.values().filter_map(|color| {
-                if color.is_some() {
-                    Some(color.unwrap())
-                } else {
-                    None
-                }
-            }))
-            .contains(color)
-                || vec![016, 017, 018, 019, 051, 053, 054, 055, 089, 088].contains(color)
-            {
+            if taken_colors.contains(color) || BLACKLIST.contains(color) {
                 color = XTERM_COLORS.choose(&mut thread_rng()).unwrap_or(&007);
             } else {
                 new_color = true;

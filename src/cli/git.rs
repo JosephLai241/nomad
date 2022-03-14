@@ -33,8 +33,15 @@ pub enum GitOptions {
 /// This struct provides options for the `git blame` command.
 #[derive(Debug, PartialEq, StructOpt)]
 pub struct BlameOptions {
+    #[structopt(
+        long,
+        help = "Display emails for each blame line instead of timestamps"
+    )]
+    pub emails: bool,
+
     #[structopt(help = "Display a blame for this file")]
     pub file_number: String,
+
     #[structopt(
         short,
         long,
@@ -57,6 +64,7 @@ pub struct RestoreOptions {
         help = "Restore these items to its clean Git state. Restores in the working tree by default"
     )]
     pub item_labels: Vec<String>,
+
     #[structopt(short, long, help = "Restore these items in the index")]
     pub staged: bool,
 }

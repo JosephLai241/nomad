@@ -15,7 +15,7 @@ use std::os::unix::fs::{MetadataExt, PermissionsExt};
 use std::os::windows::fs::MetadataExt;
 
 /// Convert a UNIX timestamp to a readable format.
-fn convert_time(timestamp: i64) -> String {
+pub fn convert_time(timestamp: i64) -> String {
     let utc_time = Utc.timestamp(timestamp, 0);
     let local_time: DateTime<Local> = DateTime::from(utc_time);
 
