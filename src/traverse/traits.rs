@@ -2,7 +2,7 @@
 
 use super::{
     format::format_branch,
-    models::{FoundBranch, FoundItem, TransformedBranch, TransformedItem},
+    models::{DirItem, FoundBranch, FoundItem, TransformedBranch, TransformedItem},
     modes::NomadMode,
 };
 use crate::{
@@ -182,7 +182,7 @@ pub trait ToTree {
         nomad_mode: NomadMode,
         nomad_style: &NomadStyle,
         target_directory: &str,
-    ) -> Result<(StringItem, PrintConfig, Option<Vec<String>>), NomadError>;
+    ) -> Result<(StringItem, PrintConfig, Option<Vec<DirItem>>), NomadError>;
 }
 
 impl ToTree for Vec<TransformedItem> {
@@ -193,7 +193,7 @@ impl ToTree for Vec<TransformedItem> {
         nomad_mode: NomadMode,
         nomad_style: &NomadStyle,
         target_directory: &str,
-    ) -> Result<(StringItem, PrintConfig, Option<Vec<String>>), NomadError> {
+    ) -> Result<(StringItem, PrintConfig, Option<Vec<DirItem>>), NomadError> {
         let mut numbered_items: HashMap<String, String> = HashMap::new();
         let mut labeled_items: HashMap<String, String> = HashMap::new();
 
@@ -214,9 +214,12 @@ impl ToTree for Vec<TransformedItem> {
 
         // This holds every single item in the directory and is only returned in
         // NomadMode::Interactive.
-        let mut directory_items = Vec::new();
+        let mut directory_items: Vec<DirItem> = Vec::new();
         match nomad_mode {
-            NomadMode::Interactive => directory_items.push(target_directory.to_string()),
+            NomadMode::Interactive => directory_items.push(DirItem {
+                marker: None,
+                path: target_directory.to_string(),
+            }),
             _ => {}
         }
 
@@ -321,13 +324,14 @@ impl ToTree for Vec<TransformedItem> {
             previous_item = item;
 
             match nomad_mode {
-                NomadMode::Interactive => directory_items.push(
-                    Path::new(&item.path)
+                NomadMode::Interactive => directory_items.push(DirItem {
+                    marker: item.marker.clone(),
+                    path: Path::new(&item.path)
                         .canonicalize()?
                         .to_str()
                         .unwrap_or("?")
                         .to_string(),
-                ),
+                }),
                 _ => {}
             }
         }
@@ -369,7 +373,7 @@ impl ToTree for Vec<TransformedBranch> {
         nomad_mode: NomadMode,
         nomad_style: &NomadStyle,
         target_directory: &str,
-    ) -> Result<(StringItem, PrintConfig, Option<Vec<String>>), NomadError> {
+    ) -> Result<(StringItem, PrintConfig, Option<Vec<DirItem>>), NomadError> {
         let _labeled_items: HashMap<String, String> = HashMap::new();
         let mut numbered_items: HashMap<String, String> = HashMap::new();
 

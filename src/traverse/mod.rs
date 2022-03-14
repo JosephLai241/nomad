@@ -7,7 +7,7 @@ pub mod traits;
 pub mod utils;
 
 use self::{
-    models::FoundItem,
+    models::{DirItem, FoundItem},
     modes::NomadMode,
     traits::{ToTree, TransformFound},
 };
@@ -30,7 +30,7 @@ pub fn walk_directory(
     nomad_style: &NomadStyle,
     target_directory: &str,
     walker: &mut Walk,
-) -> Result<(StringItem, PrintConfig, Option<Vec<String>>), NomadError> {
+) -> Result<(StringItem, PrintConfig, Option<Vec<DirItem>>), NomadError> {
     let regex_expression = if let Some(ref pattern) = args.pattern {
         match Regex::new(&pattern.clone()) {
             Ok(regex) => Some(regex),
@@ -61,15 +61,9 @@ pub fn walk_directory(
                     None
                 } else {
                     if let Some(ref regex) = regex_expression {
-                        if let Some(matched) = regex.find(
-                            &entry
-                                .path()
-                                .file_name()
-                                .unwrap_or(OsStr::new("?"))
-                                .to_str()
-                                .unwrap_or("?")
-                                .to_string(),
-                        ) {
+                        if let Some(matched) =
+                            regex.find(&entry.path().to_str().unwrap_or("?").to_string())
+                        {
                             Some(FoundItem {
                                 marker: git_markers
                                     .get(
