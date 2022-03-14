@@ -8,7 +8,7 @@ pub fn get_single_line_popup_area(frame: Rect) -> Rect {
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Percentage(45),
-            Constraint::Percentage(8),
+            Constraint::Length(3),
             Constraint::Percentage(45),
         ])
         .split(frame);
