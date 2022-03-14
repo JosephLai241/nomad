@@ -6,7 +6,7 @@ use crate::{
     style::models::NomadStyle,
     traverse::{
         format::highlight_matched,
-        models::FoundBranch,
+        models::{DirItem, FoundBranch},
         modes::NomadMode,
         traits::{ToTree, TransformFound},
     },
@@ -27,7 +27,7 @@ pub fn display_branches(
     nomad_style: &NomadStyle,
     repo: &Repository,
     target_directory: &str,
-) -> Result<Option<(StringItem, PrintConfig, Option<Vec<String>>)>, NomadError> {
+) -> Result<Option<(StringItem, PrintConfig, Option<Vec<DirItem>>)>, NomadError> {
     let regex_expression = if let Some(ref pattern) = args.pattern {
         match Regex::new(&pattern.clone()) {
             Ok(regex) => Some(regex),
