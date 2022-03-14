@@ -18,7 +18,7 @@ mod utils;
 use cli::{get_args, SubCommands};
 use config::toml::parse_config;
 use loc::loc_in_dir;
-use releases::update_self;
+use releases::{check_for_update, update_self};
 use switches::{config::run_config, filetype::run_filetypes, git::run_git, release::run_releases};
 use traverse::{modes::NomadMode, utils::build_walker, walk_directory};
 use ui::enter_interactive_mode;
@@ -76,8 +76,6 @@ lazy_static! {
 
 /// Run `nomad`.
 fn main() -> Result<(), NomadError> {
-    //check_for_update()?;
-
     let mut args = get_args();
 
     let (nomad_config, config_path) = parse_config()?;
@@ -161,9 +159,13 @@ fn main() -> Result<(), NomadError> {
                 SubCommands::Releases(release_option) => {
                     run_releases(release_option);
                 }
-                SubCommands::Upgrade => {
-                    if let Err(error) = update_self() {
-                        paint_error(error);
+                SubCommands::Upgrade(upgrade_options) => {
+                    if upgrade_options.check {
+                        check_for_update()?;
+                    } else {
+                        if let Err(error) = update_self() {
+                            paint_error(error);
+                        }
                     }
                 }
             }

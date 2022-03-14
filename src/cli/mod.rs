@@ -8,7 +8,10 @@ pub mod releases;
 use structopt::StructOpt;
 
 use self::{
-    config::ConfigOptions, filetype::FileTypeOptions, git::GitOptions, releases::ReleaseOptions,
+    config::ConfigOptions,
+    filetype::FileTypeOptions,
+    git::GitOptions,
+    releases::{ReleaseOptions, UpgradeOptions},
 };
 
 /// This struct contains all flags that are used in this program.
@@ -148,8 +151,8 @@ pub enum SubCommands {
     Interactive,
     /// Retrieve releases for this program (retrieved from GitHub).
     Releases(ReleaseOptions),
-    /// Upgrade nomad.
-    Upgrade,
+    /// Upgrade nomad or just check if there is an upgrade available.
+    Upgrade(UpgradeOptions),
 }
 
 /// Return the `Args` struct.
@@ -165,10 +168,10 @@ mod test_cli {
 
     #[test]
     fn test_invalid_arg() {
-        //Command::cargo_bin("nd")
-        //.unwrap()
-        //.arg("-q")
-        //.assert()
-        //.failure();
+        Command::cargo_bin("nd")
+            .unwrap()
+            .arg("-q")
+            .assert()
+            .failure();
     }
 }
