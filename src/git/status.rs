@@ -19,7 +19,7 @@ use itertools::Itertools;
 use ptree::{item::StringItem, PrintConfig};
 use regex::Regex;
 
-use std::{collections::HashMap, ffi::OsStr, path::Path};
+use std::{collections::HashMap, path::Path};
 
 /// Build a tree that only contains items that are tracked in Git.
 pub fn display_status_tree(
@@ -100,13 +100,8 @@ fn build_status_tree(
         .iter()
         .filter_map(|(relative_path, marker)| {
             if let Some(ref regex) = regex_expression {
-                if let Some(matched) = regex.find(
-                    Path::new(&relative_path)
-                        .file_name()
-                        .unwrap_or(OsStr::new("?"))
-                        .to_str()
-                        .unwrap_or("?"),
-                ) {
+                if let Some(matched) = regex.find(Path::new(&relative_path).to_str().unwrap_or("?"))
+                {
                     Some(FoundItem {
                         marker: Some(marker.to_string()),
                         matched: Some((matched.start(), matched.end())),
