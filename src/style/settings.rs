@@ -7,7 +7,10 @@ use crate::config::models::{IndentCharacters, NomadConfig};
 
 use super::{
     models::NomadStyle,
-    paint::{convert_to_ansi_style, process_git_settings, process_tui_settings},
+    paint::{
+        convert_to_ansi_style, process_git_settings, process_tui_git_settings,
+        process_tui_style_settings,
+    },
 };
 
 /// Return a struct containing user-specified or default settings.
@@ -32,7 +35,7 @@ pub fn process_settings(nomad_config: NomadConfig) -> NomadStyle {
             process_git_settings(&mut nomad_style, &git_settings);
         }
 
-        nomad_style.regex.match_color = match tree_settings.regex {
+        nomad_style.tree.regex.match_color = match tree_settings.regex {
             Some(regex_setting) => match regex_setting.match_color {
                 Some(color) => convert_to_ansi_style(&color),
                 None => Colour::Fixed(033).bold(),
@@ -43,7 +46,11 @@ pub fn process_settings(nomad_config: NomadConfig) -> NomadStyle {
 
     if let Some(tui_settings) = nomad_config.tui {
         if let Some(git_settings) = tui_settings.git {
-            process_tui_settings(&mut nomad_style, &git_settings);
+            process_tui_git_settings(&mut nomad_style, &git_settings);
+        }
+
+        if let Some(style_settings) = tui_settings.style {
+            process_tui_style_settings(&mut nomad_style, &style_settings);
         }
     }
 

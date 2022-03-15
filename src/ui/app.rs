@@ -307,17 +307,21 @@ impl<'a> App<'a> {
             Some(index) => match &self.directory_items {
                 Some(directory_items) => match &directory_items.items[index].marker {
                     Some(marker) => match marker.to_string() {
-                        _ if marker == conflicted => self.nomad_style.tui.conflicted_color,
-                        _ if marker == deleted => self.nomad_style.tui.deleted_color,
-                        _ if marker == modified => self.nomad_style.tui.modified_color,
-                        _ if marker == renamed => self.nomad_style.tui.renamed_color,
-                        _ if marker == staged_added => self.nomad_style.tui.staged_added_color,
-                        _ if marker == staged_deleted => self.nomad_style.tui.staged_deleted_color,
-                        _ if marker == staged_modified => {
-                            self.nomad_style.tui.staged_modified_color
+                        _ if marker == conflicted => self.nomad_style.tui.git.conflicted_color,
+                        _ if marker == deleted => self.nomad_style.tui.git.deleted_color,
+                        _ if marker == modified => self.nomad_style.tui.git.modified_color,
+                        _ if marker == renamed => self.nomad_style.tui.git.renamed_color,
+                        _ if marker == staged_added => self.nomad_style.tui.git.staged_added_color,
+                        _ if marker == staged_deleted => {
+                            self.nomad_style.tui.git.staged_deleted_color
                         }
-                        _ if marker == staged_renamed => self.nomad_style.tui.staged_renamed_color,
-                        _ if marker == untracked => self.nomad_style.tui.untracked_color,
+                        _ if marker == staged_modified => {
+                            self.nomad_style.tui.git.staged_modified_color
+                        }
+                        _ if marker == staged_renamed => {
+                            self.nomad_style.tui.git.staged_renamed_color
+                        }
+                        _ if marker == untracked => self.nomad_style.tui.git.untracked_color,
                         _ => Color::Reset,
                     },
                     None => Color::Reset,

@@ -1,7 +1,7 @@
 //! Set the colors and markers for `nomad`.
 
 use super::models::NomadStyle;
-use crate::config::models::{TUIGit, TreeGit};
+use crate::config::models::{TUIGit, TUIStyle, TreeGit};
 
 use ansi_term::{Colour, Style};
 use tui::style::Color;
@@ -9,123 +9,107 @@ use tui::style::Color;
 /// Process the Git markers from `NomadConfig`.
 pub fn process_git_settings(nomad_style: &mut NomadStyle, git_settings: &TreeGit) {
     if let Some(colors) = &git_settings.colors {
-        nomad_style.git.conflicted_color = match &colors.conflicted_color {
-            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
-            None => Colour::Red.bold(),
-        };
-        nomad_style.git.deleted_color = match &colors.deleted_color {
-            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
-            None => Colour::Red.bold(),
-        };
-        nomad_style.git.modified_color = match &colors.modified_color {
-            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
-            None => Colour::Fixed(172).bold(),
-        };
-        nomad_style.git.renamed_color = match &colors.renamed_color {
-            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
-            None => Colour::Red.bold(),
-        };
-        nomad_style.git.staged_added_color = match &colors.staged_added_color {
-            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
-            None => Colour::Green.bold(),
-        };
-        nomad_style.git.staged_deleted_color = match &colors.staged_deleted_color {
-            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
-            None => Colour::Red.bold(),
-        };
-        nomad_style.git.staged_modified_color = match &colors.staged_modified_color {
-            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
-            None => Colour::Fixed(172).bold(),
-        };
-        nomad_style.git.staged_renamed_color = match &colors.staged_renamed_color {
-            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
-            None => Colour::Red.bold(),
-        };
-        nomad_style.git.untracked_color = match &colors.untracked_color {
-            Some(color) => convert_to_ansi_style(&color.to_lowercase()),
-            None => Colour::Fixed(243).bold(),
-        };
+        if let Some(color) = &colors.conflicted_color {
+            nomad_style.git.conflicted_color = convert_to_ansi_style(&color.to_lowercase());
+        }
+        if let Some(color) = &colors.deleted_color {
+            nomad_style.git.deleted_color = convert_to_ansi_style(&color.to_lowercase());
+        }
+        if let Some(color) = &colors.modified_color {
+            nomad_style.git.modified_color = convert_to_ansi_style(&color.to_lowercase());
+        }
+        if let Some(color) = &colors.renamed_color {
+            nomad_style.git.renamed_color = convert_to_ansi_style(&color.to_lowercase());
+        }
+        if let Some(color) = &colors.staged_added_color {
+            nomad_style.git.staged_added_color = convert_to_ansi_style(&color.to_lowercase());
+        }
+        if let Some(color) = &colors.staged_deleted_color {
+            nomad_style.git.staged_deleted_color = convert_to_ansi_style(&color.to_lowercase());
+        }
+        if let Some(color) = &colors.staged_modified_color {
+            nomad_style.git.staged_modified_color = convert_to_ansi_style(&color.to_lowercase());
+        }
+        if let Some(color) = &colors.staged_renamed_color {
+            nomad_style.git.staged_renamed_color = convert_to_ansi_style(&color.to_lowercase());
+        }
+        if let Some(color) = &colors.untracked_color {
+            nomad_style.git.untracked_color = convert_to_ansi_style(&color.to_lowercase());
+        }
     }
 
     if let Some(markers) = &git_settings.markers {
-        nomad_style.git.conflicted_marker = match &markers.conflicted_marker {
-            Some(marker) => marker.to_string(),
-            None => "CONFLICT".to_string(),
-        };
-        nomad_style.git.deleted_marker = match &markers.deleted_marker {
-            Some(marker) => marker.to_string(),
-            None => "D".to_string(),
-        };
-        nomad_style.git.modified_marker = match &markers.modified_marker {
-            Some(marker) => marker.to_string(),
-            None => "M".to_string(),
-        };
-        nomad_style.git.renamed_marker = match &markers.renamed_marker {
-            Some(marker) => marker.to_string(),
-            None => "R".to_string(),
-        };
-        nomad_style.git.staged_added_marker = match &markers.staged_added_marker {
-            Some(marker) => marker.to_string(),
-            None => "SA".to_string(),
-        };
-        nomad_style.git.staged_deleted_marker = match &markers.staged_deleted_marker {
-            Some(marker) => marker.to_string(),
-            None => "SD".to_string(),
-        };
-        nomad_style.git.staged_modified_marker = match &markers.staged_modified_marker {
-            Some(marker) => marker.to_string(),
-            None => "SM".to_string(),
-        };
-        nomad_style.git.staged_renamed_marker = match &markers.staged_renamed_marker {
-            Some(marker) => marker.to_string(),
-            None => "SR".to_string(),
-        };
-        nomad_style.git.untracked_marker = match &markers.untracked_marker {
-            Some(marker) => marker.to_string(),
-            None => "U".to_string(),
-        };
+        if let Some(marker) = &markers.conflicted_marker {
+            nomad_style.git.conflicted_marker = marker.to_string();
+        }
+        if let Some(marker) = &markers.deleted_marker {
+            nomad_style.git.deleted_marker = marker.to_string();
+        }
+        if let Some(marker) = &markers.modified_marker {
+            nomad_style.git.modified_marker = marker.to_string();
+        }
+        if let Some(marker) = &markers.renamed_marker {
+            nomad_style.git.renamed_marker = marker.to_string();
+        }
+        if let Some(marker) = &markers.staged_added_marker {
+            nomad_style.git.staged_added_marker = marker.to_string();
+        }
+        if let Some(marker) = &markers.staged_deleted_marker {
+            nomad_style.git.staged_deleted_marker = marker.to_string();
+        }
+        if let Some(marker) = &markers.staged_modified_marker {
+            nomad_style.git.staged_modified_marker = marker.to_string();
+        }
+        if let Some(marker) = &markers.staged_renamed_marker {
+            nomad_style.git.staged_renamed_marker = marker.to_string();
+        }
+        if let Some(marker) = &markers.untracked_marker {
+            nomad_style.git.untracked_marker = marker.to_string();
+        }
     }
 }
 
-/// Process the TUI settings from `NomadConfig`.
-pub fn process_tui_settings(nomad_style: &mut NomadStyle, git_settings: &TUIGit) {
+/// Process the TUI Git settings from `NomadConfig`.
+pub fn process_tui_git_settings(nomad_style: &mut NomadStyle, git_settings: &TUIGit) {
     if let Some(colors) = &git_settings.colors {
-        nomad_style.tui.conflicted_color = match &colors.conflicted_color {
-            Some(color) => convert_to_tui_color(&color.to_lowercase()),
-            None => Color::Red,
-        };
-        nomad_style.tui.deleted_color = match &colors.deleted_color {
-            Some(color) => convert_to_tui_color(&color.to_lowercase()),
-            None => Color::Red,
-        };
-        nomad_style.tui.modified_color = match &colors.modified_color {
-            Some(color) => convert_to_tui_color(&color.to_lowercase()),
-            None => Color::Indexed(172),
-        };
-        nomad_style.tui.renamed_color = match &colors.renamed_color {
-            Some(color) => convert_to_tui_color(&color.to_lowercase()),
-            None => Color::Red,
-        };
-        nomad_style.tui.staged_added_color = match &colors.staged_added_color {
-            Some(color) => convert_to_tui_color(&color.to_lowercase()),
-            None => Color::Green,
-        };
-        nomad_style.tui.staged_deleted_color = match &colors.staged_deleted_color {
-            Some(color) => convert_to_tui_color(&color.to_lowercase()),
-            None => Color::Red,
-        };
-        nomad_style.tui.staged_modified_color = match &colors.staged_modified_color {
-            Some(color) => convert_to_tui_color(&color.to_lowercase()),
-            None => Color::Indexed(172),
-        };
-        nomad_style.tui.staged_renamed_color = match &colors.staged_renamed_color {
-            Some(color) => convert_to_tui_color(&color.to_lowercase()),
-            None => Color::Red,
-        };
-        nomad_style.tui.untracked_color = match &colors.untracked_color {
-            Some(color) => convert_to_tui_color(&color.to_lowercase()),
-            None => Color::Indexed(243),
-        };
+        if let Some(color) = &colors.conflicted_color {
+            nomad_style.tui.git.conflicted_color = convert_to_tui_color(&color.to_lowercase());
+        }
+        if let Some(color) = &colors.deleted_color {
+            nomad_style.tui.git.deleted_color = convert_to_tui_color(&color.to_lowercase());
+        }
+        if let Some(color) = &colors.modified_color {
+            nomad_style.tui.git.modified_color = convert_to_tui_color(&color.to_lowercase());
+        }
+        if let Some(color) = &colors.renamed_color {
+            nomad_style.tui.git.renamed_color = convert_to_tui_color(&color.to_lowercase());
+        }
+        if let Some(color) = &colors.staged_added_color {
+            nomad_style.tui.git.staged_added_color = convert_to_tui_color(&color.to_lowercase());
+        }
+        if let Some(color) = &colors.staged_deleted_color {
+            nomad_style.tui.git.staged_deleted_color = convert_to_tui_color(&color.to_lowercase());
+        }
+        if let Some(color) = &colors.staged_modified_color {
+            nomad_style.tui.git.staged_modified_color = convert_to_tui_color(&color.to_lowercase());
+        }
+        if let Some(color) = &colors.staged_renamed_color {
+            nomad_style.tui.git.staged_renamed_color = convert_to_tui_color(&color.to_lowercase());
+        }
+        if let Some(color) = &colors.untracked_color {
+            nomad_style.tui.git.untracked_color = convert_to_tui_color(&color.to_lowercase());
+        }
+    }
+}
+
+/// Process the TUI style settings from `NomadConfig`.
+pub fn process_tui_style_settings(nomad_style: &mut NomadStyle, style_settings: &TUIStyle) {
+    if let Some(color) = &style_settings.border_color {
+        nomad_style.tui.border_color = convert_to_tui_color(&color.to_lowercase());
+    }
+
+    if let Some(color) = &style_settings.standard_item_highlight_color {
+        nomad_style.tui.standard_item_highlight_color = convert_to_tui_color(&color.to_lowercase());
     }
 }
 

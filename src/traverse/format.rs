@@ -108,6 +108,7 @@ pub fn highlight_matched(
     ranges: (usize, usize),
 ) -> String {
     let matched_section = nomad_style
+        .tree
         .regex
         .match_color
         .paint(format!("{}", filename[ranges.0..ranges.1].to_string()))
