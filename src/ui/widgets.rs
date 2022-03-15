@@ -5,10 +5,10 @@ use tui::{
     layout::Alignment,
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{Block, Borders, List, ListItem, Paragraph, Tabs, Wrap},
+    widgets::{Block, BorderType, Borders, List, ListItem, Paragraph, Tabs, Wrap},
 };
 
-use super::app::{App, UIMode};
+use super::app::{App, PopupMode, UIMode};
 
 /// The help text displayed in the help menu after pressing '?'.
 pub const HELP_TEXT: &str = r#"
@@ -21,6 +21,14 @@ pub const HELP_TEXT: &str = r#"
  - Keybindings
  - Modes
 
+
+ Views
+ =====
+
+ Interactive mode has 4 views:
+
+     * Normal/breadcrumbs
+     *
 
  Keybindings
  ===========
@@ -56,6 +64,8 @@ pub const HELP_TEXT: &str = r#"
 
  q           Quit interactive mode
 
+ r           Refresh the tree
+
  s           Display the settings for the current tree
 
  x           Export the tree to a file. Optionally provide a filename
@@ -64,7 +74,7 @@ pub const HELP_TEXT: &str = r#"
 
  L           Toggle all labels (directories and items)
 
- R           Refresh the current tree
+ R           Reset all options to its default value and refresh the current tree
 
  /           Search for a pattern. Supports regex expressions
 
@@ -104,26 +114,31 @@ pub fn get_breadcrumbs<'a>(app: &App) -> Tabs<'a> {
                 .border_style(match app.ui_mode {
                     UIMode::Breadcrumbs => Style::default()
                         .add_modifier(Modifier::BOLD)
-                        .fg(Color::Blue)
+                        .fg(Color::Indexed(033)) // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
                         .bg(Color::Black),
                     _ => Style::default(),
-                }),
+                })
+                .border_type(BorderType::Rounded),
         )
+        .highlight_style(match app.ui_mode {
+            UIMode::Breadcrumbs => Style::default()
+                .add_modifier(Modifier::BOLD)
+                .bg(Color::Indexed(033)) // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
+                .fg(Color::Black),
+            _ => Style::default()
+                .add_modifier(Modifier::BOLD)
+                .bg(Color::Black)
+                .fg(Color::Indexed(033)), // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
+        })
         .select(
             app.breadcrumbs
                 .state
                 .selected()
                 .map_or(app.breadcrumbs.items.len() - 1, |index| index),
         )
-        .highlight_style(match app.ui_mode {
-            UIMode::Breadcrumbs => Style::default()
-                .add_modifier(Modifier::BOLD)
-                .bg(Color::Blue)
-                .fg(Color::Black),
-            _ => Style::default()
-                .add_modifier(Modifier::BOLD)
-                .bg(Color::Black)
-                .fg(Color::Blue),
+        .style(match app.ui_mode {
+            UIMode::Breadcrumbs => Style::default().add_modifier(Modifier::BOLD),
+            _ => Style::default().add_modifier(Modifier::DIM),
         })
 }
 
@@ -136,6 +151,14 @@ pub fn normal_view<'a>(app: &App) -> List<'a> {
         .map(|item| ListItem::new(item.clone()))
         .collect::<Vec<ListItem>>();
 
+    let text_color = app.get_git_color();
+    let text_style = match text_color {
+        Color::Reset => Style::default()
+            .add_modifier(Modifier::BOLD)
+            .fg(Color::Indexed(033)), // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
+        _ => Style::default().add_modifier(Modifier::BOLD).fg(text_color),
+    };
+
     List::new(directory_tree)
         .block(
             Block::default()
@@ -143,11 +166,19 @@ pub fn normal_view<'a>(app: &App) -> List<'a> {
                 .border_style(match app.ui_mode {
                     UIMode::Normal => Style::default()
                         .add_modifier(Modifier::BOLD)
-                        .fg(Color::Blue),
+                        .fg(Color::Indexed(033)), // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
                     _ => Style::default(),
-                }),
+                })
+                .border_type(BorderType::Rounded),
         )
-        .highlight_style(Style::default().bg(app.get_git_color()).fg(Color::Black))
+        .highlight_style(text_style)
+        .style(match app.ui_mode {
+            UIMode::Normal => match app.popup_mode {
+                PopupMode::Disabled => Style::default(),
+                _ => Style::default().add_modifier(Modifier::DIM),
+            },
+            _ => Style::default().add_modifier(Modifier::DIM),
+        })
 }
 
 /// Display the `cat`ed file.
@@ -160,15 +191,22 @@ pub fn cat_view<'a>(app: &App) -> Option<Option<Paragraph<'a>>> {
                         Block::default()
                             .borders(Borders::ALL)
                             .border_style(match app.ui_mode {
-                                UIMode::Inspect => Style::default().fg(Color::Blue),
+                                UIMode::Inspect => Style::default()
+                                    .add_modifier(Modifier::BOLD)
+                                    .fg(Color::Indexed(033)), // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
                                 _ => Style::default(),
                             })
+                            .border_type(BorderType::Rounded)
                             .title(match app.ui_mode {
                                 UIMode::Inspect => " 🧐 ",
                                 _ => "",
                             }),
                     )
                     .scroll((app.scroll, 0))
+                    .style(match app.ui_mode {
+                        UIMode::Inspect => Style::default(),
+                        _ => Style::default().add_modifier(Modifier::DIM),
+                    })
                     .wrap(Wrap { trim: false }),
             )),
             None => Some(None),
@@ -186,6 +224,7 @@ pub fn nothing_found_view<'a>() -> Paragraph<'a> {
             Block::default()
                 .borders(Borders::ALL)
                 .border_style(Style::default().fg(Color::Red))
+                .border_type(BorderType::Rounded)
                 .style(
                     Style::default()
                         .add_modifier(Modifier::BOLD)
@@ -199,7 +238,13 @@ pub fn nothing_found_view<'a>() -> Paragraph<'a> {
 /// Display the help TUI mode.
 pub fn help_view<'a>(app: &App) -> Paragraph<'a> {
     Paragraph::new(HELP_TEXT)
-        .block(Block::default().borders(Borders::ALL).title(" ❓ help "))
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .border_style(Style::default().fg(Color::Indexed(033))) // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
+                .border_type(BorderType::Rounded)
+                .title(" ❓ help "),
+        )
         .scroll((app.scroll, 0))
         .wrap(Wrap { trim: false })
 }
@@ -212,6 +257,7 @@ pub fn error_view<'a>(error_message: &'a str) -> Paragraph<'a> {
             Block::default()
                 .borders(Borders::ALL)
                 .border_style(Style::default().fg(Color::Red))
+                .border_type(BorderType::Rounded)
                 .style(Style::default().add_modifier(Modifier::BOLD).fg(Color::Red))
                 .title(" ⚠️   ERROR  ⚠️  ")
                 .title_alignment(Alignment::Center),

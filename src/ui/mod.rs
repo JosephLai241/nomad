@@ -61,7 +61,7 @@ pub fn enter_interactive_mode(
     // Set up input handling.
     let (sender, receiver) = channel();
 
-    let tick_rate = Duration::from_millis(100);
+    let tick_rate = Duration::from_millis(30);
     thread::spawn(move || {
         let mut last_tick = Instant::now();
 
@@ -124,6 +124,25 @@ pub fn enter_interactive_mode(
                                     {
                                         app.popup_mode = PopupMode::Error(error.to_string());
                                     }
+                                }
+                                _ => {}
+                            },
+                            KeyCode::Char('e') => match app.ui_mode {
+                                UIMode::Normal => {
+                                    // TODO:
+                                    //
+                                    //     MAKE A NEW FUNCTION THAT CHECKS IF THE
+                                    //     CURRENTLY SELECTED FILE IS A FILE OR
+                                    //     DIRECTORY.
+                                    //
+                                    //     IF IT'S A DIRECTORY, PROPOGATE AN ERROR
+                                    //     UP TO THE ERROR POPUP
+                                    //
+                                    //     OTHERWISE LEAVEALTERNATESCREEN AND
+                                    //     SPAWN A TEXT EDITOR
+                                    //
+                                    //         POSSIBLY RETURN TO ALTERNATE SCREEN ONCE
+                                    //         THE EDITOR IS CLOSED?
                                 }
                                 _ => {}
                             },
@@ -507,7 +526,6 @@ pub fn enter_interactive_mode(
                         KeyCode::Up | KeyCode::Char('k') => app.app_settings.previous(),
                         KeyCode::Down | KeyCode::Char('j') => app.app_settings.next(),
                         KeyCode::Char('0') => app.scroll = 0,
-
                         _ => {}
                     },
                 }

@@ -318,13 +318,13 @@ impl<'a> App<'a> {
                         }
                         _ if marker == staged_renamed => self.nomad_style.tui.staged_renamed_color,
                         _ if marker == untracked => self.nomad_style.tui.untracked_color,
-                        _ => Color::Blue,
+                        _ => Color::Reset,
                     },
-                    None => Color::Blue,
+                    None => Color::Reset,
                 },
-                None => Color::Blue,
+                None => Color::Reset,
             },
-            None => Color::Blue,
+            None => Color::Reset,
         }
     }
 }

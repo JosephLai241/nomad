@@ -6,7 +6,8 @@ use tui::{
     backend::CrosstermBackend,
     layout::{Alignment, Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
-    widgets::{Block, Borders, Clear, Paragraph, Row, Table},
+    text::Span,
+    widgets::{Block, BorderType, Borders, Clear, Paragraph, Row, Table},
     Frame,
 };
 
@@ -36,7 +37,13 @@ pub fn render_ui(app: &mut App, args: &mut Args, frame: &mut Frame<CrosstermBack
             frame.render_widget(
                 Paragraph::new("help:❓")
                     .alignment(Alignment::Center)
-                    .block(Block::default().borders(Borders::ALL)),
+                    .block(
+                        Block::default()
+                            .borders(Borders::ALL)
+                            .border_type(BorderType::Rounded)
+                            .style(Style::default().add_modifier(Modifier::DIM)),
+                    )
+                    .style(Style::default().add_modifier(Modifier::DIM)),
                 nav_chunks[1],
             );
 
@@ -81,7 +88,12 @@ pub fn render_ui(app: &mut App, args: &mut Args, frame: &mut Frame<CrosstermBack
                 None => {
                     frame.render_widget(
                         Paragraph::new("press <ENTER> or 'r' to enter this directory")
-                            .alignment(Alignment::Center),
+                            .alignment(Alignment::Center)
+                            .style(
+                                Style::default()
+                                    .add_modifier(Modifier::BOLD)
+                                    .add_modifier(Modifier::DIM),
+                            ),
                         centered_right_chunk,
                     );
                 }
@@ -100,14 +112,21 @@ pub fn render_ui(app: &mut App, args: &mut Args, frame: &mut Frame<CrosstermBack
 
                     frame.render_widget(Clear, popup_area);
                     frame.render_widget(
-                        Paragraph::new(app.user_input.as_ref())
-                            .style(Style::default().fg(Color::Blue))
-                            .block(
-                                Block::default()
-                                    .borders(Borders::ALL)
-                                    .title_alignment(Alignment::Center)
-                                    .title(" search for a pattern "),
-                            ),
+                        Paragraph::new(app.user_input.as_ref()).block(
+                            Block::default()
+                                .borders(Borders::ALL)
+                                .border_style(
+                                    Style::default()
+                                        .add_modifier(Modifier::BOLD)
+                                        .fg(Color::Indexed(033)),
+                                ) // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
+                                .border_type(BorderType::Rounded)
+                                .title_alignment(Alignment::Center)
+                                .title(Span::styled(
+                                    " search for a pattern ",
+                                    Style::default().fg(Color::White),
+                                )),
+                        ),
                         popup_area,
                     );
 
@@ -130,7 +149,16 @@ pub fn render_ui(app: &mut App, args: &mut Args, frame: &mut Frame<CrosstermBack
                         .block(
                             Block::default()
                                 .borders(Borders::ALL)
-                                .title(" ⚙️  current settings ")
+                                .border_style(
+                                    Style::default()
+                                        .add_modifier(Modifier::BOLD)
+                                        .fg(Color::Indexed(033)),
+                                ) // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
+                                .border_type(BorderType::Rounded)
+                                .title(Span::styled(
+                                    " ⚙️  current settings ",
+                                    Style::default().fg(Color::White),
+                                ))
                                 .title_alignment(Alignment::Center),
                         )
                         .column_spacing(1)
