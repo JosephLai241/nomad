@@ -11,7 +11,7 @@ use tui::{
 use super::app::{App, PopupMode, UIMode};
 
 /// The help text displayed in the help menu after pressing '?'.
-pub const HELP_TEXT: &str = r#"
+pub const HELP_TEXT: &'static str = r#"
  Use the directional or Vim directional keys [j, k] to scroll.
  Press <ESC> to exit this screen.
 
@@ -42,6 +42,8 @@ pub const HELP_TEXT: &str = r#"
  --------
 
  0           In general, scroll to the top of the widget you are in
+
+ 1 - 9       Scroll `n` lines/items down. `shift` + `n` scrolls `n` lines/items up.
 
  d           Toggle only displaying directories
 

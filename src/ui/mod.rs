@@ -469,6 +469,130 @@ pub fn enter_interactive_mode(
                                 }
                                 _ => {}
                             },
+                            KeyCode::Char('1') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => app.scroll += 1,
+                                _ => {}
+                            },
+                            KeyCode::Char('!') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => {
+                                    if app.scroll != 0 {
+                                        app.scroll -= 1
+                                    }
+                                }
+                                _ => {}
+                            },
+                            KeyCode::Char('2') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => app.scroll += 2,
+                                _ => {}
+                            },
+                            KeyCode::Char('@') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => {
+                                    if app.scroll < 2 {
+                                        app.scroll = 0
+                                    } else if app.scroll != 0 {
+                                        app.scroll -= 2
+                                    }
+                                }
+                                _ => {}
+                            },
+                            KeyCode::Char('3') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => app.scroll += 3,
+                                _ => {}
+                            },
+                            KeyCode::Char('#') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => {
+                                    if app.scroll < 3 {
+                                        app.scroll = 0
+                                    } else if app.scroll != 0 {
+                                        app.scroll -= 3
+                                    }
+                                }
+                                _ => {}
+                            },
+                            KeyCode::Char('4') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => app.scroll += 4,
+                                _ => {}
+                            },
+                            KeyCode::Char('$') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => {
+                                    if app.scroll < 4 {
+                                        app.scroll = 0
+                                    } else if app.scroll != 0 {
+                                        app.scroll -= 4
+                                    }
+                                }
+                                _ => {}
+                            },
+                            KeyCode::Char('5') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => app.scroll += 5,
+                                _ => {}
+                            },
+                            KeyCode::Char('%') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => {
+                                    if app.scroll < 5 {
+                                        app.scroll = 0
+                                    } else if app.scroll != 0 {
+                                        app.scroll -= 5
+                                    }
+                                }
+                                _ => {}
+                            },
+                            KeyCode::Char('6') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => app.scroll += 6,
+                                _ => {}
+                            },
+                            KeyCode::Char('^') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => {
+                                    if app.scroll < 6 {
+                                        app.scroll = 0
+                                    } else if app.scroll != 0 {
+                                        app.scroll -= 6
+                                    }
+                                }
+                                _ => {}
+                            },
+                            KeyCode::Char('7') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => app.scroll += 7,
+                                _ => {}
+                            },
+                            KeyCode::Char('&') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => {
+                                    if app.scroll < 7 {
+                                        app.scroll = 0
+                                    } else if app.scroll != 0 {
+                                        app.scroll -= 7
+                                    }
+                                }
+                                _ => {}
+                            },
+                            KeyCode::Char('8') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => app.scroll += 8,
+                                _ => {}
+                            },
+                            KeyCode::Char('*') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => {
+                                    if app.scroll < 8 {
+                                        app.scroll = 0
+                                    } else if app.scroll != 0 {
+                                        app.scroll -= 8
+                                    }
+                                }
+                                _ => {}
+                            },
+                            KeyCode::Char('9') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => app.scroll += 9,
+                                _ => {}
+                            },
+                            KeyCode::Char('(') => match app.ui_mode {
+                                UIMode::Help | UIMode::Inspect => {
+                                    if app.scroll < 9 {
+                                        app.scroll = 0
+                                    } else if app.scroll != 0 {
+                                        app.scroll -= 9
+                                    }
+                                }
+                                _ => {}
+                            },
                             _ => {}
                         }
                     }
