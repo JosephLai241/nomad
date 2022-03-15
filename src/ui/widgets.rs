@@ -243,7 +243,12 @@ pub fn help_view<'a>(app: &App) -> Paragraph<'a> {
                 .borders(Borders::ALL)
                 .border_style(Style::default().fg(Color::Indexed(033))) // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
                 .border_type(BorderType::Rounded)
-                .title(" ❓ help "),
+                .title(Span::styled(
+                    " ❓ help ",
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                        .fg(Color::White),
+                )),
         )
         .scroll((app.scroll, 0))
         .wrap(Wrap { trim: false })
