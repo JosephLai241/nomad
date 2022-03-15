@@ -182,11 +182,11 @@ pub fn normal_view<'a>(app: &App) -> List<'a> {
 }
 
 /// Display the `cat`ed file.
-pub fn cat_view<'a>(app: &App) -> Option<Option<Paragraph<'a>>> {
+pub fn cat_view<'a>(app: &'a App) -> Option<Option<Paragraph<'a>>> {
     match &app.file_contents {
         Some(file) => match file {
             Some(contents) => Some(Some(
-                Paragraph::new(contents.iter().join("\n").to_string())
+                Paragraph::new(contents.clone())
                     .block(
                         Block::default()
                             .borders(Borders::ALL)

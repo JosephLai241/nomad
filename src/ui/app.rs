@@ -2,8 +2,10 @@
 
 use std::{fs::File, io::Read, path::Path};
 
+use regex::Regex;
 use tui::{
     style::Color,
+    text::{Span, Spans},
     widgets::{ListState, Row, TableState},
 };
 
@@ -56,7 +58,7 @@ pub struct App<'a> {
     /// The directory tree.
     pub directory_tree: StatefulWidget<String, ListState>,
     /// Stores `None` or `Some(file contents)`.
-    pub file_contents: Option<Option<Vec<String>>>,
+    pub file_contents: Option<Option<Vec<Spans<'a>>>>,
     /// Store the `NomadStyle` struct.
     pub nomad_style: &'a NomadStyle,
     /// Hold the current popup mode.
@@ -165,8 +167,8 @@ impl<'a> App<'a> {
                                     Some(Some(
                                         String::from_utf8_lossy(&buffer)
                                             .split("\n")
-                                            .map(|line| line.to_string())
-                                            .collect::<Vec<String>>(),
+                                            .map(|line| Spans::from(Span::from(line.to_string())))
+                                            .collect::<Vec<Spans>>(),
                                     ))
                                 }
                             }
@@ -181,6 +183,23 @@ impl<'a> App<'a> {
 
         Ok(())
     }
+
+    ///// Search the current file for a pattern and colorize matches accordingly.
+    ///// Returns a new
+    //pub fn search_in_file(&mut self) {
+    //if let Some(content_option) = self.file_contents {
+    //if let Some(file_contents) = content_option {
+    //match Regex::new() {
+    //Ok(regex) => {
+    //for line in file_contents.iter() {
+
+    //}
+    //},
+    //Err(error) => self.popup_mode = PopupMode::Error(error.to_string())
+    //}
+    //}
+    //}
+    //}
 
     /// Get the current directory from the breadcrumbs.
     fn get_target_by_breadcrumbs(&self) -> String {
