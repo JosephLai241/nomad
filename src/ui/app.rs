@@ -2,9 +2,10 @@
 
 use std::{fs::File, io::Read, path::Path};
 
-use regex::Regex;
+use anyhow::Result;
+use regex::{Match, Regex};
 use tui::{
-    style::Color,
+    style::{Color, Modifier, Style},
     text::{Span, Spans},
     widgets::{ListState, Row, TableState},
 };
@@ -23,7 +24,7 @@ pub enum UIMode {
     Breadcrumbs,
     /// Enter the help menu.
     Help,
-    /// Move focus to the `cat`ed file and enable vertical and horizontal scrolling.
+    /// Move focus to the `cat`ed file and enable scrolling and pattern searching.
     Inspect,
     /// Normal mode.
     Normal,
@@ -59,6 +60,8 @@ pub struct App<'a> {
     pub directory_tree: StatefulWidget<String, ListState>,
     /// Stores `None` or `Some(file contents)`.
     pub file_contents: Option<Option<Vec<Spans<'a>>>>,
+    /// Stores the line numbers where regex matches occur.
+    pub match_lines: StatefulWidget<u16, ListState>,
     /// Store the `NomadStyle` struct.
     pub nomad_style: &'a NomadStyle,
     /// Hold the current popup mode.
@@ -118,6 +121,7 @@ impl<'a> App<'a> {
             directory_items,
             directory_tree,
             file_contents: None,
+            match_lines: StatefulWidget::new(vec![], ListState::default(), WidgetMode::Standard),
             nomad_style,
             popup_mode: PopupMode::Disabled,
             scroll: 0,
@@ -184,22 +188,82 @@ impl<'a> App<'a> {
         Ok(())
     }
 
-    ///// Search the current file for a pattern and colorize matches accordingly.
-    ///// Returns a new
-    //pub fn search_in_file(&mut self) {
-    //if let Some(content_option) = self.file_contents {
-    //if let Some(file_contents) = content_option {
-    //match Regex::new() {
-    //Ok(regex) => {
-    //for line in file_contents.iter() {
+    /// Search the current file for a pattern and colorize matches accordingly.
+    /// Returns a newly formatted `cat`ed file.
+    ///
+    /// Dim lines do not contain any matches whereas bright lines contain a match
+    /// somewhere. This was implemented to make it easier to tell where the matches are.
+    pub fn search_in_file(&mut self) -> Result<(), NomadError> {
+        if let Some(content_option) = &self.file_contents {
+            if let Some(file_spans) = content_option {
+                if let Some(input) = self.collected_input.pop() {
+                    match Regex::new(&input) {
+                        Ok(regex) => {
+                            let mut collected_spans: Vec<Spans> = Vec::new();
+                            let mut matched_lines: Vec<u16> = Vec::new();
 
-    //}
-    //},
-    //Err(error) => self.popup_mode = PopupMode::Error(error.to_string())
-    //}
-    //}
-    //}
-    //}
+                            for spans in file_spans.iter() {
+                                for (index, span) in spans.0.iter().enumerate() {
+                                    let spanned_line = &mut span
+                                        .content
+                                        .to_string()
+                                        .chars()
+                                        .map(|character| Span::from(character.to_string()))
+                                        .collect::<Vec<Span>>();
+                                    let matches =
+                                        regex.find_iter(&span.content).collect::<Vec<Match>>();
+
+                                    if !matches.is_empty() {
+                                        for matched in matches {
+                                            for i in matched.start()..matched.end() {
+                                                spanned_line[i] = Span::styled(
+                                                    spanned_line[i].content.to_string(),
+                                                    Style::default()
+                                                        .add_modifier(Modifier::BOLD)
+                                                        .fg(self.nomad_style.tui.regex.match_color),
+                                                );
+                                            }
+                                        }
+
+                                        matched_lines.push(index as u16);
+                                        collected_spans.push(Spans::from(spanned_line.clone()));
+                                    } else {
+                                        let dimmed_line = spanned_line
+                                            .iter()
+                                            .map(|span| {
+                                                Span::styled(
+                                                    span.content.to_string(),
+                                                    Style::default().add_modifier(Modifier::DIM),
+                                                )
+                                            })
+                                            .collect::<Vec<Span>>();
+
+                                        collected_spans.push(Spans::from(dimmed_line.clone()));
+                                    }
+                                }
+                            }
+
+                            if !matched_lines.is_empty() {
+                                self.file_contents = Some(Some(collected_spans));
+                                self.match_lines = StatefulWidget::new(
+                                    matched_lines,
+                                    ListState::default(),
+                                    WidgetMode::Standard,
+                                );
+
+                                self.popup_mode = PopupMode::Disabled;
+                            } else {
+                                self.popup_mode = PopupMode::NothingFound;
+                            }
+                        }
+                        Err(error) => self.popup_mode = PopupMode::Error(error.to_string()),
+                    }
+                }
+            }
+        }
+
+        Ok(())
+    }
 
     /// Get the current directory from the breadcrumbs.
     fn get_target_by_breadcrumbs(&self) -> String {
@@ -285,6 +349,7 @@ impl<'a> App<'a> {
         }
 
         self.popup_mode = PopupMode::Disabled;
+        self.ui_mode = UIMode::Normal;
 
         Ok(())
     }

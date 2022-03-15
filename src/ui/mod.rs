@@ -112,6 +112,13 @@ pub fn enter_interactive_mode(
 
                             // Enter search/pattern match mode.
                             KeyCode::Char('/') => match app.ui_mode {
+                                UIMode::Inspect => {
+                                    if let Err(error) = app.cat_file() {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
+
+                                    app.popup_mode = PopupMode::PatternInput;
+                                }
                                 UIMode::Normal => app.popup_mode = PopupMode::PatternInput,
                                 _ => {}
                             },
@@ -224,6 +231,7 @@ pub fn enter_interactive_mode(
                             },
                             // In Normal mode, toggle numbered items.
                             KeyCode::Char('n') => match app.ui_mode {
+                                UIMode::Inspect => {}
                                 UIMode::Normal => {
                                     args.numbers = !args.numbers;
                                     if let Err(error) =
@@ -295,6 +303,11 @@ pub fn enter_interactive_mode(
                             },
                             // Reset all arguments.
                             KeyCode::Char('R') => match app.ui_mode {
+                                UIMode::Inspect => {
+                                    if let Err(error) = app.cat_file() {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
+                                }
                                 UIMode::Normal => {
                                     reset_args(args);
                                     if let Err(error) =
@@ -465,10 +478,11 @@ pub fn enter_interactive_mode(
                     // ===========
                     PopupMode::Error(_) => match event.code {
                         _ => {
-                            disable_raw_mode()?;
-                            execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
-                            terminal.show_cursor()?;
-                            break;
+                            reset_args(args);
+
+                            if let Err(error) = app.refresh(args, nomad_style, target_directory) {
+                                app.popup_mode = PopupMode::Error(error.to_string());
+                            }
                         }
                     },
 
@@ -485,10 +499,20 @@ pub fn enter_interactive_mode(
                         KeyCode::Enter => {
                             app.collected_input.push(app.user_input.drain(..).collect());
 
-                            if let Err(error) =
-                                app.pattern_search(args, nomad_style, target_directory)
-                            {
-                                app.popup_mode = PopupMode::Error(error.to_string());
+                            match app.ui_mode {
+                                UIMode::Inspect => {
+                                    if let Err(error) = app.search_in_file() {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
+                                }
+                                UIMode::Normal => {
+                                    if let Err(error) =
+                                        app.pattern_search(args, nomad_style, target_directory)
+                                    {
+                                        app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
+                                }
+                                _ => {}
                             }
                         }
                         KeyCode::Esc => {

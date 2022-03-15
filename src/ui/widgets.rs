@@ -203,8 +203,11 @@ pub fn cat_view<'a>(app: &'a App) -> Option<Option<Paragraph<'a>>> {
                             }),
                     )
                     .scroll((app.scroll, 0))
-                    .style(match app.ui_mode {
-                        UIMode::Inspect => Style::default(),
+                    .style(match app.popup_mode {
+                        PopupMode::Disabled => match app.ui_mode {
+                            UIMode::Inspect => Style::default(),
+                            _ => Style::default().add_modifier(Modifier::DIM),
+                        },
                         _ => Style::default().add_modifier(Modifier::DIM),
                     })
                     .wrap(Wrap { trim: false }),

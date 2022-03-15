@@ -6,7 +6,7 @@ use tui::{
     backend::CrosstermBackend,
     layout::{Alignment, Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
-    text::Span,
+    text::{Span, Spans},
     widgets::{Block, BorderType, Borders, Clear, Paragraph, Row, Table},
     Frame,
 };
@@ -122,10 +122,36 @@ pub fn render_ui(app: &mut App, args: &mut Args, frame: &mut Frame<CrosstermBack
                                 )
                                 .border_type(BorderType::Rounded)
                                 .title_alignment(Alignment::Center)
-                                .title(Span::styled(
-                                    " search for a pattern ",
-                                    Style::default().fg(Color::White),
-                                )),
+                                .title(Spans::from(vec![
+                                    Span::styled(
+                                        " search for a pattern ",
+                                        Style::default()
+                                            .add_modifier(Modifier::BOLD)
+                                            .fg(Color::White),
+                                    ),
+                                    Span::styled(
+                                        "[",
+                                        Style::default()
+                                            .add_modifier(Modifier::BOLD)
+                                            .fg(Color::White),
+                                    ),
+                                    Span::styled(
+                                        match app.ui_mode {
+                                            UIMode::Inspect => "FILE",
+                                            UIMode::Normal => "TREE",
+                                            _ => "NONE",
+                                        },
+                                        Style::default()
+                                            .add_modifier(Modifier::BOLD)
+                                            .fg(Color::Indexed(172)),
+                                    ),
+                                    Span::styled(
+                                        "] ",
+                                        Style::default()
+                                            .add_modifier(Modifier::BOLD)
+                                            .fg(Color::White),
+                                    ),
+                                ])),
                         ),
                         popup_area,
                     );
