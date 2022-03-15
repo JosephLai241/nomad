@@ -31,6 +31,10 @@ pub struct TreeSettings {
 pub struct TUISettings {
     /// Contains settings for all things related to Git in the TUI.
     pub git: Option<TUIGit>,
+    /// Contains settings for the TUI's style.
+    pub style: Option<TUIStyle>,
+    /// Contains the setting for the color of the regex match in the text view.
+    pub regex: Option<Regex>,
 }
 
 /// Contains indent characters for the tree itself.
@@ -62,6 +66,15 @@ pub struct TreeGit {
 pub struct Regex {
     /// The color the matched substring.
     pub match_color: Option<String>,
+}
+
+/// Contains settings for the TUI's style.
+#[derive(Debug, Deserialize, Serialize)]
+pub struct TUIStyle {
+    /// The color of the borders.
+    pub border_color: Option<String>,
+    /// The color of the tree item if it does not contain any Git changes.
+    pub standard_item_highlight_color: Option<String>,
 }
 
 /// Contains settings for all things related to Git in the TUI.

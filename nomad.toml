@@ -28,7 +28,12 @@
 
 # ================================== INFO END ==================================
 
+# NOTE
+# ----
+#
 # The default values for each item are displayed below.
+# The default value will be used if an invalid value is provided.
+
 
 #
 # Uncomment the items below this table to set the tree's style.
@@ -109,7 +114,36 @@
 #    * "yellow"
 #
 [tree.regex]
-#match_color = "0087ff"             # A shade of blue.
+#match_color = "0087ff"    # A shade of blue.
+
+
+#
+# Uncomment the items below this table to set the TUI's colors.
+#
+# Default colors
+# --------------
+#    * "black"
+#    * "blue"
+#    * "cyan"
+#    * "darkgray"
+#    * "gray"
+#    * "green"
+#    * "lightblue"
+#    * "lightcyan"
+#    * "lightgreen"
+#    * "lightmagenta"
+#    * "lightred"
+#    * "lightyellow"
+#    * "magenta"
+#    * "red"
+#    * "white"
+#    * "yellow"
+#
+[tui.style]
+#border_color = "0087ff"    # A shade of blue.
+
+# The color of the tree item if it does not contain any Git changes.
+#standard_item_highlight_color = "0087ff"    # A shade of blue.
 
 
 #
@@ -145,5 +179,32 @@
 #staged_deleted_color = "red"
 #staged_modified_color = "d78700"   # A shade of orange.
 #staged_renamed_color = "red"
+
+
+#
+# Uncomment the item below this table to set the color of the text that is
+# matched when searching for a pattern in the text view.
+#
+# Default colors
+# --------------
+#    * "black"
+#    * "blue"
+#    * "cyan"
+#    * "darkgray"
+#    * "gray"
+#    * "green"
+#    * "lightblue"
+#    * "lightcyan"
+#    * "lightgreen"
+#    * "lightmagenta"
+#    * "lightred"
+#    * "lightyellow"
+#    * "magenta"
+#    * "red"
+#    * "white"
+#    * "yellow"
+#
+[tui.regex]
+#match_color = "0087ff"    # A shade of blue.
 
 
