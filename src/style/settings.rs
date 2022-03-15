@@ -2,14 +2,15 @@
 
 use ansi_term::Colour;
 use ptree::print_config::UTF_CHARS;
+use tui::style::Color;
 
 use crate::config::models::{IndentCharacters, NomadConfig};
 
 use super::{
     models::NomadStyle,
     paint::{
-        convert_to_ansi_style, process_git_settings, process_tui_git_settings,
-        process_tui_style_settings,
+        convert_to_ansi_style, convert_to_tui_color, process_git_settings,
+        process_tui_git_settings, process_tui_style_settings,
     },
 };
 
@@ -51,6 +52,14 @@ pub fn process_settings(nomad_config: NomadConfig) -> NomadStyle {
 
         if let Some(style_settings) = tui_settings.style {
             process_tui_style_settings(&mut nomad_style, &style_settings);
+        }
+
+        nomad_style.tui.regex.match_color = match tui_settings.regex {
+            Some(regex_setting) => match regex_setting.match_color {
+                Some(color) => convert_to_tui_color(&color),
+                None => Color::Indexed(033),
+            },
+            None => Color::Indexed(033),
         }
     }
 

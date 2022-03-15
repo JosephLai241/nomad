@@ -129,7 +129,7 @@ pub fn convert_to_ansi_style(color: &str) -> Style {
 }
 
 /// Parse the default or 256 Xterm color into a `tui::style::Color`.
-fn convert_to_tui_color(color: &str) -> Color {
+pub fn convert_to_tui_color(color: &str) -> Color {
     match color {
         "black" => Color::Black,
         "blue" => Color::Blue,
