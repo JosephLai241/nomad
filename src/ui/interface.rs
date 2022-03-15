@@ -118,8 +118,8 @@ pub fn render_ui(app: &mut App, args: &mut Args, frame: &mut Frame<CrosstermBack
                                 .border_style(
                                     Style::default()
                                         .add_modifier(Modifier::BOLD)
-                                        .fg(Color::Indexed(033)),
-                                ) // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
+                                        .fg(app.nomad_style.tui.border_color),
+                                )
                                 .border_type(BorderType::Rounded)
                                 .title_alignment(Alignment::Center)
                                 .title(Span::styled(
@@ -152,8 +152,8 @@ pub fn render_ui(app: &mut App, args: &mut Args, frame: &mut Frame<CrosstermBack
                                 .border_style(
                                     Style::default()
                                         .add_modifier(Modifier::BOLD)
-                                        .fg(Color::Indexed(033)),
-                                ) // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
+                                        .fg(app.nomad_style.tui.border_color),
+                                )
                                 .border_type(BorderType::Rounded)
                                 .title(Span::styled(
                                     " ⚙️  current settings ",

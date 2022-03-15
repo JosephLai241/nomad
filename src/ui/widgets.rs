@@ -114,7 +114,7 @@ pub fn get_breadcrumbs<'a>(app: &App) -> Tabs<'a> {
                 .border_style(match app.ui_mode {
                     UIMode::Breadcrumbs => Style::default()
                         .add_modifier(Modifier::BOLD)
-                        .fg(Color::Indexed(033)) // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
+                        .fg(app.nomad_style.tui.border_color)
                         .bg(Color::Black),
                     _ => Style::default(),
                 })
@@ -123,12 +123,12 @@ pub fn get_breadcrumbs<'a>(app: &App) -> Tabs<'a> {
         .highlight_style(match app.ui_mode {
             UIMode::Breadcrumbs => Style::default()
                 .add_modifier(Modifier::BOLD)
-                .bg(Color::Indexed(033)) // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
+                .bg(app.nomad_style.tui.border_color)
                 .fg(Color::Black),
             _ => Style::default()
                 .add_modifier(Modifier::BOLD)
                 .bg(Color::Black)
-                .fg(Color::Indexed(033)), // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
+                .fg(app.nomad_style.tui.border_color),
         })
         .select(
             app.breadcrumbs
@@ -155,7 +155,7 @@ pub fn normal_view<'a>(app: &App) -> List<'a> {
     let text_style = match text_color {
         Color::Reset => Style::default()
             .add_modifier(Modifier::BOLD)
-            .fg(Color::Indexed(033)), // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
+            .fg(app.nomad_style.tui.standard_item_highlight_color),
         _ => Style::default().add_modifier(Modifier::BOLD).fg(text_color),
     };
 
@@ -166,7 +166,7 @@ pub fn normal_view<'a>(app: &App) -> List<'a> {
                 .border_style(match app.ui_mode {
                     UIMode::Normal => Style::default()
                         .add_modifier(Modifier::BOLD)
-                        .fg(Color::Indexed(033)), // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
+                        .fg(app.nomad_style.tui.border_color),
                     _ => Style::default(),
                 })
                 .border_type(BorderType::Rounded),
@@ -193,7 +193,7 @@ pub fn cat_view<'a>(app: &App) -> Option<Option<Paragraph<'a>>> {
                             .border_style(match app.ui_mode {
                                 UIMode::Inspect => Style::default()
                                     .add_modifier(Modifier::BOLD)
-                                    .fg(Color::Indexed(033)), // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
+                                    .fg(app.nomad_style.tui.border_color),
                                 _ => Style::default(),
                             })
                             .border_type(BorderType::Rounded)
@@ -241,7 +241,7 @@ pub fn help_view<'a>(app: &App) -> Paragraph<'a> {
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .border_style(Style::default().fg(Color::Indexed(033))) // TODO: SET THIS TO THE CUSTOM COLOR IN THE NEW NOMADSTYLE
+                .border_style(Style::default().fg(app.nomad_style.tui.border_color))
                 .border_type(BorderType::Rounded)
                 .title(Span::styled(
                     " ❓ help ",
