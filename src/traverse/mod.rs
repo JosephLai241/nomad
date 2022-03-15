@@ -21,7 +21,7 @@ use ignore::{self, Walk};
 use ptree::{item::StringItem, PrintConfig};
 use regex::Regex;
 
-use std::{collections::HashMap, ffi::OsStr, path::Path};
+use std::{collections::HashMap, path::Path};
 
 /// Traverse the directory and display files and directories accordingly.
 pub fn walk_directory(
