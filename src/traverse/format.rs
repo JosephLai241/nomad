@@ -62,7 +62,11 @@ pub fn format_content(
 
     let mut item_string = if let (Some(marker), false) = (git_marker, args.no_git || args.plain) {
         if args.no_colors {
-            format!("{marker} {icon} {filename}")
+            if args.no_icons {
+                format!("{marker} {filename}")
+            } else {
+                format!("{marker} {icon} {filename}")
+            }
         } else {
             let formatted_filename = paint_git_item(&filename, &marker, nomad_style, matched);
 
