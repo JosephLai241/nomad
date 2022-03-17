@@ -15,7 +15,9 @@ use crate::cli::Args;
 
 use super::{
     app::{App, PopupMode, UIMode},
-    layouts::{get_error_popup_area, get_settings_area, get_single_line_popup_area},
+    layouts::{
+        get_error_popup_area, get_keybindings_area, get_settings_area, get_single_line_popup_area,
+    },
     widgets::{cat_view, error_view, get_breadcrumbs, help_view, normal_view, nothing_found_view},
 };
 
@@ -205,6 +207,73 @@ pub fn render_ui(app: &mut App, args: &mut Args, frame: &mut Frame<CrosstermBack
                         settings_table,
                         settings_area,
                         &mut app.app_settings.state,
+                    );
+                }
+                PopupMode::ShowKeybindings => {
+                    let keybindings_area = get_keybindings_area(chunks[1]);
+                    let keybindings_table = Table::new(app.keybindings_for_mode.items.clone())
+                        .block(
+                            Block::default()
+                                .borders(Borders::ALL)
+                                .border_style(
+                                    Style::default()
+                                        .add_modifier(Modifier::BOLD)
+                                        .fg(app.nomad_style.tui.border_color),
+                                )
+                                .border_type(BorderType::Rounded)
+                                .title(Spans::from(vec![
+                                    Span::styled(
+                                        " ⌨️  available keybindings ",
+                                        Style::default().fg(Color::White),
+                                    ),
+                                    Span::styled(
+                                        "[",
+                                        Style::default()
+                                            .add_modifier(Modifier::BOLD)
+                                            .fg(Color::White),
+                                    ),
+                                    Span::styled(
+                                        format!(
+                                            "{}",
+                                            match app.ui_mode {
+                                                UIMode::Breadcrumbs => "BREADCRUMBS",
+                                                UIMode::Inspect => "INSPECT",
+                                                UIMode::Normal => "NORMAL",
+                                                _ => "NONE",
+                                            }
+                                        ),
+                                        Style::default()
+                                            .add_modifier(Modifier::BOLD)
+                                            .fg(Color::Indexed(172)),
+                                    ),
+                                    Span::styled(
+                                        "] ",
+                                        Style::default()
+                                            .add_modifier(Modifier::BOLD)
+                                            .fg(Color::White),
+                                    ),
+                                ]))
+                                .title_alignment(Alignment::Center),
+                        )
+                        .column_spacing(1)
+                        .header(
+                            Row::new(vec!["\n key(s)", "\ndescription"])
+                                .height(3)
+                                .style(Style::default().add_modifier(Modifier::BOLD)),
+                        )
+                        .highlight_style(
+                            Style::default()
+                                .add_modifier(Modifier::BOLD)
+                                .bg(Color::Black)
+                                .fg(Color::White),
+                        )
+                        .widths(&[Constraint::Percentage(30), Constraint::Percentage(70)]);
+
+                    frame.render_widget(Clear, keybindings_area);
+                    frame.render_stateful_widget(
+                        keybindings_table,
+                        keybindings_area,
+                        &mut app.keybindings_for_mode.state,
                     );
                 }
             }

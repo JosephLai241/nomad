@@ -44,6 +44,27 @@ pub fn get_error_popup_area(frame: Rect) -> Rect {
         .split(error_layout[1])[1]
 }
 
+/// Create a centered popup area to display the available keybindings.
+pub fn get_keybindings_area(frame: Rect) -> Rect {
+    let keybindings_layout = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Percentage(30),
+            Constraint::Percentage(40),
+            Constraint::Percentage(30),
+        ])
+        .split(frame);
+
+    Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Percentage(20),
+            Constraint::Percentage(60),
+            Constraint::Percentage(20),
+        ])
+        .split(keybindings_layout[1])[1]
+}
+
 /// Create a centered popup area to display the current settings.
 pub fn get_settings_area(frame: Rect) -> Rect {
     let settings_layout = Layout::default()

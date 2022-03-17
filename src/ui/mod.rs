@@ -3,15 +3,17 @@
 pub mod app;
 pub mod interface;
 pub mod layouts;
+pub mod models;
 pub mod stateful_widgets;
+pub mod text;
 pub mod utils;
 pub mod widgets;
 
 use self::{
     app::{App, PopupMode, UIMode},
     interface::render_ui,
+    text::HELP_TEXT,
     utils::reset_args,
-    widgets::HELP_TEXT,
 };
 use crate::{cli::Args, errors::NomadError, style::models::NomadStyle};
 
@@ -27,6 +29,7 @@ use tui::{backend::CrosstermBackend, Terminal};
 
 use std::{
     io::stdout,
+    option,
     sync::mpsc::channel,
     thread,
     time::{Duration, Instant},
@@ -231,7 +234,13 @@ pub fn enter_interactive_mode(
                             },
                             // In Normal mode, toggle numbered items.
                             KeyCode::Char('n') => match app.ui_mode {
-                                UIMode::Inspect => {}
+                                UIMode::Inspect => {
+                                    app.match_lines.next();
+
+                                    if let Some(index) = app.match_lines.state.selected() {
+                                        app.scroll = app.match_lines.items[index] as u16;
+                                    }
+                                }
                                 UIMode::Normal => {
                                     args.numbers = !args.numbers;
                                     if let Err(error) =
@@ -289,6 +298,14 @@ pub fn enter_interactive_mode(
                                 }
                                 _ => {}
                             },
+                            // Show keybindings for a mode.
+                            KeyCode::Char('K') => match app.ui_mode {
+                                UIMode::Help => {}
+                                _ => {
+                                    app.update_keybindings();
+                                    app.popup_mode = PopupMode::ShowKeybindings;
+                                }
+                            },
                             // In Normal mode, toggle applying all labels.
                             KeyCode::Char('L') => match app.ui_mode {
                                 UIMode::Normal => {
@@ -297,6 +314,16 @@ pub fn enter_interactive_mode(
                                         app.refresh(args, nomad_style, target_directory)
                                     {
                                         app.popup_mode = PopupMode::Error(error.to_string());
+                                    }
+                                }
+                                _ => {}
+                            },
+                            KeyCode::Char('N') => match app.ui_mode {
+                                UIMode::Inspect => {
+                                    app.match_lines.previous();
+
+                                    if let Some(index) = app.match_lines.state.selected() {
+                                        app.scroll = app.match_lines.items[index] as u16;
                                     }
                                 }
                                 _ => {}
@@ -321,7 +348,10 @@ pub fn enter_interactive_mode(
                             // Enter help mode/display the help message.
                             KeyCode::Char('?') => match app.ui_mode {
                                 UIMode::Help => {}
-                                _ => app.ui_mode = UIMode::Help,
+                                _ => {
+                                    app.scroll = 0;
+                                    app.ui_mode = UIMode::Help;
+                                }
                             },
                             // Different operations depending on the UI mode:
                             // * Breadcrumbs or Normal mode - cycles between the two modes.
@@ -334,8 +364,8 @@ pub fn enter_interactive_mode(
                                     app.ui_mode = UIMode::Normal;
                                 }
                                 UIMode::Help | UIMode::Inspect => {
-                                    app.ui_mode = UIMode::Normal;
                                     app.scroll = 0;
+                                    app.ui_mode = UIMode::Normal;
                                 }
                                 UIMode::Normal => app.ui_mode = UIMode::Breadcrumbs,
                             },
@@ -348,7 +378,7 @@ pub fn enter_interactive_mode(
                             //     + If a file is selected, enter the file and enable scrolling.
                             KeyCode::Enter => match app.ui_mode {
                                 UIMode::Breadcrumbs => {
-                                    if let Err(error) = app.refresh(
+                                    match app.refresh(
                                         args,
                                         nomad_style,
                                         &format!(
@@ -365,25 +395,31 @@ pub fn enter_interactive_mode(
                                                 .to_string()
                                         ),
                                     ) {
-                                        app.popup_mode = PopupMode::Error(error.to_string());
-                                    } else {
-                                        app.ui_mode = UIMode::Normal;
-                                    }
-                                }
-                                UIMode::Normal => match app.selected_is_dir()? {
-                                    Some(is_dir) => {
-                                        if is_dir {
-                                            if let Err(error) =
-                                                app.refresh(args, nomad_style, target_directory)
-                                            {
-                                                app.popup_mode =
-                                                    PopupMode::Error(error.to_string());
-                                            }
-                                        } else {
-                                            app.ui_mode = UIMode::Inspect;
+                                        Ok(_) => app.ui_mode = UIMode::Normal,
+                                        Err(error) => {
+                                            app.popup_mode = PopupMode::Error(error.to_string())
                                         }
                                     }
-                                    None => {}
+                                }
+                                UIMode::Normal => match app.selected_is_dir() {
+                                    Ok(optional_bool) => match optional_bool {
+                                        Some(is_dir) => {
+                                            if is_dir {
+                                                if let Err(error) =
+                                                    app.refresh(args, nomad_style, target_directory)
+                                                {
+                                                    app.popup_mode =
+                                                        PopupMode::Error(error.to_string());
+                                                }
+                                            } else {
+                                                app.ui_mode = UIMode::Inspect;
+                                            }
+                                        }
+                                        None => {}
+                                    },
+                                    Err(error) => {
+                                        app.popup_mode = PopupMode::Error(error.to_string())
+                                    }
                                 },
                                 _ => {}
                             },
@@ -670,10 +706,25 @@ pub fn enter_interactive_mode(
                             terminal.show_cursor()?;
                             break;
                         }
-                        KeyCode::Char('s') => app.popup_mode = PopupMode::Disabled,
+                        KeyCode::Char('s') | KeyCode::Esc => app.popup_mode = PopupMode::Disabled,
                         KeyCode::Up | KeyCode::Char('k') => app.app_settings.previous(),
                         KeyCode::Down | KeyCode::Char('j') => app.app_settings.next(),
-                        KeyCode::Char('0') => app.scroll = 0,
+                        _ => {}
+                    },
+
+                    // ==================
+                    // Keybindings popup.
+                    // ==================
+                    PopupMode::ShowKeybindings => match event.code {
+                        KeyCode::Char('q') => {
+                            disable_raw_mode()?;
+                            execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
+                            terminal.show_cursor()?;
+                            break;
+                        }
+                        KeyCode::Char('K') | KeyCode::Esc => app.popup_mode = PopupMode::Disabled,
+                        KeyCode::Up | KeyCode::Char('k') => app.keybindings_for_mode.previous(),
+                        KeyCode::Down | KeyCode::Char('j') => app.keybindings_for_mode.next(),
                         _ => {}
                     },
                 }

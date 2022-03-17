@@ -7,10 +7,11 @@ use regex::{Match, Regex};
 use tui::{
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{ListState, Row, TableState},
+    widgets::{Cell, ListState, Row, TableState},
 };
 
 use super::{
+    models::Keybindings,
     stateful_widgets::{StatefulWidget, WidgetMode},
     utils::{get_breadcrumbs, get_settings, get_tree},
 };
@@ -42,6 +43,8 @@ pub enum PopupMode {
     PatternInput,
     /// Render the settings menu as a popup.
     Settings,
+    /// Show the keybindings for a particular mode.
+    ShowKeybindings,
 }
 
 /// Contains the UI's current state.
@@ -60,6 +63,10 @@ pub struct App<'a> {
     pub directory_tree: StatefulWidget<String, ListState>,
     /// Stores `None` or `Some(file contents)`.
     pub file_contents: Option<Option<Vec<Spans<'a>>>>,
+    /// Stores the keybindings for each mode (breadcrumbs, inspect, and normal mode).
+    pub keybindings: Keybindings<'a>,
+    /// Stores the current set of available keybindings.
+    pub keybindings_for_mode: StatefulWidget<Row<'a>, TableState>,
     /// Stores the line numbers where regex matches occur.
     pub match_lines: StatefulWidget<u16, ListState>,
     /// Store the `NomadStyle` struct.
@@ -102,6 +109,18 @@ impl<'a> App<'a> {
             directory_items.state.select(Some(0));
         }
 
+        let keybindings = Keybindings::default();
+        let normal_keybindings = &keybindings
+            .normal
+            .iter()
+            .map(|(keybinding, description)| {
+                Row::new(vec![
+                    Cell::from(keybinding.to_string()),
+                    Cell::from(description.to_string()),
+                ])
+            })
+            .collect::<Vec<Row>>();
+
         Ok(App {
             app_settings: StatefulWidget::new(
                 get_settings(args),
@@ -121,6 +140,12 @@ impl<'a> App<'a> {
             directory_items,
             directory_tree,
             file_contents: None,
+            keybindings,
+            keybindings_for_mode: StatefulWidget::new(
+                normal_keybindings.to_vec(),
+                TableState::default(),
+                WidgetMode::Standard,
+            ),
             match_lines: StatefulWidget::new(vec![], ListState::default(), WidgetMode::Standard),
             nomad_style,
             popup_mode: PopupMode::Disabled,
@@ -152,6 +177,9 @@ impl<'a> App<'a> {
 
     /// `cat` the selected item if it is a file.
     pub fn cat_file(&mut self) -> Result<(), NomadError> {
+        self.match_lines = StatefulWidget::new(vec![], ListState::default(), WidgetMode::Standard);
+        self.match_lines.state.select(Some(0));
+
         match self.selected_is_dir()? {
             Some(is_dir) => {
                 if is_dir {
@@ -202,8 +230,8 @@ impl<'a> App<'a> {
                             let mut collected_spans: Vec<Spans> = Vec::new();
                             let mut matched_lines: Vec<u16> = Vec::new();
 
-                            for spans in file_spans.iter() {
-                                for (index, span) in spans.0.iter().enumerate() {
+                            for (index, spans) in file_spans.iter().enumerate() {
+                                for span in spans.0.iter() {
                                     let spanned_line = &mut span
                                         .content
                                         .to_string()
@@ -223,9 +251,9 @@ impl<'a> App<'a> {
                                                         .fg(self.nomad_style.tui.regex.match_color),
                                                 );
                                             }
+                                            matched_lines.push(index as u16);
                                         }
 
-                                        matched_lines.push(index as u16);
                                         collected_spans.push(Spans::from(spanned_line.clone()));
                                     } else {
                                         let dimmed_line = spanned_line
@@ -250,6 +278,7 @@ impl<'a> App<'a> {
                                     ListState::default(),
                                     WidgetMode::Standard,
                                 );
+                                self.match_lines.state.select(Some(0));
 
                                 self.popup_mode = PopupMode::Disabled;
                             } else {
@@ -414,5 +443,33 @@ impl<'a> App<'a> {
             },
             None => Color::Reset,
         }
+    }
+
+    /// Update the available keybindings for the current mode.
+    pub fn update_keybindings(&mut self) {
+        let empty_vec = vec![];
+
+        let table_items = match &self.ui_mode {
+            UIMode::Breadcrumbs => &self.keybindings.breadcrumbs,
+            UIMode::Inspect => &self.keybindings.inspect,
+            UIMode::Normal => &self.keybindings.normal,
+            _ => &empty_vec,
+        };
+
+        let keybindings_rows = table_items
+            .iter()
+            .map(|(keybinding, description)| {
+                Row::new(vec![
+                    Cell::from(keybinding.to_string()).style(Style::default().fg(Color::Gray)),
+                    Cell::from(description.to_string()).style(Style::default().fg(Color::Gray)),
+                ])
+            })
+            .collect::<Vec<Row>>();
+
+        self.keybindings_for_mode = StatefulWidget::new(
+            keybindings_rows,
+            TableState::default(),
+            WidgetMode::Standard,
+        );
     }
 }

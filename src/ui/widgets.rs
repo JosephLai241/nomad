@@ -1,104 +1,16 @@
 //! Widgets for the TUI.
 
-use itertools::Itertools;
 use tui::{
     layout::Alignment,
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{Block, BorderType, Borders, List, ListItem, Paragraph, Tabs, Wrap},
+    widgets::{
+        Block, BorderType, Borders, List, ListItem, Paragraph, Table, TableState, Tabs, Wrap,
+    },
 };
 
 use super::app::{App, PopupMode, UIMode};
-
-/// The help text displayed in the help menu after pressing '?'.
-pub const HELP_TEXT: &'static str = r#"
- Use the directional or Vim directional keys [j, k] to scroll.
- Press <ESC> to exit this screen.
-
- Table of Contents
- =================
-
- - Keybindings
- - Modes
-
-
- Views
- =====
-
- Interactive mode has 4 views:
-
-     * Normal/breadcrumbs
-     *
-
- Keybindings
- ===========
-
- Navigation
- ----------
-
- Use the directional keys or Vim directional keys [h, j, k, l] to navigate the TUI.
-
- Commands
- --------
-
- 0           In general, scroll to the top of the widget you are in
-
- 1 - 9       Scroll `n` lines/items down. `shift` + `n` scrolls `n` lines/items up.
-
- d           Toggle only displaying directories
-
- e           Open the selected file in a text editor (Neovim, Vim, Vi, or Nano)
-             This only applies if the selected item is a file
-
- g           Toggle Git markers
-
- h           Toggle displaying hidden items
-
- i           Toggle icons
-
- l           Toggle directory labels
-
- m           Toggle metadata
-
- n           Toggle item labels
-
- p           Toggle plain mode
-
- q           Quit interactive mode
-
- r           Refresh the tree
-
- s           Display the settings for the current tree
-
- x           Export the tree to a file. Optionally provide a filename
-
- D           Toggle disrespecting all rules specified in ignore-type files
-
- L           Toggle all labels (directories and items)
-
- R           Reset all options to its default value and refresh the current tree
-
- /           Search for a pattern. Supports regex expressions
-
- ?           Display this help message
-
- <ENTER>     If a file is selected       Enter scroll mode
-             If a directory is selected  Enter the selected directory and redraw
-                                         the tree
- <ESC>       Cycle through modes/widgets
-
-
- Modes
- =====
-
- This UI has four modes:
-
- * Breadcrumbs   Move focus to the breadcrumbs at the top of the TUI and
-                 select a different directory to inspect
- * Normal        This is the default mode when interactive mode is instantiated
- * Scroll        This mode may be entered if the currently highlighted item is a file
-
-"#;
+use crate::ui::HELP_TEXT;
 
 /// Set the breadcrumbs displayed at the top of the TUI.
 pub fn get_breadcrumbs<'a>(app: &App) -> Tabs<'a> {
@@ -130,7 +42,7 @@ pub fn get_breadcrumbs<'a>(app: &App) -> Tabs<'a> {
             _ => Style::default()
                 .add_modifier(Modifier::BOLD)
                 .bg(Color::Black)
-                .fg(app.nomad_style.tui.border_color),
+                .fg(app.nomad_style.tui.standard_item_highlight_color),
         })
         .select(
             app.breadcrumbs
@@ -200,8 +112,57 @@ pub fn cat_view<'a>(app: &'a App) -> Option<Option<Paragraph<'a>>> {
                             })
                             .border_type(BorderType::Rounded)
                             .title(match app.ui_mode {
-                                UIMode::Inspect => " 🧐 ",
-                                _ => "",
+                                UIMode::Inspect => {
+                                    if app.match_lines.items.is_empty() {
+                                        Spans::from(Span::from(" 🧐 "))
+                                    } else {
+                                        Spans::from(vec![
+                                            Span::styled(
+                                                format!(" {} ", app.match_lines.items.len()),
+                                                Style::default()
+                                                    .add_modifier(Modifier::BOLD)
+                                                    .fg(Color::White),
+                                            ),
+                                            Span::styled(
+                                                format!(
+                                                    "MATCH{} ",
+                                                    if app.match_lines.items.len() > 1 {
+                                                        "ES"
+                                                    } else {
+                                                        ""
+                                                    }
+                                                ),
+                                                Style::default()
+                                                    .add_modifier(Modifier::BOLD)
+                                                    .fg(app.nomad_style.tui.regex.match_color),
+                                            ),
+                                            Span::styled(
+                                                "[",
+                                                Style::default()
+                                                    .add_modifier(Modifier::BOLD)
+                                                    .fg(Color::White),
+                                            ),
+                                            Span::styled(
+                                                format!(
+                                                    "{} / {}",
+                                                    app.match_lines.state.selected().unwrap_or(1)
+                                                        + 1,
+                                                    app.match_lines.items.len()
+                                                ),
+                                                Style::default()
+                                                    .add_modifier(Modifier::BOLD)
+                                                    .fg(Color::White),
+                                            ),
+                                            Span::styled(
+                                                "] ",
+                                                Style::default()
+                                                    .add_modifier(Modifier::BOLD)
+                                                    .fg(Color::White),
+                                            ),
+                                        ])
+                                    }
+                                }
+                                _ => Spans::from(Span::from("")),
                             }),
                     )
                     .scroll((app.scroll, 0))
