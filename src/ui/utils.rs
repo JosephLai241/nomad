@@ -9,14 +9,14 @@ use tui::{
 };
 
 use crate::{
-    cli::Args,
+    cli::global::GlobalArgs,
     errors::NomadError,
     style::models::NomadStyle,
     traverse::{models::DirItem, modes::NomadMode, utils::build_walker, walk_directory},
 };
 
 /// Return all app settings formatted in `Row`s.
-pub fn get_settings<'a>(args: &Args) -> Vec<Row<'a>> {
+pub fn get_settings<'a>(args: &GlobalArgs) -> Vec<Row<'a>> {
     let assign_boolean_flag = |label: &'a str, flag| -> Row<'a> {
         Row::new(vec![
             Cell::from(label),
@@ -29,22 +29,22 @@ pub fn get_settings<'a>(args: &Args) -> Vec<Row<'a>> {
     };
 
     vec![
-        assign_boolean_flag(" all labels", args.all_labels),
-        assign_boolean_flag(" dirs", args.dirs),
-        assign_boolean_flag(" disrespect", args.disrespect),
-        assign_boolean_flag(" hidden", args.hidden),
-        assign_boolean_flag(" label directories", args.label_directories),
+        assign_boolean_flag(" all labels", args.labels.all_labels),
+        assign_boolean_flag(" dirs", args.modifiers.dirs),
+        assign_boolean_flag(" disrespect", args.modifiers.disrespect),
+        assign_boolean_flag(" hidden", args.modifiers.hidden),
+        assign_boolean_flag(" label directories", args.labels.label_directories),
         Row::new(vec![
             Cell::from(" max depth"),
             Cell::from(format!(
                 "{}",
-                if let Some(ref depth) = args.max_depth {
+                if let Some(ref depth) = args.modifiers.max_depth {
                     depth.to_string()
                 } else {
                     "None".to_string()
                 }
             ))
-            .style(Style::default().fg(if args.max_depth.is_some() {
+            .style(Style::default().fg(if args.modifiers.max_depth.is_some() {
                 Color::Green
             } else {
                 Color::Red
@@ -54,39 +54,41 @@ pub fn get_settings<'a>(args: &Args) -> Vec<Row<'a>> {
             Cell::from(" max filesize"),
             Cell::from(format!(
                 "{}",
-                if let Some(ref size) = args.max_filesize {
+                if let Some(ref size) = args.modifiers.max_filesize {
                     size.to_string()
                 } else {
                     "None".to_string()
                 }
             ))
-            .style(Style::default().fg(if args.max_filesize.is_some() {
-                Color::Green
-            } else {
-                Color::Red
-            })),
+            .style(
+                Style::default().fg(if args.modifiers.max_filesize.is_some() {
+                    Color::Green
+                } else {
+                    Color::Red
+                }),
+            ),
         ]),
-        assign_boolean_flag(" metadata", args.metadata),
-        assign_boolean_flag(" no Git", args.no_git),
-        assign_boolean_flag(" no icons", args.no_icons),
-        assign_boolean_flag(" numbered", args.numbers),
+        assign_boolean_flag(" metadata", args.meta.metadata),
+        assign_boolean_flag(" no Git", args.style.no_git),
+        assign_boolean_flag(" no icons", args.style.no_icons),
+        assign_boolean_flag(" numbered", args.labels.numbers),
         Row::new(vec![
             Cell::from(" pattern"),
             Cell::from(format!(
                 "{}",
-                if let Some(ref pattern) = args.pattern {
+                if let Some(ref pattern) = args.regex.pattern {
                     pattern.to_string()
                 } else {
                     "None".to_string()
                 }
             ))
-            .style(Style::default().fg(if args.pattern.is_some() {
+            .style(Style::default().fg(if args.regex.pattern.is_some() {
                 Color::Green
             } else {
                 Color::Red
             })),
         ]),
-        assign_boolean_flag(" plain", args.plain),
+        assign_boolean_flag(" plain", args.style.plain),
     ]
 }
 
@@ -107,7 +109,7 @@ pub fn get_breadcrumbs(target_directory: &str) -> Result<Vec<String>, NomadError
 
 /// Get the directory tree as a `Vec<String>` and the directory items as an `Option<Vec<String>>`.
 pub fn get_tree(
-    args: &Args,
+    args: &GlobalArgs,
     nomad_style: &NomadStyle,
     target_directory: &str,
 ) -> Result<(Vec<String>, Option<Vec<DirItem>>), NomadError> {
@@ -133,48 +135,48 @@ pub fn get_tree(
 }
 
 /// Reset all settings to its original value.
-pub fn reset_args(args: &mut Args) {
-    if args.all_labels {
-        args.all_labels = false;
+pub fn reset_args(args: &mut GlobalArgs) {
+    if args.labels.all_labels {
+        args.labels.all_labels = false;
     }
-    if args.dirs {
-        args.dirs = false;
+    if args.modifiers.dirs {
+        args.modifiers.dirs = false;
     }
-    if args.disrespect {
-        args.disrespect = false;
+    if args.modifiers.disrespect {
+        args.modifiers.disrespect = false;
     }
     if args.export.is_some() {
         args.export = None;
     }
-    if args.hidden {
-        args.hidden = false;
+    if args.modifiers.hidden {
+        args.modifiers.hidden = false;
     }
-    if args.label_directories {
-        args.label_directories = false;
+    if args.labels.label_directories {
+        args.labels.label_directories = false;
     }
-    if args.max_depth.is_some() {
-        args.max_depth = None;
+    if args.modifiers.max_depth.is_some() {
+        args.modifiers.max_depth = None;
     }
-    if args.max_filesize.is_some() {
-        args.max_filesize = None;
+    if args.modifiers.max_filesize.is_some() {
+        args.modifiers.max_filesize = None;
     }
-    if args.metadata {
-        args.metadata = false;
+    if args.meta.metadata {
+        args.meta.metadata = false;
     }
-    if args.no_git {
-        args.no_git = false;
+    if args.style.no_git {
+        args.style.no_git = false;
     }
-    if args.no_icons {
-        args.no_icons = false;
+    if args.style.no_icons {
+        args.style.no_icons = false;
     }
-    if args.numbers {
-        args.numbers = false;
+    if args.labels.numbers {
+        args.labels.numbers = false;
     }
-    if args.pattern.is_some() {
-        args.pattern = None;
+    if args.regex.pattern.is_some() {
+        args.regex.pattern = None;
     }
-    if args.plain {
-        args.plain = false;
+    if args.style.plain {
+        args.style.plain = false;
     }
     if args.statistics {
         args.statistics = false;

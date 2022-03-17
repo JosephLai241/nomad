@@ -15,7 +15,10 @@ use super::{
     stateful_widgets::{StatefulWidget, WidgetMode},
     utils::{get_breadcrumbs, get_settings, get_tree},
 };
-use crate::{cli::Args, errors::NomadError, style::models::NomadStyle, traverse::models::DirItem};
+use crate::{
+    cli::global::GlobalArgs, errors::NomadError, style::models::NomadStyle,
+    traverse::models::DirItem,
+};
 
 /// Contains the different modes that may be evoked based on user interaction.
 ///
@@ -84,13 +87,13 @@ pub struct App<'a> {
 impl<'a> App<'a> {
     /// Create a new interactive instance with the target directory.
     pub fn new(
-        args: &Args,
+        args: &GlobalArgs,
         nomad_style: &'a NomadStyle,
         target_directory: &str,
     ) -> Result<App<'a>, NomadError> {
-        let (tree, items) = get_tree(args, nomad_style, target_directory)?;
+        let (tree, items) = get_tree(&args, nomad_style, target_directory)?;
         let mut directory_tree = StatefulWidget::new(tree, ListState::default(), WidgetMode::Files);
-        let mut directory_items = if args.dirs {
+        let mut directory_items = if args.modifiers.dirs {
             None
         } else {
             Some(StatefulWidget::new(
@@ -308,7 +311,7 @@ impl<'a> App<'a> {
     /// and `directory_tree`.
     pub fn refresh(
         &mut self,
-        args: &Args,
+        args: &GlobalArgs,
         nomad_style: &'a NomadStyle,
         target_directory: &str,
     ) -> Result<(), NomadError> {
@@ -356,10 +359,10 @@ impl<'a> App<'a> {
             WidgetMode::Standard,
         );
 
-        let (tree, items) = get_tree(args, nomad_style, &new_directory)?;
+        let (tree, items) = get_tree(&args, nomad_style, &new_directory)?;
 
         self.directory_tree = StatefulWidget::new(tree, ListState::default(), WidgetMode::Files);
-        self.directory_items = if args.dirs {
+        self.directory_items = if args.modifiers.dirs {
             None
         } else {
             Some(StatefulWidget::new(
@@ -386,11 +389,11 @@ impl<'a> App<'a> {
     /// Refresh the `App` after the user searched for a pattern.
     pub fn pattern_search(
         &mut self,
-        args: &mut Args,
+        args: &mut GlobalArgs,
         nomad_style: &'a NomadStyle,
         target_directory: &str,
     ) -> Result<(), NomadError> {
-        args.pattern = self.collected_input.pop();
+        args.regex.pattern = self.collected_input.pop();
 
         if let Err(error) = self.refresh(args, nomad_style, target_directory) {
             match error {

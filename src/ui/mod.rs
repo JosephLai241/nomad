@@ -15,7 +15,7 @@ use self::{
     text::HELP_TEXT,
     utils::reset_args,
 };
-use crate::{cli::Args, errors::NomadError, style::models::NomadStyle};
+use crate::{cli::global::GlobalArgs, errors::NomadError, style::models::NomadStyle};
 
 use anyhow::Result;
 use crossterm::{
@@ -29,7 +29,6 @@ use tui::{backend::CrosstermBackend, Terminal};
 
 use std::{
     io::stdout,
-    option,
     sync::mpsc::channel,
     thread,
     time::{Duration, Instant},
@@ -45,7 +44,7 @@ enum Event<I> {
 
 /// Enter `nomad`'s interactive mode.
 pub fn enter_interactive_mode(
-    args: &mut Args,
+    args: &mut GlobalArgs,
     nomad_style: &NomadStyle,
     target_directory: &str,
 ) -> Result<(), NomadError> {
@@ -128,7 +127,7 @@ pub fn enter_interactive_mode(
                             // In Normal mode, toggle only showing directories.
                             KeyCode::Char('d') => match app.ui_mode {
                                 UIMode::Normal => {
-                                    args.dirs = !args.dirs;
+                                    args.modifiers.dirs = !args.modifiers.dirs;
                                     if let Err(error) =
                                         app.refresh(args, nomad_style, target_directory)
                                     {
@@ -159,7 +158,7 @@ pub fn enter_interactive_mode(
                             // In Normal mode, toggle Git markers.
                             KeyCode::Char('g') => match app.ui_mode {
                                 UIMode::Normal => {
-                                    args.no_git = !args.no_git;
+                                    args.style.no_git = !args.style.no_git;
                                     if let Err(error) =
                                         app.refresh(args, nomad_style, target_directory)
                                     {
@@ -179,7 +178,7 @@ pub fn enter_interactive_mode(
                                     app.breadcrumbs.previous();
                                 }
                                 UIMode::Normal => {
-                                    args.hidden = !args.hidden;
+                                    args.modifiers.hidden = !args.modifiers.hidden;
                                     if let Err(error) =
                                         app.refresh(args, nomad_style, target_directory)
                                     {
@@ -191,7 +190,7 @@ pub fn enter_interactive_mode(
                             // In Normal mode, toggle icons.
                             KeyCode::Char('i') => match app.ui_mode {
                                 UIMode::Normal => {
-                                    args.no_icons = !args.no_icons;
+                                    args.style.no_icons = !args.style.no_icons;
                                     if let Err(error) =
                                         app.refresh(args, nomad_style, target_directory)
                                     {
@@ -211,7 +210,7 @@ pub fn enter_interactive_mode(
                                     app.breadcrumbs.next();
                                 }
                                 UIMode::Normal => {
-                                    args.label_directories = !args.label_directories;
+                                    args.labels.label_directories = !args.labels.label_directories;
                                     if let Err(error) =
                                         app.refresh(args, nomad_style, target_directory)
                                     {
@@ -223,7 +222,7 @@ pub fn enter_interactive_mode(
                             // In Normal mode, toggle showing metadata for all items.
                             KeyCode::Char('m') => match app.ui_mode {
                                 UIMode::Normal => {
-                                    args.metadata = !args.metadata;
+                                    args.meta.metadata = !args.meta.metadata;
                                     if let Err(error) =
                                         app.refresh(args, nomad_style, target_directory)
                                     {
@@ -242,7 +241,7 @@ pub fn enter_interactive_mode(
                                     }
                                 }
                                 UIMode::Normal => {
-                                    args.numbers = !args.numbers;
+                                    args.labels.numbers = !args.labels.numbers;
                                     if let Err(error) =
                                         app.refresh(args, nomad_style, target_directory)
                                     {
@@ -254,7 +253,7 @@ pub fn enter_interactive_mode(
                             // In Normal mode, toggle plain mode.
                             KeyCode::Char('p') => match app.ui_mode {
                                 UIMode::Normal => {
-                                    args.plain = !args.plain;
+                                    args.style.plain = !args.style.plain;
                                     if let Err(error) =
                                         app.refresh(args, nomad_style, target_directory)
                                     {
@@ -289,7 +288,7 @@ pub fn enter_interactive_mode(
                             // In Normal mode, disrespect all `.ignore` rules.
                             KeyCode::Char('D') => match app.ui_mode {
                                 UIMode::Normal => {
-                                    args.disrespect = !args.disrespect;
+                                    args.modifiers.disrespect = !args.modifiers.disrespect;
                                     if let Err(error) =
                                         app.refresh(args, nomad_style, target_directory)
                                     {
@@ -309,7 +308,7 @@ pub fn enter_interactive_mode(
                             // In Normal mode, toggle applying all labels.
                             KeyCode::Char('L') => match app.ui_mode {
                                 UIMode::Normal => {
-                                    args.all_labels = !args.all_labels;
+                                    args.labels.all_labels = !args.labels.all_labels;
                                     if let Err(error) =
                                         app.refresh(args, nomad_style, target_directory)
                                     {

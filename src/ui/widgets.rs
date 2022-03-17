@@ -4,9 +4,7 @@ use tui::{
     layout::Alignment,
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{
-        Block, BorderType, Borders, List, ListItem, Paragraph, Table, TableState, Tabs, Wrap,
-    },
+    widgets::{Block, BorderType, Borders, List, ListItem, Paragraph, Tabs, Wrap},
 };
 
 use super::app::{App, PopupMode, UIMode};

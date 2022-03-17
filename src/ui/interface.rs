@@ -11,7 +11,7 @@ use tui::{
     Frame,
 };
 
-use crate::cli::Args;
+use crate::cli::global::GlobalArgs;
 
 use super::{
     app::{App, PopupMode, UIMode},
@@ -22,7 +22,11 @@ use super::{
 };
 
 /// Render the user interface for the TUI.
-pub fn render_ui(app: &mut App, args: &mut Args, frame: &mut Frame<CrosstermBackend<Stdout>>) {
+pub fn render_ui(
+    app: &mut App,
+    args: &mut GlobalArgs,
+    frame: &mut Frame<CrosstermBackend<Stdout>>,
+) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
@@ -169,7 +173,7 @@ pub fn render_ui(app: &mut App, args: &mut Args, frame: &mut Frame<CrosstermBack
                     frame.render_widget(Clear, popup_area);
                     frame.render_widget(nothing_found_view(), popup_area);
 
-                    args.pattern = None;
+                    args.regex.pattern = None;
                 }
                 PopupMode::Settings => {
                     let settings_area = get_settings_area(chunks[1]);
