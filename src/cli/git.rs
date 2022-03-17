@@ -2,6 +2,8 @@
 
 use structopt::StructOpt;
 
+use super::global::{LabelArgs, MetaArgs, RegexArgs, StyleArgs};
+
 /// This enum provides some commonly used Git options.
 #[derive(Debug, PartialEq, StructOpt)]
 pub enum GitOptions {
@@ -25,7 +27,7 @@ pub enum GitOptions {
     /// The `git restore` command. This may be used after running nomad in a labeled mode.
     Restore(RestoreOptions),
     /// The `git status` command. Only display changed/unstaged files in the tree.
-    Status,
+    Status(StatusOptions),
 }
 
 /// This struct provides options for the `git blame` command.
@@ -51,8 +53,30 @@ pub struct BlameOptions {
 /// This struct provides options for the `git branch` command.
 #[derive(Debug, PartialEq, StructOpt)]
 pub struct BranchOptions {
+    #[structopt(
+        long = "export",
+        help = "Export the tree to a file. Optionally include a target filename"
+    )]
+    pub export: Option<Option<String>>,
+
     #[structopt(short, long, help = "Display branches in a normal list")]
     pub flat: bool,
+
+    #[structopt(short = "n", long = "numbered", help = "Label branches with numbers")]
+    pub numbers: bool,
+
+    #[structopt(
+        short = "p",
+        long = "pattern",
+        help = "Only display branches matching this pattern. Supports regex expressions"
+    )]
+    pub pattern: Option<String>,
+
+    #[structopt(short, long, help = "Display the total number of branches")]
+    pub statistics: bool,
+
+    #[structopt(long = "no-icons", help = "Do not display icons")]
+    pub no_icons: bool,
 }
 
 /// This struct provides options for the `git restore` command.
@@ -65,4 +89,33 @@ pub struct RestoreOptions {
 
     #[structopt(short, long, help = "Restore these items in the index")]
     pub staged: bool,
+}
+
+/// This struct provides options for the `git status` command.
+#[derive(Debug, PartialEq, StructOpt)]
+pub struct StatusOptions {
+    #[structopt(
+        long = "export",
+        help = "Export the tree to a file. Optionally include a target filename"
+    )]
+    pub export: Option<Option<String>>,
+
+    #[structopt(flatten)]
+    pub labels: LabelArgs,
+
+    #[structopt(flatten)]
+    pub meta: MetaArgs,
+
+    #[structopt(flatten)]
+    pub regex: RegexArgs,
+
+    #[structopt(
+        short = "s",
+        long = "stats",
+        help = "Display traversal statistics after the tree is displayed"
+    )]
+    pub statistics: bool,
+
+    #[structopt(flatten)]
+    pub style: StyleArgs,
 }
