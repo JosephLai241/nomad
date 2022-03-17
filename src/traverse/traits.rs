@@ -6,7 +6,7 @@ use super::{
     modes::NomadMode,
 };
 use crate::{
-    cli::Args,
+    cli::global::GlobalArgs,
     errors::NomadError,
     loc::{loc_in_dir, loc_in_file},
     style::models::NomadStyle,
@@ -178,7 +178,7 @@ pub trait ToTree {
     /// May also return a `Vec` containing all directory items depending on the `NomadMode`.
     fn to_tree(
         self,
-        args: &Args,
+        args: &GlobalArgs,
         nomad_mode: NomadMode,
         nomad_style: &NomadStyle,
         target_directory: &str,
@@ -189,7 +189,7 @@ impl ToTree for Vec<TransformedItem> {
     /// Build a tree from the `Vec<TransformedItem>`.
     fn to_tree(
         self,
-        args: &Args,
+        args: &GlobalArgs,
         nomad_mode: NomadMode,
         nomad_style: &NomadStyle,
         target_directory: &str,
@@ -223,7 +223,7 @@ impl ToTree for Vec<TransformedItem> {
             _ => {}
         }
 
-        let tokei = if args.loc {
+        let tokei = if args.meta.loc {
             Some(loc_in_dir(target_directory))
         } else {
             None
@@ -267,7 +267,7 @@ impl ToTree for Vec<TransformedItem> {
 
                 letter_index += 1;
 
-                let label = if args.label_directories || args.all_labels {
+                let label = if args.labels.label_directories || args.labels.all_labels {
                     Some(directory_label)
                 } else {
                     None
@@ -276,10 +276,10 @@ impl ToTree for Vec<TransformedItem> {
                 tree.begin_child(format_directory(&args, label, Path::new(&item.path)));
 
                 num_directories += 1;
-            } else if item.is_file && !args.dirs {
+            } else if item.is_file && !args.modifiers.dirs {
                 numbered_items.insert(format!("{num_files}"), item.path.to_string());
 
-                let number = if args.numbers || args.all_labels {
+                let number = if args.labels.numbers || args.labels.all_labels {
                     Some(num_files)
                 } else {
                     None
@@ -287,7 +287,7 @@ impl ToTree for Vec<TransformedItem> {
 
                 let icon = get_file_icon(Path::new(&item.path));
 
-                if args.loc {
+                if args.meta.loc {
                     tree.begin_child(format_content(
                         &args,
                         item.marker.clone(),
@@ -341,7 +341,7 @@ impl ToTree for Vec<TransformedItem> {
         let final_tree = tree.build();
 
         match nomad_mode {
-            NomadMode::Normal => {
+            NomadMode::Normal | NomadMode::GitStatus => {
                 println!();
                 print_tree_with(&final_tree, &config)?;
                 println!();
@@ -369,7 +369,7 @@ impl ToTree for Vec<TransformedBranch> {
     /// Build a tree from the `Vec<TransformedBranch>`.
     fn to_tree(
         self,
-        args: &Args,
+        args: &GlobalArgs,
         nomad_mode: NomadMode,
         nomad_style: &NomadStyle,
         target_directory: &str,
@@ -395,6 +395,7 @@ impl ToTree for Vec<TransformedBranch> {
         let (config, mut tree) =
             build_tree(args, &nomad_mode, &nomad_style, Path::new(target_directory));
 
+        let start = Instant::now();
         for item in self.iter() {
             check_nesting(
                 current_depth,
@@ -419,7 +420,7 @@ impl ToTree for Vec<TransformedBranch> {
             } else if item.is_end {
                 numbered_items.insert(format!("{num_branches}"), item.full_branch.to_string());
 
-                let number = if args.numbers || args.all_labels {
+                let number = if args.labels.numbers {
                     Some(num_branches)
                 } else {
                     None
@@ -441,6 +442,11 @@ impl ToTree for Vec<TransformedBranch> {
         println!();
         print_tree_with(&final_tree, &config)?;
         println!();
+
+        if args.statistics {
+            let duration = start.elapsed().as_millis();
+            println!("| {num_branches} branches | {duration} ms |\n");
+        }
 
         Ok((final_tree, config, None))
     }

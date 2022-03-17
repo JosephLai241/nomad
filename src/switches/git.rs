@@ -88,11 +88,16 @@ pub fn run_git(
                 Err(_) => paint_error(NomadError::GitBlameError),
             },
             GitOptions::Branch(branch_options) => {
-                match display_branches(&args, branch_options, nomad_style, &repo, &target_directory)
-                {
+                match display_branches(branch_options, nomad_style, &repo, &target_directory) {
                     Ok(tree_items) => match tree_items {
                         Some((tree, config, _)) => {
-                            // TODO: MAKE A NEW EXPORT FLAG FOR BRANCH_OPTIONS?
+                            if let Some(export) = &branch_options.export {
+                                if let Err(error) =
+                                    export_tree(config, ExportMode::GitBranch, &export, tree)
+                                {
+                                    paint_error(error);
+                                }
+                            }
                         }
                         None => {}
                     },
@@ -150,7 +155,7 @@ pub fn run_git(
                     });
                 }
             }
-            GitOptions::Status => {
+            GitOptions::Status(status_options) => {
                 if let Some(branch_name) = get_repo_branch(&repo) {
                     println!(
                         "\nOn branch: {}",
@@ -162,10 +167,10 @@ pub fn run_git(
                     }
                 }
 
-                match display_status_tree(&args, nomad_style, &repo, &target_directory) {
+                match display_status_tree(&status_options, nomad_style, &repo, &target_directory) {
                     Ok(tree_items) => {
                         if let Some((tree, config)) = tree_items {
-                            if let Some(export) = &args.export {
+                            if let Some(export) = &status_options.export {
                                 if let Err(error) =
                                     export_tree(config, ExportMode::GitStatus, &export, tree)
                                 {

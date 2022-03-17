@@ -1,7 +1,7 @@
 //! Set Git status markers for items within the tree.
 
 use super::utils::get_repo;
-use crate::{cli::Args, errors::NomadError, style::models::NomadStyle};
+use crate::{cli::global::StyleArgs, errors::NomadError, style::models::NomadStyle};
 
 use anyhow::Result;
 use git2::{Repository, Status, StatusOptions, StatusShow};
@@ -11,13 +11,14 @@ use std::{collections::HashMap, path::Path};
 /// Try to extend the `HashMap` containing status markers and their corresponding
 /// filenames with new Git repository items.
 pub fn extend_marker_map(
-    args: &Args,
+    args: &StyleArgs,
     git_markers: &mut HashMap<String, String>,
     nomad_style: &NomadStyle,
     target_directory: &str,
 ) {
     if let Some(repo) = get_repo(target_directory) {
-        if let Ok(top_level_map) = get_status_markers(args, &nomad_style, &repo, target_directory) {
+        if let Ok(top_level_map) = get_status_markers(&args, &nomad_style, &repo, target_directory)
+        {
             git_markers.extend(top_level_map);
         }
     }
@@ -26,7 +27,7 @@ pub fn extend_marker_map(
 /// Get the status markers (colored initials) that correspond with the Git status
 /// of tracked files in the repository.
 pub fn get_status_markers(
-    args: &Args,
+    args: &StyleArgs,
     nomad_style: &NomadStyle,
     repo: &Repository,
     target_directory: &str,

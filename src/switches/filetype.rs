@@ -3,7 +3,7 @@
 use ignore::types::TypesBuilder;
 
 use crate::{
-    cli::{filetype::FileTypeOptions, Args},
+    cli::filetype::FileTypeOptions,
     style::models::NomadStyle,
     traverse::{
         modes::NomadMode,
@@ -19,7 +19,6 @@ use crate::{
 
 /// `match` the filetype subcommand and execute it.
 pub fn run_filetypes(
-    args: &Args,
     filetype_option: &FileTypeOptions,
     nomad_style: &NomadStyle,
     target_directory: &str,
@@ -28,65 +27,85 @@ pub fn run_filetypes(
     type_matcher.add_defaults();
 
     match filetype_option {
-        FileTypeOptions::Match { filetypes, globs } => {
-            match build_types(filetypes, globs, type_matcher, TypeOption::Match) {
-                Ok(types) => match build_walker(&args, &target_directory, Some(types)) {
-                    Ok(mut walker) => {
-                        match walk_directory(
-                            &args,
-                            NomadMode::Normal,
-                            nomad_style,
-                            &target_directory,
-                            &mut walker,
-                        ) {
-                            Ok((tree, config, _)) => {
-                                if let Some(export) = &args.export {
-                                    if let Err(error) = export_tree(
-                                        config,
-                                        ExportMode::Filetype(filetypes, globs),
-                                        &export,
-                                        tree,
-                                    ) {
-                                        paint_error(error);
+        FileTypeOptions::Match(match_options) => {
+            match build_types(
+                &match_options.filetypes,
+                &match_options.globs,
+                type_matcher,
+                TypeOption::Match,
+            ) {
+                Ok(types) => {
+                    match build_walker(&match_options.general, &target_directory, Some(types)) {
+                        Ok(mut walker) => {
+                            match walk_directory(
+                                &match_options.general,
+                                NomadMode::Normal,
+                                nomad_style,
+                                &target_directory,
+                                &mut walker,
+                            ) {
+                                Ok((tree, config, _)) => {
+                                    if let Some(export) = &match_options.general.export {
+                                        if let Err(error) = export_tree(
+                                            config,
+                                            ExportMode::Filetype(
+                                                &match_options.filetypes,
+                                                &match_options.globs,
+                                            ),
+                                            &export,
+                                            tree,
+                                        ) {
+                                            paint_error(error);
+                                        }
                                     }
                                 }
+                                Err(error) => paint_error(error),
                             }
-                            Err(error) => paint_error(error),
                         }
+                        Err(error) => paint_error(error),
                     }
-                    Err(error) => paint_error(error),
-                },
+                }
                 Err(error) => paint_error(error),
             }
         }
-        FileTypeOptions::Negate { filetypes, globs } => {
-            match build_types(filetypes, globs, type_matcher, TypeOption::Negate) {
-                Ok(types) => match build_walker(&args, &target_directory, Some(types)) {
-                    Ok(mut walker) => {
-                        match walk_directory(
-                            &args,
-                            NomadMode::Normal,
-                            nomad_style,
-                            &target_directory,
-                            &mut walker,
-                        ) {
-                            Ok((tree, config, _)) => {
-                                if let Some(export) = &args.export {
-                                    if let Err(error) = export_tree(
-                                        config,
-                                        ExportMode::Filetype(filetypes, globs),
-                                        &export,
-                                        tree,
-                                    ) {
-                                        paint_error(error);
+        FileTypeOptions::Negate(negate_options) => {
+            match build_types(
+                &negate_options.filetypes,
+                &negate_options.globs,
+                type_matcher,
+                TypeOption::Negate,
+            ) {
+                Ok(types) => {
+                    match build_walker(&negate_options.general, &target_directory, Some(types)) {
+                        Ok(mut walker) => {
+                            match walk_directory(
+                                &negate_options.general,
+                                NomadMode::Normal,
+                                nomad_style,
+                                &target_directory,
+                                &mut walker,
+                            ) {
+                                Ok((tree, config, _)) => {
+                                    if let Some(export) = &negate_options.general.export {
+                                        if let Err(error) = export_tree(
+                                            config,
+                                            ExportMode::Filetype(
+                                                &negate_options.filetypes,
+                                                &negate_options.globs,
+                                            ),
+                                            &export,
+                                            tree,
+                                        ) {
+                                            paint_error(error);
+                                        }
                                     }
                                 }
+                                Err(error) => paint_error(error),
                             }
-                            Err(error) => paint_error(error),
                         }
+                        Err(error) => paint_error(error),
                     }
-                    Err(error) => paint_error(error),
-                },
+                }
                 Err(error) => paint_error(error),
             }
         }

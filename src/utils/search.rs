@@ -56,9 +56,12 @@ pub fn indiscriminate_search(
                     Some(directory_path) => match search_mode {
                         SearchMode::Git | SearchMode::GitDiff => {
                             if let Some(repo) = repo {
-                                if let Ok(marker_map) =
-                                    get_status_markers(args, nomad_style, repo, target_directory)
-                                {
+                                if let Ok(marker_map) = get_status_markers(
+                                    &args.global.style,
+                                    nomad_style,
+                                    repo,
+                                    target_directory,
+                                ) {
                                     for file_path in marker_map.keys() {
                                         let path_parent = Path::new(file_path)
                                             .parent()

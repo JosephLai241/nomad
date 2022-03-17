@@ -1,7 +1,7 @@
 //! Directory traversal utilities.
 
 use crate::{
-    cli::Args,
+    cli::global::GlobalArgs,
     errors::NomadError,
     style::models::NomadStyle,
     utils::{
@@ -77,7 +77,7 @@ pub fn build_types(
 
 /// Build a `Walk` object based on the client's CLI parameters.
 pub fn build_walker(
-    args: &Args,
+    args: &GlobalArgs,
     target_directory: &str,
     types: Option<Types>,
 ) -> Result<Walk, NomadError> {
@@ -85,14 +85,14 @@ pub fn build_walker(
         let mut walk = WalkBuilder::new(target_directory);
 
         walk.follow_links(true)
-            .git_exclude(!args.disrespect)
-            .git_global(!args.disrespect)
-            .git_ignore(!args.disrespect)
-            .hidden(!args.hidden)
-            .ignore(!args.disrespect)
-            .max_depth(args.max_depth)
-            .max_filesize(args.max_filesize)
-            .parents(!args.disrespect)
+            .git_exclude(!args.modifiers.disrespect)
+            .git_global(!args.modifiers.disrespect)
+            .git_ignore(!args.modifiers.disrespect)
+            .hidden(!args.modifiers.hidden)
+            .ignore(!args.modifiers.disrespect)
+            .max_depth(args.modifiers.max_depth)
+            .max_filesize(args.modifiers.max_filesize)
+            .parents(!args.modifiers.disrespect)
             .sort_by_file_path(|a, b| a.cmp(b));
 
         if let Some(types) = types {
@@ -132,7 +132,7 @@ pub fn get_file_icon(item_path: &Path) -> String {
 
 /// Build a `ptree` object and set the tree's style/configuration.
 pub fn build_tree(
-    args: &Args,
+    args: &GlobalArgs,
     nomad_mode: &NomadMode,
     nomad_style: &NomadStyle,
     target_directory: &Path,
@@ -147,16 +147,19 @@ pub fn build_tree(
         .to_string();
     let directory_name = match nomad_mode {
         NomadMode::GitBranch => format!(
-            "{} {} [{}]",
-            "\u{f1d3}",
+            "{}{} [{}]",
+            match args.style.no_icons {
+                true => "",
+                false => "\u{f1d3} ",
+            },
             Colour::Blue.bold().paint(plain_name),
             Colour::Fixed(172).bold().paint("BRANCHES")
         ),
         _ => {
-            if args.plain {
+            if args.style.plain {
                 plain_name
             } else {
-                if args.no_colors {
+                if args.style.no_colors {
                     format!("{directory_icon} {plain_name}")
                 } else {
                     format!(
@@ -172,7 +175,7 @@ pub fn build_tree(
     match nomad_mode {
         NomadMode::GitBranch => {}
         _ => {
-            if args.metadata {
+            if args.meta.metadata {
                 let metadata = get_metadata(&args, target_directory);
                 tree_label = format!("{metadata} {tree_label}");
             }

@@ -1,7 +1,7 @@
 //! Formatting items in the tree.
 
 use crate::{
-    cli::Args,
+    cli::global::GlobalArgs,
     git::utils::paint_git_item,
     style::models::NomadStyle,
     utils::{
@@ -18,19 +18,19 @@ use std::{ffi::OsStr, path::Path};
 use super::models::TransformedBranch;
 
 /// Format how directories are displayed in the tree.
-pub fn format_directory(args: &Args, label: Option<String>, item: &Path) -> String {
+pub fn format_directory(args: &GlobalArgs, label: Option<String>, item: &Path) -> String {
     let icon = "\u{f115}".to_string(); // 
     let metadata = get_metadata(args, item);
 
     let directory_label = if item.is_symlink() {
         paint_symlink(item)
-    } else if args.plain || args.no_colors {
+    } else if args.style.plain || args.style.no_colors {
         get_filename(item)
     } else {
         paint_directory(item)
     };
 
-    let mut formatted = if args.no_icons || args.plain {
+    let mut formatted = if args.style.no_icons || args.style.plain {
         format!("{directory_label}")
     } else {
         format!("{icon} {directory_label}")
@@ -40,7 +40,7 @@ pub fn format_directory(args: &Args, label: Option<String>, item: &Path) -> Stri
         formatted = format!("[{label}] {formatted}");
     }
 
-    if args.metadata {
+    if args.meta.metadata {
         return format!("{metadata} {formatted}");
     }
 
@@ -49,7 +49,7 @@ pub fn format_directory(args: &Args, label: Option<String>, item: &Path) -> Stri
 
 /// Format how directory contents are displayed in the tree.
 pub fn format_content(
-    args: &Args,
+    args: &GlobalArgs,
     git_marker: Option<String>,
     icon: String,
     item: &Path,
@@ -60,41 +60,42 @@ pub fn format_content(
     let mut filename = get_filename(item);
     let metadata = get_metadata(args, item);
 
-    let mut item_string = if let (Some(marker), false) = (git_marker, args.no_git || args.plain) {
-        if args.no_colors {
-            if args.no_icons {
-                format!("{marker} {filename}")
+    let mut item_string =
+        if let (Some(marker), false) = (git_marker, args.style.no_git || args.style.plain) {
+            if args.style.no_colors {
+                if args.style.no_icons {
+                    format!("{marker} {filename}")
+                } else {
+                    format!("{marker} {icon} {filename}")
+                }
             } else {
-                format!("{marker} {icon} {filename}")
-            }
-        } else {
-            let formatted_filename = paint_git_item(&filename, &marker, nomad_style, matched);
+                let formatted_filename = paint_git_item(&filename, &marker, nomad_style, matched);
 
-            if args.no_icons {
-                format!("{marker} {formatted_filename}")
-            } else {
-                format!("{marker} {icon} {formatted_filename}")
+                if args.style.no_icons {
+                    format!("{marker} {formatted_filename}")
+                } else {
+                    format!("{marker} {icon} {formatted_filename}")
+                }
             }
-        }
-    } else {
-        if args.no_icons || args.plain {
-            format!("{filename}")
-        } else if args.no_colors {
-            format!("{icon} {filename}")
         } else {
-            filename = if let Some(ranges) = matched {
-                highlight_matched(filename, nomad_style, ranges)
+            if args.style.no_icons || args.style.plain {
+                format!("{filename}")
+            } else if args.style.no_colors {
+                format!("{icon} {filename}")
             } else {
-                filename
-            };
-            format!("{icon} {filename}")
-        }
-    };
+                filename = if let Some(ranges) = matched {
+                    highlight_matched(filename, nomad_style, ranges)
+                } else {
+                    filename
+                };
+                format!("{icon} {filename}")
+            }
+        };
 
     if let Some(number) = number {
         item_string = format!("[{number}] {item_string}");
     }
-    if args.metadata {
+    if args.meta.metadata {
         item_string = format!("{metadata} {item_string}")
     }
 

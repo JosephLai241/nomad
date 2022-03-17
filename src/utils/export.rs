@@ -25,6 +25,8 @@ pub enum ExportMode<'a> {
     Filetype(&'a Vec<String>, &'a Vec<String>),
     /// `nomad` was run in normal mode.
     Normal,
+    /// `nomad` was run in Git branch mode.
+    GitBranch,
     /// `nomad` was run in Git status mode.
     GitStatus,
 }
@@ -61,6 +63,11 @@ pub fn export_tree(
             file_header.push_str("\n\n");
 
             "nomad".to_string()
+        }
+        ExportMode::GitBranch => {
+            file_header.push_str("\n\nMode: Git branch\n\n");
+
+            "git_branch".to_string()
         }
         ExportMode::GitStatus => {
             file_header.push_str("\n\nMode: Git status\n\n");

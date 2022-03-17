@@ -1,7 +1,12 @@
 //! Exposing functionality for the Git branch command.
 
+use std::time::Instant;
+
 use crate::{
-    cli::{git::BranchOptions, Args},
+    cli::{
+        git::BranchOptions,
+        global::{GlobalArgs, LabelArgs, MetaArgs, ModifierArgs, RegexArgs, StyleArgs},
+    },
     errors::NomadError,
     style::models::NomadStyle,
     traverse::{
@@ -22,8 +27,7 @@ use super::utils::get_repo_branch;
 
 /// Get all local branches from the repository and transform them into a `Vec<FoundBranch>`.
 pub fn display_branches(
-    args: &Args,
-    branch_options: &BranchOptions,
+    args: &BranchOptions,
     nomad_style: &NomadStyle,
     repo: &Repository,
     target_directory: &str,
@@ -82,11 +86,12 @@ pub fn display_branches(
         })
         .collect::<Vec<Branch>>();
 
-    if branch_options.flat {
+    if args.flat {
         println!();
     }
 
     let mut num_branches = 0;
+    let start = Instant::now();
     for branch in repo_branches {
         let branch_name = branch.name()?.unwrap_or("?").to_string();
 
@@ -118,7 +123,7 @@ pub fn display_branches(
         } else {
             None
         };
-        let number = if args.numbers || args.all_labels {
+        let number = if args.numbers {
             Some(num_branches)
         } else {
             None
@@ -126,7 +131,7 @@ pub fn display_branches(
 
         if let Some(ref regex) = regex_expression {
             if let Some(matched) = regex.find(&branch_name) {
-                if branch_options.flat {
+                if args.flat {
                     display_flat_branch(
                         &branch,
                         &branch_name,
@@ -149,7 +154,7 @@ pub fn display_branches(
                 }
             }
         } else {
-            if branch_options.flat {
+            if args.flat {
                 display_flat_branch(
                     &branch,
                     &branch_name,
@@ -175,15 +180,53 @@ pub fn display_branches(
         num_branches += 1;
     }
 
-    if branch_options.flat {
+    if args.flat {
         println!();
+
+        if args.statistics {
+            let duration = start.elapsed().as_millis();
+            println!("| {num_branches} branches | {duration} ms |\n");
+        }
     }
 
-    Ok(if branch_options.flat {
+    // Hm... There is probably a better solution, but fuck it. Leaving it for now.
+    let global_args = GlobalArgs {
+        export: args.export.clone(),
+        labels: LabelArgs {
+            all_labels: false,
+            label_directories: false,
+            numbers: args.numbers,
+        },
+        meta: MetaArgs {
+            loc: false,
+            metadata: false,
+            no_tree: false,
+            summarize: false,
+        },
+        modifiers: ModifierArgs {
+            dirs: false,
+            disrespect: false,
+            hidden: false,
+            max_depth: None,
+            max_filesize: None,
+        },
+        regex: RegexArgs {
+            pattern: args.pattern.clone(),
+        },
+        style: StyleArgs {
+            no_colors: false,
+            no_git: false,
+            no_icons: args.no_icons,
+            plain: false,
+        },
+        statistics: args.statistics,
+    };
+
+    Ok(if args.flat {
         None
     } else {
         Some(branches.transform(target_directory)?.to_tree(
-            args,
+            &global_args,
             NomadMode::GitBranch,
             nomad_style,
             target_directory,

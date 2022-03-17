@@ -1,6 +1,6 @@
 //! Retrieving metadata for files.
 
-use crate::cli::Args;
+use crate::cli::global::GlobalArgs;
 
 use ansi_term::Colour;
 use chrono::{DateTime, Local, TimeZone, Utc};
@@ -79,7 +79,7 @@ fn colorize_permission_bits(permissions: String) -> String {
 ///
 /// This is only compiled when on UNIX systems.
 #[cfg(target_family = "unix")]
-pub fn get_metadata(args: &Args, item: &Path) -> String {
+pub fn get_metadata(args: &GlobalArgs, item: &Path) -> String {
     let metadata = item.metadata().ok();
 
     if let Some(metadata) = metadata {
@@ -92,7 +92,7 @@ pub fn get_metadata(args: &Args, item: &Path) -> String {
                 .expect("None")
                 .to_string()
         );
-        let group = if args.plain || args.no_colors {
+        let group = if args.style.plain || args.style.no_colors {
             plain_group
         } else {
             Colour::Fixed(193)
@@ -109,14 +109,14 @@ pub fn get_metadata(args: &Args, item: &Path) -> String {
         };
 
         let plain_mode = to_string(metadata.permissions().mode());
-        let mode = if args.plain || args.no_colors {
+        let mode = if args.style.plain || args.style.no_colors {
             plain_mode
         } else {
             colorize_permission_bits(plain_mode)
         };
 
         let plain_last_modified = format!("{}", convert_time(metadata.mtime()));
-        let last_modified = if args.plain || args.no_colors {
+        let last_modified = if args.style.plain || args.style.no_colors {
             plain_last_modified
         } else {
             Colour::Fixed(035).paint(plain_last_modified).to_string()
@@ -126,7 +126,7 @@ pub fn get_metadata(args: &Args, item: &Path) -> String {
             .map_or("unknown file size".to_string(), |converted_bytes| {
                 convert_bytes(converted_bytes)
             });
-        let size = if args.plain || args.no_colors {
+        let size = if args.style.plain || args.style.no_colors {
             plain_size
         } else {
             Colour::Fixed(172).paint(plain_size).to_string()
@@ -141,7 +141,7 @@ pub fn get_metadata(args: &Args, item: &Path) -> String {
                 .expect("None")
                 .to_string()
         );
-        let user = if args.plain || args.no_colors {
+        let user = if args.style.plain || args.style.no_colors {
             plain_user
         } else {
             Colour::Fixed(194).paint(plain_user).to_string()
@@ -151,7 +151,7 @@ pub fn get_metadata(args: &Args, item: &Path) -> String {
     } else {
         let missing_message = "-- No metadata available for this item --";
 
-        if args.plain || args.no_colors {
+        if args.style.plain || args.style.no_colors {
             missing_message.to_string()
         } else {
             Colour::Red
@@ -166,7 +166,7 @@ pub fn get_metadata(args: &Args, item: &Path) -> String {
 ///
 /// This is only compiled when on Windows systems.
 #[cfg(target_family = "windows")]
-pub fn get_metadata(args: &Args, item: &Path) -> String {
+pub fn get_metadata(args: &GlobalArgs, item: &Path) -> String {
     let metadata = item.metadata().ok();
 
     if let Some(metadata) = metadata {
@@ -191,7 +191,7 @@ pub fn get_metadata(args: &Args, item: &Path) -> String {
             262144 => "FILE_ATTRIBUTE_RECALL_ON_OPEN",
             4194304 => "FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS",
         };
-        let file_attributes = if args.plain || args.no_colors {
+        let file_attributes = if args.style.plain || args.style.no_colors {
             plain_file_attributes.to_string()
         } else {
             Colour::Fixed(193)
@@ -203,7 +203,7 @@ pub fn get_metadata(args: &Args, item: &Path) -> String {
             "unknown last modified time".to_string(),
             |converted_value| convert_time(converted_value),
         );
-        let last_modified = if args.plain || args.no_colors {
+        let last_modified = if args.style.plain || args.style.no_colors {
             plain_last_modified
         } else {
             Colour::Fixed(035).paint(plain_last_modified).to_string()
@@ -213,7 +213,7 @@ pub fn get_metadata(args: &Args, item: &Path) -> String {
             .map_or("unknown file size".to_string(), |converted_bytes| {
                 convert_bytes(converted_bytes)
             });
-        let size = if args.plain || args.no_colors {
+        let size = if args.style.plain || args.style.no_colors {
             plain_size
         } else {
             Colour::Fixed(172).paint(plain_size).to_string()
