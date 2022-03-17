@@ -140,7 +140,7 @@ fn main() -> Result<(), NomadError> {
                     }
                 }
                 SubCommands::Filetype(filetype_option) => {
-                    run_filetypes(&args, filetype_option, &nomad_style, &target_directory);
+                    run_filetypes(filetype_option, &nomad_style, &target_directory);
                 }
                 SubCommands::Git(git_command) => {
                     run_git(&args, git_command, &nomad_style, &target_directory);
@@ -148,10 +148,10 @@ fn main() -> Result<(), NomadError> {
                 SubCommands::Interactive => {
                     // ANSI escape codes do not correctly render in the alternate screen,
                     // which is why `--no-colors` has to be enabled.
-                    args.no_colors = true;
+                    args.global.style.no_colors = true;
 
                     if let Err(error) =
-                        enter_interactive_mode(&mut args, &nomad_style, &target_directory)
+                        enter_interactive_mode(&mut args.global, &nomad_style, &target_directory)
                     {
                         paint_error(error);
                     }
@@ -173,20 +173,20 @@ fn main() -> Result<(), NomadError> {
             }
         } else {
             // Run `nomad` in normal mode.
-            if args.loc && args.no_tree {
+            if args.global.meta.loc && args.global.meta.no_tree {
                 loc_in_dir(&target_directory);
             }
-            match build_walker(&args, &target_directory, None) {
+            match build_walker(&args.global, &target_directory, None) {
                 Ok(mut walker) => {
                     match walk_directory(
-                        &args,
+                        &args.global,
                         NomadMode::Normal,
                         &nomad_style,
                         &target_directory,
                         &mut walker,
                     ) {
                         Ok((tree, config, _)) => {
-                            if let Some(export) = args.export {
+                            if let Some(export) = args.global.export {
                                 if let Err(error) =
                                     export_tree(config, ExportMode::Normal, &export, tree)
                                 {
