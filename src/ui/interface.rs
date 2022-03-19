@@ -1,9 +1,7 @@
 //! The user interface of the TUI.
 
-use std::io::Stdout;
-
 use tui::{
-    backend::CrosstermBackend,
+    backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
@@ -22,11 +20,10 @@ use super::{
 };
 
 /// Render the user interface for the TUI.
-pub fn render_ui(
-    app: &mut App,
-    args: &mut GlobalArgs,
-    frame: &mut Frame<CrosstermBackend<Stdout>>,
-) {
+pub fn render_ui<B>(app: &mut App, args: &mut GlobalArgs, frame: &mut Frame<B>)
+where
+    B: Backend,
+{
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
