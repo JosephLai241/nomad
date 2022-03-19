@@ -297,6 +297,26 @@ impl<'a> App<'a> {
         Ok(())
     }
 
+    /// Get the path to the current file.
+    pub fn get_current_file(&self) -> Result<String, NomadError> {
+        match self.selected_is_dir()? {
+            Some(is_dir) => {
+                if is_dir {
+                    Err(NomadError::NotAFile)
+                } else {
+                    match self.directory_tree.state.selected() {
+                        Some(index) => match &self.directory_items {
+                            Some(directory_items) => Ok(directory_items.items[index].path.clone()),
+                            None => Err(NomadError::NoItems),
+                        },
+                        None => Err(NomadError::NothingSelected),
+                    }
+                }
+            }
+            None => Err(NomadError::NothingSelected),
+        }
+    }
+
     /// Get the current directory from the breadcrumbs.
     fn get_target_by_breadcrumbs(&self) -> String {
         let end = match self.breadcrumbs.state.selected() {
