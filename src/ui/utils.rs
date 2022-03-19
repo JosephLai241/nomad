@@ -115,7 +115,7 @@ pub fn get_tree(
 ) -> Result<(Vec<String>, Option<Vec<DirItem>>), NomadError> {
     let (tree, config, directory_items) = walk_directory(
         args,
-        NomadMode::Interactive,
+        NomadMode::Rootless,
         nomad_style,
         target_directory,
         &mut build_walker(args, target_directory, None)?,

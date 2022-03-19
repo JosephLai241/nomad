@@ -1,4 +1,4 @@
-//! The user interface for interactive mode.
+//! The user interface for rootless (interactive) mode.
 
 pub mod app;
 pub mod interface;
@@ -42,8 +42,8 @@ enum Event<I> {
     Tick,
 }
 
-/// Enter `nomad`'s interactive mode.
-pub fn enter_interactive_mode(
+/// Enter `nomad`'s rootless (interactive) mode.
+pub fn enter_rootless_mode(
     args: &mut GlobalArgs,
     nomad_style: &NomadStyle,
     target_directory: &str,
@@ -51,11 +51,7 @@ pub fn enter_interactive_mode(
     enable_raw_mode()?;
 
     let mut stdout = stdout();
-    execute!(
-        stdout,
-        EnterAlternateScreen,
-        SetTitle("nomad  |  interactive")
-    )?;
+    execute!(stdout, EnterAlternateScreen, SetTitle("nomad  |  rootless"))?;
 
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
@@ -262,7 +258,7 @@ pub fn enter_interactive_mode(
                                 }
                                 _ => {}
                             },
-                            // Quit interactive mode.
+                            // Quit Rootless mode.
                             KeyCode::Char('q') => {
                                 disable_raw_mode()?;
                                 execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
@@ -656,6 +652,7 @@ pub fn enter_interactive_mode(
                             app.user_input.push(ch);
                         }
                         KeyCode::Enter => {
+                            app.scroll = 0;
                             app.collected_input.push(app.user_input.drain(..).collect());
 
                             match app.ui_mode {

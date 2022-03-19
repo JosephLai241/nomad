@@ -15,7 +15,7 @@ pub const HELP_TEXT: &'static str = r#"
  Views
  =====
 
- Interactive mode has 4 views:
+ Rootless mode has 4 views:
 
      * Normal/breadcrumbs
      *
@@ -54,7 +54,7 @@ pub const HELP_TEXT: &'static str = r#"
 
  p           Toggle plain mode
 
- q           Quit interactive mode
+ q           Quit rootless mode
 
  r           Refresh the tree
 
@@ -85,7 +85,7 @@ pub const HELP_TEXT: &'static str = r#"
 
  * Breadcrumbs   Move focus to the breadcrumbs at the top of the TUI and
                  select a different directory to inspect
- * Normal        This is the default mode when interactive mode is instantiated
+ * Normal        This is the default mode when Rootless mode is instantiated
  * Scroll        This mode may be entered if the currently highlighted item is a file
 
 "#;

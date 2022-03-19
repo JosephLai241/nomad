@@ -39,9 +39,10 @@ pub enum SubCommands {
     ///`bat` (the Rust alternative to the `cat` command) a file.
     /// This may be used after running nomad in a labeled mode.
     Bat { item_labels: Vec<String> },
-    /// Customize/configure nomad.
+    /// Customize/configure nomad or view your current configuration.
     ///
-    /// Edit or read the self-instantiated configuration file `nomad.toml`.
+    /// Edit or view your settings defined in the self-instantiated configuration
+    /// file `nomad.toml`.
     ///
     /// === NOTE ===
     ///
@@ -56,10 +57,10 @@ pub enum SubCommands {
     /// Run commonly used Git commands.
     /// Some commands may be used after running nomad in a labeled mode.
     Git(GitOptions),
-    /// Enter interactive mode.
-    Interactive,
     /// Retrieve releases for this program (retrieved from GitHub).
     Releases(ReleaseOptions),
+    /// Enter rootless (interactive) mode.
+    Rootless,
     /// Upgrade nomad or just check if there is an upgrade available.
     Upgrade(UpgradeOptions),
 }
@@ -71,8 +72,6 @@ pub fn get_args() -> Args {
 
 #[cfg(test)]
 mod test_cli {
-    use super::*;
-
     use assert_cmd::Command;
 
     #[test]

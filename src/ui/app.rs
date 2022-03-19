@@ -85,7 +85,7 @@ pub struct App<'a> {
 }
 
 impl<'a> App<'a> {
-    /// Create a new interactive instance with the target directory.
+    /// Create a new Rootless instance with the target directory.
     pub fn new(
         args: &GlobalArgs,
         nomad_style: &'a NomadStyle,
