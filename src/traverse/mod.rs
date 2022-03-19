@@ -61,9 +61,15 @@ pub fn walk_directory(
                     None
                 } else {
                     if let Some(ref regex) = regex_expression {
-                        if let Some(matched) =
-                            regex.find(&entry.path().to_str().unwrap_or("?").to_string())
-                        {
+                        if let Some(matched) = regex.find(
+                            &entry
+                                .path()
+                                .strip_prefix(target_directory)
+                                .unwrap_or(Path::new("?"))
+                                .to_str()
+                                .unwrap_or("?")
+                                .to_string(),
+                        ) {
                             Some(FoundItem {
                                 marker: git_markers
                                     .get(
