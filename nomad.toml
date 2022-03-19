@@ -42,6 +42,24 @@
 #indent = 4
 #padding = 1
 
+#
+# Uncomment the items below this table to set label styles.
+#
+# Default colors
+# --------------
+#    * "black"
+#    * "blue"
+#    * "cyan"
+#    * "green"
+#    * "purple"
+#    * "red"
+#    * "white"
+#    * "yellow"
+#
+[tree.labels]
+#item_labels = "d78700"
+#directory_labels = "d78700"
+
 
 #
 # Uncomment the items below this table to set the tree's indent characters.
