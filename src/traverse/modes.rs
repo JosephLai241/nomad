@@ -6,8 +6,8 @@ pub enum NomadMode {
     GitBranch,
     /// Run `nomad` in `git status` mode.
     GitStatus,
-    /// Run `nomad` in interactive mode.
-    Interactive,
     /// Run `nomad` in normal mode.
     Normal,
+    /// Run `nomad` in rootless (interactive) mode.
+    Rootless,
 }
