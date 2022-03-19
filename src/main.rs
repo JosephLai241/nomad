@@ -21,7 +21,7 @@ use loc::loc_in_dir;
 use releases::{check_for_update, update_self};
 use switches::{config::run_config, filetype::run_filetypes, git::run_git, release::run_releases};
 use traverse::{modes::NomadMode, utils::build_walker, walk_directory};
-use ui::enter_interactive_mode;
+use ui::enter_rootless_mode;
 use utils::{
     bat::run_bat,
     export::{export_tree, ExportMode},
@@ -145,13 +145,13 @@ fn main() -> Result<(), NomadError> {
                 SubCommands::Git(git_command) => {
                     run_git(&args, git_command, &nomad_style, &target_directory);
                 }
-                SubCommands::Interactive => {
+                SubCommands::Rootless => {
                     // ANSI escape codes do not correctly render in the alternate screen,
                     // which is why `--no-colors` has to be enabled.
                     args.global.style.no_colors = true;
 
                     if let Err(error) =
-                        enter_interactive_mode(&mut args.global, &nomad_style, &target_directory)
+                        enter_rootless_mode(&mut args.global, &nomad_style, &target_directory)
                     {
                         paint_error(error);
                     }
