@@ -170,6 +170,7 @@ pub fn get_icons_by_extension() -> HashMap<&'static str, &'static str> {
     icon_map.insert("tar", "\u{f410}"); // ""
     icon_map.insert("tex", "\u{e600}"); // ""
     icon_map.insert("tiff", "\u{f1c5}"); // ""
+    icon_map.insert("toml", "\u{e615}"); // ""
     icon_map.insert("ts", "\u{e628}"); // ""
     icon_map.insert("tsx", "\u{e7ba}"); // ""
     icon_map.insert("ttc", "\u{f031}"); // ""
