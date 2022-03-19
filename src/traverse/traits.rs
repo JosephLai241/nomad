@@ -67,7 +67,7 @@ impl TransformFound<TransformedItem> for Vec<FoundItem> {
                                 is_dir: true,
                                 is_file: false,
                                 marker: None,
-                                matched: None,
+                                matched: found_item.matched,
                                 path: Path::new(target_directory)
                                     .join(joined_path)
                                     .to_str()
@@ -213,10 +213,10 @@ impl ToTree for Vec<TransformedItem> {
         };
 
         // This holds every single item in the directory and is only returned in
-        // NomadMode::Interactive.
+        // NomadMode::Rootless.
         let mut directory_items: Vec<DirItem> = Vec::new();
         match nomad_mode {
-            NomadMode::Interactive => directory_items.push(DirItem {
+            NomadMode::Rootless => directory_items.push(DirItem {
                 marker: None,
                 path: target_directory.to_string(),
             }),
@@ -273,7 +273,14 @@ impl ToTree for Vec<TransformedItem> {
                     None
                 };
 
-                tree.begin_child(format_directory(&args, label, Path::new(&item.path)));
+                tree.begin_child(format_directory(
+                    &args,
+                    Path::new(&item.path),
+                    label,
+                    item.matched,
+                    nomad_style,
+                    target_directory,
+                ));
 
                 num_directories += 1;
             } else if item.is_file && !args.modifiers.dirs {
@@ -296,6 +303,7 @@ impl ToTree for Vec<TransformedItem> {
                         item.matched,
                         nomad_style,
                         number,
+                        target_directory,
                     ));
 
                     if let Some(ref tokei) = tokei {
@@ -314,6 +322,7 @@ impl ToTree for Vec<TransformedItem> {
                         item.matched,
                         nomad_style,
                         number,
+                        target_directory,
                     ));
                 }
 
@@ -324,7 +333,7 @@ impl ToTree for Vec<TransformedItem> {
             previous_item = item;
 
             match nomad_mode {
-                NomadMode::Interactive => directory_items.push(DirItem {
+                NomadMode::Rootless => directory_items.push(DirItem {
                     marker: item.marker.clone(),
                     path: Path::new(&item.path)
                         .canonicalize()?
@@ -358,7 +367,7 @@ impl ToTree for Vec<TransformedItem> {
             final_tree,
             config,
             match nomad_mode {
-                NomadMode::Interactive => Some(directory_items),
+                NomadMode::Rootless => Some(directory_items),
                 _ => None,
             },
         ))
