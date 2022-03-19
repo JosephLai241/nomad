@@ -28,6 +28,17 @@ pub fn process_settings(nomad_config: NomadConfig) -> NomadStyle {
             None => 1,
         };
 
+        if let Some(label_settings) = tree_settings.labels {
+            if let Some(color) = label_settings.item_labels {
+                nomad_style.tree.label_colors.item_labels =
+                    convert_to_ansi_style(&color.to_lowercase())
+            }
+            if let Some(color) = label_settings.directory_labels {
+                nomad_style.tree.label_colors.directory_labels =
+                    convert_to_ansi_style(&color.to_lowercase())
+            }
+        }
+
         if let Some(indent_chars) = tree_settings.indent_chars {
             process_indent_chars(indent_chars, &mut nomad_style);
         }

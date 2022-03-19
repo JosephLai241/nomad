@@ -16,6 +16,8 @@ pub struct NomadConfig {
 pub struct TreeSettings {
     /// Contains settings for all things related to Git in the standard tree.
     pub git: Option<TreeGit>,
+    /// Contains settings for the color of tree labels (items and directories).
+    pub labels: Option<LabelColors>,
     /// Contains the indentation setting.
     pub indent: Option<usize>,
     /// Contains indent characters for the tree itself.
@@ -35,6 +37,15 @@ pub struct TUISettings {
     pub style: Option<TUIStyle>,
     /// Contains the setting for the color of the regex match in the text view.
     pub regex: Option<Regex>,
+}
+
+/// Contains settings for the color of tree labels (items and directories).
+#[derive(Debug, Deserialize, Serialize)]
+pub struct LabelColors {
+    /// The color for item labels.
+    pub item_labels: Option<String>,
+    /// The color for directory labels.
+    pub directory_labels: Option<String>,
 }
 
 /// Contains indent characters for the tree itself.
