@@ -51,13 +51,26 @@ pub enum NomadError {
     #[error("MPSC error: {0}")]
     MPSCError(#[from] std::sync::mpsc::RecvError),
 
+    /// No items are available in Rootless mode.
+    #[error("There are no items in this directory!")]
+    NoItems,
+
     /// Nothing was found.
     #[error("No items were found!")]
     NothingFound,
 
+    /// Nothing is currently selected in Rootless mode.
+    #[error("Nothing is selected!")]
+    NothingSelected,
+
     /// An invalid directory path is provided.
     #[error("{0} is not a directory!")]
     NotADirectory(String),
+
+    /// Unable to edit the selected item because it is a directory.
+    /// This is only used in Rootless mode.
+    #[error("Unable to edit: The selected item is not a file!")]
+    NotAFile,
 
     /// Raised when any path-related errors arise.
     #[error("Path error: {0}")]
