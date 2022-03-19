@@ -18,7 +18,14 @@ use std::{ffi::OsStr, path::Path};
 use super::models::TransformedBranch;
 
 /// Format how directories are displayed in the tree.
-pub fn format_directory(args: &GlobalArgs, label: Option<String>, item: &Path) -> String {
+pub fn format_directory(
+    args: &GlobalArgs,
+    item: &Path,
+    label: Option<String>,
+    matched: Option<(usize, usize)>,
+    nomad_style: &NomadStyle,
+    target_directory: &str,
+) -> String {
     let icon = "\u{f115}".to_string(); // 
     let metadata = get_metadata(args, item);
 
@@ -27,7 +34,21 @@ pub fn format_directory(args: &GlobalArgs, label: Option<String>, item: &Path) -
     } else if args.style.plain || args.style.no_colors {
         get_filename(item)
     } else {
-        paint_directory(item)
+        match matched {
+            Some(ranges) => Colour::Blue
+                .bold()
+                .paint(highlight_matched(
+                    nomad_style,
+                    item.strip_prefix(target_directory)
+                        .unwrap_or(Path::new("?"))
+                        .to_str()
+                        .unwrap_or("?")
+                        .to_string(),
+                    ranges,
+                ))
+                .to_string(),
+            None => paint_directory(item),
+        }
     };
 
     let mut formatted = if args.style.no_icons || args.style.plain {
@@ -37,7 +58,14 @@ pub fn format_directory(args: &GlobalArgs, label: Option<String>, item: &Path) -
     };
 
     if let Some(label) = label {
-        formatted = format!("[{label}] {formatted}");
+        formatted = format!(
+            "[{}] {formatted}",
+            nomad_style
+                .tree
+                .label_colors
+                .directory_labels
+                .paint(format!("{label}"))
+        );
     }
 
     if args.meta.metadata {
@@ -56,6 +84,7 @@ pub fn format_content(
     matched: Option<(usize, usize)>,
     nomad_style: &NomadStyle,
     number: Option<i32>,
+    target_directory: &str,
 ) -> String {
     let mut filename = get_filename(item);
     let metadata = get_metadata(args, item);
@@ -69,7 +98,17 @@ pub fn format_content(
                     format!("{marker} {icon} {filename}")
                 }
             } else {
-                let formatted_filename = paint_git_item(&filename, &marker, nomad_style, matched);
+                let formatted_filename = paint_git_item(
+                    &item
+                        .strip_prefix(target_directory)
+                        .unwrap_or(Path::new("?"))
+                        .to_str()
+                        .unwrap_or("?")
+                        .to_string(),
+                    &marker,
+                    nomad_style,
+                    matched,
+                );
 
                 if args.style.no_icons {
                     format!("{marker} {formatted_filename}")
@@ -84,16 +123,32 @@ pub fn format_content(
                 format!("{icon} {filename}")
             } else {
                 filename = if let Some(ranges) = matched {
-                    highlight_matched(filename, nomad_style, ranges)
+                    highlight_matched(
+                        nomad_style,
+                        item.strip_prefix(target_directory)
+                            .unwrap_or(Path::new("?"))
+                            .to_str()
+                            .unwrap_or("?")
+                            .to_string(),
+                        ranges,
+                    )
                 } else {
                     filename
                 };
+
                 format!("{icon} {filename}")
             }
         };
 
     if let Some(number) = number {
-        item_string = format!("[{number}] {item_string}");
+        item_string = format!(
+            "[{}] {item_string}",
+            nomad_style
+                .tree
+                .label_colors
+                .item_labels
+                .paint(format!("{number}"))
+        );
     }
     if args.meta.metadata {
         item_string = format!("{metadata} {item_string}")
@@ -103,19 +158,50 @@ pub fn format_content(
 }
 
 /// Reformat the filename if a pattern was provided and matched.
-pub fn highlight_matched(
-    filename: String,
-    nomad_style: &NomadStyle,
-    ranges: (usize, usize),
-) -> String {
-    let matched_section = nomad_style
-        .tree
-        .regex
-        .match_color
-        .paint(format!("{}", filename[ranges.0..ranges.1].to_string()))
-        .to_string();
+pub fn highlight_matched(nomad_style: &NomadStyle, path: String, ranges: (usize, usize)) -> String {
+    if (0..path.len()).contains(&ranges.0) && (0..path.len() + 1).contains(&ranges.1) {
+        let mut prefix = path[..ranges.0]
+            .chars()
+            .into_iter()
+            .map(|character| format!("{character}"))
+            .collect::<Vec<String>>();
+        let mut painted_matched = path[ranges.0..ranges.1]
+            .chars()
+            .into_iter()
+            .map(|character| {
+                nomad_style
+                    .tree
+                    .regex
+                    .match_color
+                    .paint(format!("{character}"))
+                    .to_string()
+            })
+            .collect::<Vec<String>>();
+        let mut suffix = path[ranges.1..]
+            .chars()
+            .into_iter()
+            .map(|character| format!("{character}"))
+            .collect::<Vec<String>>();
 
-    filename.replace(&filename[ranges.0..ranges.1].to_string(), &matched_section)
+        prefix.append(&mut painted_matched);
+        prefix.append(&mut suffix);
+
+        let highlighted_path = prefix.join("").to_string();
+
+        Path::new(&highlighted_path)
+            .file_name()
+            .unwrap_or(OsStr::new("?"))
+            .to_str()
+            .unwrap_or("?")
+            .to_string()
+    } else {
+        Path::new(&path)
+            .file_name()
+            .unwrap_or(OsStr::new("?"))
+            .to_str()
+            .unwrap_or("?")
+            .to_string()
+    }
 }
 
 /// Format how the branch looks depending on its metadata.
@@ -139,14 +225,21 @@ pub fn format_branch(
     }
 
     if let Some(ranges) = item.matched {
-        branch_name = highlight_matched(branch_name, nomad_style, ranges);
+        branch_name = highlight_matched(nomad_style, item.full_branch.to_string(), ranges);
     }
 
     if let Some(marker) = &item.marker {
         branch_name = format!("{marker} {branch_name}");
     }
     if let Some(number) = number {
-        branch_name = format!("[{number}] {branch_name}");
+        branch_name = format!(
+            "[{}] {branch_name}",
+            nomad_style
+                .tree
+                .label_colors
+                .item_labels
+                .paint(format!("{number}"))
+        );
     }
     if item.is_head {
         branch_name.push_str(&format!(" [{}]", Colour::Red.bold().paint("HEAD")));

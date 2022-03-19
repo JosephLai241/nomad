@@ -46,7 +46,7 @@ pub fn display_branches(
 
     // At first I tried to do something like this to iterate over all branches:
     //
-    //     ```
+    //     ```rust
     //     while let Some(Ok((branch, _branch_type))) = repo.branches(Some(BranchType::Local))?.next() {
     //          // Do stuff to format the branch and shit.
     //     }
@@ -248,7 +248,7 @@ fn display_flat_branch(
 ) {
     let branch_label = match matched {
         Some(matched) => {
-            highlight_matched(branch_name.to_string(), nomad_style, (matched.0, matched.1))
+            highlight_matched(nomad_style, branch_name.to_string(), (matched.0, matched.1))
         }
         None => branch_name.to_string(),
     };
@@ -262,7 +262,14 @@ fn display_flat_branch(
     );
 
     let number_label = match number {
-        Some(number) => format!("[{number}] "),
+        Some(number) => format!(
+            "[{}] ",
+            nomad_style
+                .tree
+                .label_colors
+                .item_labels
+                .paint(format!("{number}"))
+        ),
         None => "".to_string(),
     };
     let marker_label = match marker {

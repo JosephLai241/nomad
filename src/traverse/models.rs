@@ -86,7 +86,7 @@ pub struct TransformedBranch {
 
 /// Contains metadata for each item in the directory.
 ///
-/// This struct is used when the user is in interactive mode.
+/// This struct is used when the user is in Rootless mode.
 #[derive(Debug)]
 pub struct DirItem {
     /// The Git marker associated with this item if there is one.

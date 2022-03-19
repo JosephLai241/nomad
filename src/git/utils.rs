@@ -1,8 +1,10 @@
 //! Contains useful utilities that support Git functionality.
 
-use crate::{errors::NomadError, style::models::NomadStyle, traverse::format::highlight_matched};
+use std::{ffi::OsStr, path::Path};
 
-use ansi_term::Colour;
+use crate::{errors::NomadError, style::models::NomadStyle};
+
+use ansi_term::{Colour, Style};
 use anyhow::{anyhow, Result};
 use git2::{Branch, Commit, ObjectType, Repository};
 
@@ -101,39 +103,83 @@ pub fn paint_git_item(
         .paint(&nomad_style.git.conflicted_marker)
         .to_string();
 
-    let formatted_filename = if let Some(ranges) = matched {
-        highlight_matched(filename.to_string(), nomad_style, ranges)
-    } else {
-        filename.to_string()
+    let style = match marker.to_string() {
+        _ if marker == staged_added => nomad_style.git.staged_added_color,
+        _ if marker == staged_deleted => nomad_style.git.staged_deleted_color.strikethrough(),
+        _ if marker == staged_modified => nomad_style.git.staged_modified_color,
+        _ if marker == staged_renamed => nomad_style.git.staged_renamed_color,
+        _ if marker == conflicted => nomad_style.git.conflicted_color,
+        _ => Style::new(),
     };
 
-    match marker.to_string() {
-        _ if marker == staged_added => nomad_style
-            .git
-            .staged_added_color
-            .paint(format!("{formatted_filename}"))
+    paint_with_highlight(filename, matched, nomad_style, style)
+}
+
+/// Highlight the filename in the Git status color. Also paint the pattern if a
+/// pattern is matched.
+fn paint_with_highlight(
+    filename: &str,
+    matched: Option<(usize, usize)>,
+    nomad_style: &NomadStyle,
+    style: Style,
+) -> String {
+    let painted_file = match matched {
+        Some(ranges) => {
+            if (0..filename.len()).contains(&ranges.0)
+                && (0..filename.len() + 1).contains(&ranges.1)
+            {
+                let mut painted_prefix = filename[..ranges.0]
+                    .chars()
+                    .into_iter()
+                    .map(|character| style.paint(format!("{character}")).to_string())
+                    .collect::<Vec<String>>();
+                let mut painted_matched = filename[ranges.0..ranges.1]
+                    .chars()
+                    .into_iter()
+                    .map(|character| {
+                        nomad_style
+                            .tree
+                            .regex
+                            .match_color
+                            .paint(format!("{character}"))
+                            .to_string()
+                    })
+                    .collect::<Vec<String>>();
+                let mut painted_suffix = filename[ranges.1..]
+                    .chars()
+                    .into_iter()
+                    .map(|character| style.paint(format!("{character}")).to_string())
+                    .collect::<Vec<String>>();
+
+                painted_prefix.append(&mut painted_matched);
+                painted_prefix.append(&mut painted_suffix);
+
+                painted_prefix.join("").to_string()
+            } else {
+                filename
+                    .chars()
+                    .into_iter()
+                    .map(|character| style.paint(format!("{character}")).to_string())
+                    .collect::<Vec<String>>()
+                    .join("")
+                    .to_string()
+            }
+        }
+        None => filename
+            .chars()
+            .into_iter()
+            .map(|character| style.paint(format!("{character}")).to_string())
+            .collect::<Vec<String>>()
+            .join("")
             .to_string(),
-        _ if marker == staged_deleted => nomad_style
-            .git
-            .staged_deleted_color
-            .strikethrough()
-            .paint(format!("{formatted_filename}"))
-            .to_string(),
-        _ if marker == staged_modified => nomad_style
-            .git
-            .staged_modified_color
-            .paint(format!("{formatted_filename}"))
-            .to_string(),
-        _ if marker == staged_renamed => nomad_style
-            .git
-            .staged_renamed_color
-            .paint(format!("{formatted_filename}"))
-            .to_string(),
-        _ if marker == conflicted => nomad_style
-            .git
-            .conflicted_color
-            .paint(format!("{formatted_filename}"))
-            .to_string(),
-        _ => formatted_filename,
-    }
+    };
+
+    let filename = Path::new(&painted_file)
+        .file_name()
+        .unwrap_or(OsStr::new("?"))
+        .to_str()
+        .unwrap_or("?")
+        .to_string();
+
+    filename
 }
