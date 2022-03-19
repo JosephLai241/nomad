@@ -21,7 +21,7 @@ use loc::loc_in_dir;
 use releases::{check_for_update, update_self};
 use switches::{config::run_config, filetype::run_filetypes, git::run_git, release::run_releases};
 use traverse::{modes::NomadMode, utils::build_walker, walk_directory};
-use ui::enter_rootless_mode;
+use ui::{enter_rootless_mode, ExitMode};
 use utils::{
     bat::run_bat,
     export::{export_tree, ExportMode},
@@ -150,10 +150,18 @@ fn main() -> Result<(), NomadError> {
                     // which is why `--no-colors` has to be enabled.
                     args.global.style.no_colors = true;
 
-                    if let Err(error) =
-                        enter_rootless_mode(&mut args.global, &nomad_style, &target_directory)
-                    {
-                        paint_error(error);
+                    match enter_rootless_mode(&mut args.global, &nomad_style, &target_directory) {
+                        Ok(exit_mode) => match exit_mode {
+                            ExitMode::Edit(found_items) => {
+                                if let Err(error) = open_files(found_items) {
+                                    paint_error(error);
+                                }
+                            }
+                            _ => {}
+                        },
+                        Err(error) => {
+                            paint_error(error);
+                        }
                     }
                 }
                 SubCommands::Releases(release_option) => {
