@@ -8,7 +8,6 @@ use crate::{
         branch::display_branches,
         commit::commit_changes,
         diff::{bat_diffs, get_repo_diffs},
-        restore::{restore_files, RestoreMode},
         stage::{stage_files, StageMode},
         status::{display_commits_ahead, display_status_tree},
         utils::{get_repo, get_repo_branch},
@@ -32,13 +31,18 @@ pub fn run_git(
 ) {
     if let Some(repo) = get_repo(&target_directory) {
         match git_command {
-            GitOptions::Add { item_labels } => {
+            GitOptions::Add(add_options) => {
+                let stage_mode = match add_options.all {
+                    true => StageMode::StageAll,
+                    false => StageMode::Stage,
+                };
+
                 if let Err(error) = stage_files(
                     args,
-                    item_labels,
+                    &add_options.item_labels,
                     nomad_style,
                     &repo,
-                    StageMode::Stage,
+                    stage_mode,
                     &target_directory,
                 ) {
                     paint_error(NomadError::GitError {
@@ -139,18 +143,21 @@ pub fn run_git(
                 }),
             },
             GitOptions::Restore(restore_options) => {
-                // TODO: MAKE AN ENUM FOR THE STAGE_FILES() FUNCTION
-                //       TO EITHER ADD OR REMOVE FROM THE INDEX?
-                if let Err(error) = restore_files(
+                let restore_mode = match restore_options.staged {
+                    true => StageMode::RestoreStaged,
+                    false => StageMode::RestoreWorkingDirectory,
+                };
+
+                if let Err(error) = stage_files(
                     args,
                     &restore_options.item_labels,
-                    RestoreMode::Staged,
                     &nomad_style,
                     &repo,
-                    &target_directory,
+                    restore_mode,
+                    target_directory,
                 ) {
                     paint_error(NomadError::GitError {
-                        context: "Unable to restore files".into(),
+                        context: "Unable to restore files!".to_string(),
                         source: error,
                     });
                 }
