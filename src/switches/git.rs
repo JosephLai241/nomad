@@ -8,8 +8,8 @@ use crate::{
         branch::display_branches,
         commit::commit_changes,
         diff::{bat_diffs, get_repo_diffs},
-        stage::{stage_files, StageMode},
         status::{display_commits_ahead, display_status_tree},
+        trees::{modify_trees, TreeMode},
         utils::{get_repo, get_repo_branch},
     },
     style::models::NomadStyle,
@@ -33,11 +33,11 @@ pub fn run_git(
         match git_command {
             GitOptions::Add(add_options) => {
                 let stage_mode = match add_options.all {
-                    true => StageMode::StageAll,
-                    false => StageMode::Stage,
+                    true => TreeMode::StageAll,
+                    false => TreeMode::Stage,
                 };
 
-                if let Err(error) = stage_files(
+                if let Err(error) = modify_trees(
                     args,
                     &add_options.item_labels,
                     nomad_style,
@@ -144,11 +144,11 @@ pub fn run_git(
             },
             GitOptions::Restore(restore_options) => {
                 let restore_mode = match restore_options.staged {
-                    true => StageMode::RestoreStaged,
-                    false => StageMode::RestoreWorkingDirectory,
+                    true => TreeMode::RestoreStaged,
+                    false => TreeMode::RestoreWorkingDirectory,
                 };
 
-                if let Err(error) = stage_files(
+                if let Err(error) = modify_trees(
                     args,
                     &restore_options.item_labels,
                     &nomad_style,
