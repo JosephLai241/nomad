@@ -9,7 +9,7 @@ use super::global::{LabelArgs, MetaArgs, RegexArgs, StyleArgs};
 pub enum GitOptions {
     /// The `git add` command.
     /// This may be used after running nomad in a labeled mode.
-    Add { item_labels: Vec<String> },
+    Add(AddOptions),
     /// The `git blame` command.
     /// This may be used after running nomad in a labeled mode.
     /// You can only call `git blame` on a single file.
@@ -28,6 +28,20 @@ pub enum GitOptions {
     Restore(RestoreOptions),
     /// The `git status` command. Only display changed/unstaged files in the tree.
     Status(StatusOptions),
+}
+
+/// This struct provides options for the `git add` command.
+#[derive(Debug, PartialEq, StructOpt)]
+pub struct AddOptions {
+    #[structopt(help = "The item labels to add")]
+    pub item_labels: Vec<String>,
+
+    #[structopt(
+        short = "A",
+        long,
+        help = "Add changes from all tracked and untracked files"
+    )]
+    pub all: bool,
 }
 
 /// This struct provides options for the `git blame` command.
@@ -87,7 +101,7 @@ pub struct RestoreOptions {
     )]
     pub item_labels: Vec<String>,
 
-    #[structopt(short, long, help = "Restore these items in the index")]
+    #[structopt(short = "S", long, help = "Restore these items in the index")]
     pub staged: bool,
 }
 
