@@ -5,8 +5,8 @@ use crate::{
     errors::NomadError,
     style::models::NomadStyle,
     utils::{
+        cache::{get_json_file, write_to_json},
         meta::get_metadata,
-        temp::{create_temp_dir, get_json_file, write_to_json},
     },
     EXTENSION_ICON_MAP, NAME_ICON_MAP,
 };
@@ -262,8 +262,6 @@ pub fn store_directory_contents(
     labeled_items: HashMap<String, String>,
     numbered_items: HashMap<String, String>,
 ) -> Result<(), NomadError> {
-    create_temp_dir()?;
-
     let mut json = json!({ "labeled": {}, "numbered": {} });
 
     write_map(labeled_items, &mut json, "labeled");

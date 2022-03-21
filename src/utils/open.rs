@@ -1,6 +1,6 @@
 //! Open a file using the client's system's `$EDITOR`.
 
-use super::temp::get_json_file;
+use super::cache::get_json_file;
 use crate::{errors::NomadError, models::Contents};
 
 use anyhow::{anyhow, Result};
