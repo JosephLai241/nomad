@@ -19,14 +19,8 @@ pub fn process_settings(nomad_config: NomadConfig) -> NomadStyle {
     let mut nomad_style = NomadStyle::default();
 
     if let Some(tree_settings) = nomad_config.tree {
-        nomad_style.tree.indent = match tree_settings.indent {
-            Some(indent) => indent,
-            None => 4,
-        };
-        nomad_style.tree.padding = match tree_settings.padding {
-            Some(padding) => padding,
-            None => 1,
-        };
+        nomad_style.tree.indent = tree_settings.indent.unwrap_or(4);
+        nomad_style.tree.padding = tree_settings.padding.unwrap_or(1);
 
         if let Some(label_settings) = tree_settings.labels {
             if let Some(color) = label_settings.item_labels {

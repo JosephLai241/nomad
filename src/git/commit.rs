@@ -26,7 +26,7 @@ pub fn commit_changes(message: &Option<String>, repo: &Repository) -> Result<(),
 
             let previous_head = repo.head()?.peel(ObjectType::Tree)?.id();
 
-            let parent_commit = get_last_commit(&repo)?;
+            let parent_commit = get_last_commit(repo)?;
             let commit_oid = repo
                 .commit(
                     Some("HEAD"),
@@ -38,11 +38,8 @@ pub fn commit_changes(message: &Option<String>, repo: &Repository) -> Result<(),
                 )?
                 .to_string();
 
-            let branch_name = get_repo_branch(&repo).unwrap_or("?".to_string());
-            let branch = Colour::Green
-                .bold()
-                .paint(format!("{branch_name}"))
-                .to_string();
+            let branch_name = get_repo_branch(repo).unwrap_or_else(|| "?".to_string());
+            let branch = Colour::Green.bold().paint(branch_name).to_string();
 
             let sliced_oid = &commit_oid[..7];
 

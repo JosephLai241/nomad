@@ -17,10 +17,7 @@ pub fn paint_error(error: NomadError) {
 
 /// Paint a directory.
 pub fn paint_directory(item: &Path) -> String {
-    Colour::Blue
-        .bold()
-        .paint(format!("{}", get_filename(item)))
-        .to_string()
+    Colour::Blue.bold().paint(get_filename(item)).to_string()
 }
 
 /// Paint a symlinked item.
@@ -30,7 +27,7 @@ pub fn paint_symlink(item: &Path) -> String {
     let points_to = read_link(item).map_or("?".to_string(), |pathbuf_path| {
         pathbuf_path
             .canonicalize()
-            .unwrap_or(PathBuf::from("?"))
+            .unwrap_or_else(|_| PathBuf::from("?"))
             .into_os_string()
             .into_string()
             .map_or("?".to_string(), |path_string| path_string)

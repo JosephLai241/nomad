@@ -15,8 +15,7 @@ fn get_absolute_path(file_name: &str) -> Result<String, NomadError> {
         .join(file_name)
         .into_os_string()
         .into_string()
-        .expect("Could not get the current directory!")
-        .clone())
+        .expect("Could not get the current directory!"))
 }
 
 /// Variants for export modes.
@@ -46,11 +45,11 @@ pub fn export_tree(
         ExportMode::Filetype(filetypes, globs) => {
             let mut filetype_info = "\n\n".to_string();
             if !filetypes.is_empty() {
-                filetype_info.push_str(&format!("Filetypes: {}", filetypes.join(", ").to_string()));
+                filetype_info.push_str(&format!("Filetypes: {}", filetypes.join(", ")));
             }
 
             if !globs.is_empty() {
-                filetype_info.push_str(&format!("\nGlobs: {}", globs.join(", ").to_string()));
+                filetype_info.push_str(&format!("\nGlobs: {}", globs.join(", ")));
             }
 
             filetype_info.push_str("\n\n");

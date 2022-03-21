@@ -32,9 +32,7 @@ pub fn parse_config() -> Result<(NomadConfig, Option<String>), NomadError> {
 
         Ok((
             from_slice(&config_contents)?,
-            config_path
-                .to_str()
-                .map_or(None, |path| Some(path.to_string())),
+            config_path.to_str().map(|path| path.to_string()),
         ))
     } else {
         Err(NomadError::ApplicationError)

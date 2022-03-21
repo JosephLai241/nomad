@@ -17,8 +17,7 @@ pub fn extend_marker_map(
     target_directory: &str,
 ) {
     if let Some(repo) = get_repo(target_directory) {
-        if let Ok(top_level_map) = get_status_markers(&args, &nomad_style, &repo, target_directory)
-        {
+        if let Ok(top_level_map) = get_status_markers(args, nomad_style, &repo, target_directory) {
             git_markers.extend(top_level_map);
         }
     }

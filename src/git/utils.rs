@@ -154,7 +154,7 @@ fn paint_with_highlight(
                 painted_prefix.append(&mut painted_matched);
                 painted_prefix.append(&mut painted_suffix);
 
-                painted_prefix.join("").to_string()
+                painted_prefix.join("")
             } else {
                 filename
                     .chars()
@@ -162,7 +162,6 @@ fn paint_with_highlight(
                     .map(|character| style.paint(format!("{character}")).to_string())
                     .collect::<Vec<String>>()
                     .join("")
-                    .to_string()
             }
         }
         None => filename
@@ -170,13 +169,12 @@ fn paint_with_highlight(
             .into_iter()
             .map(|character| style.paint(format!("{character}")).to_string())
             .collect::<Vec<String>>()
-            .join("")
-            .to_string(),
+            .join(""),
     };
 
     let filename = Path::new(&painted_file)
         .file_name()
-        .unwrap_or(OsStr::new("?"))
+        .unwrap_or_else(|| OsStr::new("?"))
         .to_str()
         .unwrap_or("?")
         .to_string();

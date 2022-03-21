@@ -16,38 +16,35 @@ pub struct TokeiTreeStats {
 }
 
 /// Format the file's complimentary `Report` for normal/tree view.
-pub fn tree_stats_from_report<'a>(report: Option<&'a Report>) -> Option<TokeiTreeStats> {
-    match report {
-        Some(metadata) => Some(TokeiTreeStats {
-            blanks: format!(
-                "{} Blanks   {}",
-                Style::new().bold().paint("|"),
-                Colour::Fixed(030)
-                    .bold()
-                    .paint(format!("{}", metadata.stats.blanks))
-            ),
-            code: format!(
-                "{} Code     {}",
-                Style::new().bold().paint("|"),
-                Colour::Fixed(030)
-                    .bold()
-                    .paint(format!("{}", metadata.stats.code))
-            ),
-            comments: format!(
-                "{} Comments {}",
-                Style::new().bold().paint("|"),
-                Colour::Fixed(030)
-                    .bold()
-                    .paint(format!("{}", metadata.stats.comments))
-            ),
-            lines: format!(
-                "{} Lines    {}",
-                Style::new().bold().paint("|"),
-                Colour::Fixed(030)
-                    .bold()
-                    .paint(format!("{}", metadata.stats.lines()))
-            ),
-        }),
-        None => None,
-    }
+pub fn tree_stats_from_report(report: Option<&'_ Report>) -> Option<TokeiTreeStats> {
+    report.map(|metadata| TokeiTreeStats {
+        blanks: format!(
+            "{} Blanks   {}",
+            Style::new().bold().paint("|"),
+            Colour::Fixed(030)
+                .bold()
+                .paint(format!("{}", metadata.stats.blanks))
+        ),
+        code: format!(
+            "{} Code     {}",
+            Style::new().bold().paint("|"),
+            Colour::Fixed(030)
+                .bold()
+                .paint(format!("{}", metadata.stats.code))
+        ),
+        comments: format!(
+            "{} Comments {}",
+            Style::new().bold().paint("|"),
+            Colour::Fixed(030)
+                .bold()
+                .paint(format!("{}", metadata.stats.comments))
+        ),
+        lines: format!(
+            "{} Lines    {}",
+            Style::new().bold().paint("|"),
+            Colour::Fixed(030)
+                .bold()
+                .paint(format!("{}", metadata.stats.lines()))
+        ),
+    })
 }

@@ -1,7 +1,7 @@
 //! Text constants for TUI help messages.
 
 /// The help text displayed in the help menu after pressing '?'.
-pub const HELP_TEXT: &'static str = r#"
+pub const HELP_TEXT: &str = r#"
  Use the directional or Vim directional keys [j, k] to scroll.
  Press <ESC> to exit this screen.
 

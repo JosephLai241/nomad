@@ -35,13 +35,13 @@ pub fn run_filetypes(
                 TypeOption::Match,
             ) {
                 Ok(types) => {
-                    match build_walker(&match_options.general, &target_directory, Some(types)) {
+                    match build_walker(&match_options.general, target_directory, Some(types)) {
                         Ok(mut walker) => {
                             match walk_directory(
                                 &match_options.general,
                                 NomadMode::Normal,
                                 nomad_style,
-                                &target_directory,
+                                target_directory,
                                 &mut walker,
                             ) {
                                 Ok((tree, config, _)) => {
@@ -52,7 +52,7 @@ pub fn run_filetypes(
                                                 &match_options.filetypes,
                                                 &match_options.globs,
                                             ),
-                                            &export,
+                                            export,
                                             tree,
                                         ) {
                                             paint_error(error);
@@ -76,13 +76,13 @@ pub fn run_filetypes(
                 TypeOption::Negate,
             ) {
                 Ok(types) => {
-                    match build_walker(&negate_options.general, &target_directory, Some(types)) {
+                    match build_walker(&negate_options.general, target_directory, Some(types)) {
                         Ok(mut walker) => {
                             match walk_directory(
                                 &negate_options.general,
                                 NomadMode::Normal,
                                 nomad_style,
-                                &target_directory,
+                                target_directory,
                                 &mut walker,
                             ) {
                                 Ok((tree, config, _)) => {
@@ -93,7 +93,7 @@ pub fn run_filetypes(
                                                 &negate_options.filetypes,
                                                 &negate_options.globs,
                                             ),
-                                            &export,
+                                            export,
                                             tree,
                                         ) {
                                             paint_error(error);

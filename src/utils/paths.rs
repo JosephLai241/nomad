@@ -16,8 +16,7 @@ pub fn get_current_directory() -> Result<String, NomadError> {
         .with_context(|| "Could not get the current directory!")?
         .into_os_string()
         .into_string()
-        .expect("Could not get the current directory!")
-        .clone())
+        .expect("Could not get the current directory!"))
 }
 
 /// Get the absolute file path based for the target_string.
@@ -31,14 +30,14 @@ pub fn canonicalize_path(target: &str) -> Result<String, NomadError> {
             Err(NomadError::PathError(format!(
                 "Could not canonicalize path to {target}"
             ))),
-            |path| Ok(path),
+            Ok,
         )
 }
 
 /// Get the filename for a `Path`.
 pub fn get_filename(item: &Path) -> String {
     item.file_name()
-        .unwrap_or(OsStr::new("?"))
+        .unwrap_or_else(|| OsStr::new("?"))
         .to_str()
         .unwrap_or("?")
         .to_string()

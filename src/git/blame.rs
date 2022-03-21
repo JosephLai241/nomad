@@ -118,7 +118,7 @@ fn get_blame(
 
     let relative_path = Path::new(&filename)
         .strip_prefix(target_directory)
-        .unwrap_or(Path::new("?"));
+        .unwrap_or_else(|_| Path::new("?"));
 
     let blame = repo.blame_file(relative_path, Some(&mut blame_options))?;
     let you = repo.signature()?.name().unwrap_or("?").to_string();
@@ -183,16 +183,11 @@ fn get_blame(
             formatted_blame.push(format!(
                 "{} {} {} | {}",
                 Colour::Fixed(028).paint(&commit_id[..7]),
-                Colour::Fixed(193).paint(&formatted_author).to_string(),
-                Colour::Fixed(194).paint(&formatted_meta).to_string(),
+                Colour::Fixed(193).paint(&formatted_author),
+                Colour::Fixed(194).paint(&formatted_meta),
                 match found_authors.get(&author) {
-                    Some(assigned_color) => {
-                        match assigned_color {
-                            Some(color) => Colour::Fixed(*color).paint(line).to_string(),
-                            None => line,
-                        }
-                    }
-                    None => line,
+                    Some(Some(color)) => Colour::Fixed(*color).paint(line).to_string(),
+                    _ => line,
                 }
             ));
 
@@ -230,10 +225,11 @@ fn get_random_color(
     if author == you {
         None
     } else {
-        let taken_colors = Vec::from_iter(found_authors.values().filter_map(|color| match color {
-            Some(color) => Some(color.to_owned()),
-            None => None,
-        }));
+        let taken_colors = Vec::from_iter(
+            found_authors
+                .values()
+                .filter_map(|color| color.as_ref().map(|color| color.to_owned())),
+        );
         let mut color = XTERM_COLORS.choose(&mut thread_rng()).unwrap_or(&007);
 
         let mut new_color = false;

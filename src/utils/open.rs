@@ -51,20 +51,15 @@ pub fn open_files(found_items: Vec<String>) -> Result<(), NomadError> {
     let editors = get_text_editors();
 
     if editors.len() == 1 {
-        spawn_editor(editors[0].to_string(), found_items).map_or_else(
-            |error| Err(error),
-            |status_code| {
-                println!("{status_code}");
-                Ok(())
-            },
-        )
+        spawn_editor(editors[0].to_string(), found_items).map_or_else(Err, |status_code| {
+            println!("{status_code}");
+
+            Ok(())
+        })
     } else {
         for editor in editors {
-            match spawn_editor(editor, found_items.clone()) {
-                Ok(_) => {
-                    return Ok(());
-                }
-                Err(_) => {}
+            if spawn_editor(editor, found_items.clone()).is_ok() {
+                return Ok(());
             };
         }
 

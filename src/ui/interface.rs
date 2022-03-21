@@ -36,7 +36,7 @@ where
                 .constraints([Constraint::Percentage(93), Constraint::Percentage(7)])
                 .split(chunks[0]);
 
-            frame.render_widget(get_breadcrumbs(&app), nav_chunks[0]);
+            frame.render_widget(get_breadcrumbs(app), nav_chunks[0]);
             frame.render_widget(
                 Paragraph::new("help:❓")
                     .alignment(Alignment::Center)
@@ -72,7 +72,7 @@ where
                 ])
                 .split(normal_chunks[1])[2];
 
-            match cat_view(&app) {
+            match cat_view(app) {
                 Some(paragraph) => match paragraph {
                     Some(cat_view) => {
                         frame.render_widget(cat_view, normal_chunks[1]);
@@ -108,7 +108,7 @@ where
                     let error_area = get_error_popup_area(chunks[1]);
 
                     frame.render_widget(Clear, error_area);
-                    frame.render_widget(error_view(&error), error_area);
+                    frame.render_widget(error_view(error), error_area);
                 }
                 PopupMode::PatternInput => {
                     let popup_area = get_single_line_popup_area(chunks[1]);
@@ -234,15 +234,13 @@ where
                                             .fg(Color::White),
                                     ),
                                     Span::styled(
-                                        format!(
-                                            "{}",
-                                            match app.ui_mode {
-                                                UIMode::Breadcrumbs => "BREADCRUMBS",
-                                                UIMode::Inspect => "INSPECT",
-                                                UIMode::Normal => "NORMAL",
-                                                _ => "NONE",
-                                            }
-                                        ),
+                                        (match app.ui_mode {
+                                            UIMode::Breadcrumbs => "BREADCRUMBS",
+                                            UIMode::Inspect => "INSPECT",
+                                            UIMode::Normal => "NORMAL",
+                                            _ => "NONE",
+                                        })
+                                        .to_string(),
                                         Style::default()
                                             .add_modifier(Modifier::BOLD)
                                             .fg(Color::Indexed(172)),
@@ -297,7 +295,7 @@ where
                 ])
                 .split(help_chunks[1]);
 
-            frame.render_widget(help_view(&app), center_chunks[1]);
+            frame.render_widget(help_view(app), center_chunks[1]);
         }
     }
 }

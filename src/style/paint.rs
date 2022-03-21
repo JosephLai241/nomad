@@ -153,7 +153,7 @@ pub fn convert_to_tui_color(color: &str) -> Color {
 
 /// Convert a hex code into a `u8`.
 fn convert_hex_code(hex_code: &str) -> u8 {
-    let eight_bit = match hex_code {
+    match hex_code {
         "000000" => 000,
         "800000" => 001,
         "008000" => 002,
@@ -410,7 +410,5 @@ fn convert_hex_code(hex_code: &str) -> u8 {
         "dadada" => 253,
         "e4e4e4" => 254,
         "eeeeee" | _ => 255,
-    };
-
-    eight_bit
+    }
 }

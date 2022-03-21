@@ -219,7 +219,7 @@ pub fn help_view<'a>(app: &App) -> Paragraph<'a> {
 }
 
 /// Display a message containing the error that was raised.
-pub fn error_view<'a>(error_message: &'a str) -> Paragraph<'a> {
+pub fn error_view(error_message: &str) -> Paragraph<'_> {
     Paragraph::new(format!("\n{error_message}"))
         .alignment(Alignment::Center)
         .block(

@@ -91,7 +91,7 @@ impl<'a> App<'a> {
         nomad_style: &'a NomadStyle,
         target_directory: &str,
     ) -> Result<App<'a>, NomadError> {
-        let (tree, items) = get_tree(&args, nomad_style, target_directory)?;
+        let (tree, items) = get_tree(args, nomad_style, target_directory)?;
         let mut directory_tree = StatefulWidget::new(tree, ListState::default(), WidgetMode::Files);
         let mut directory_items = if args.modifiers.dirs {
             None
@@ -201,7 +201,7 @@ impl<'a> App<'a> {
                                 } else {
                                     Some(Some(
                                         String::from_utf8_lossy(&buffer)
-                                            .split("\n")
+                                            .split('\n')
                                             .map(|line| Spans::from(Span::from(line.to_string())))
                                             .collect::<Vec<Spans>>(),
                                     ))
@@ -225,71 +225,69 @@ impl<'a> App<'a> {
     /// Dim lines do not contain any matches whereas bright lines contain a match
     /// somewhere. This was implemented to make it easier to tell where the matches are.
     pub fn search_in_file(&mut self) -> Result<(), NomadError> {
-        if let Some(content_option) = &self.file_contents {
-            if let Some(file_spans) = content_option {
-                if let Some(input) = self.collected_input.pop() {
-                    match Regex::new(&input) {
-                        Ok(regex) => {
-                            let mut collected_spans: Vec<Spans> = Vec::new();
-                            let mut matched_lines: Vec<u16> = Vec::new();
+        if let Some(Some(file_spans)) = &self.file_contents {
+            if let Some(input) = self.collected_input.pop() {
+                match Regex::new(&input) {
+                    Ok(regex) => {
+                        let mut collected_spans: Vec<Spans> = Vec::new();
+                        let mut matched_lines: Vec<u16> = Vec::new();
 
-                            for (index, spans) in file_spans.iter().enumerate() {
-                                for span in spans.0.iter() {
-                                    let spanned_line = &mut span
-                                        .content
-                                        .to_string()
-                                        .chars()
-                                        .map(|character| Span::from(character.to_string()))
-                                        .collect::<Vec<Span>>();
-                                    let matches =
-                                        regex.find_iter(&span.content).collect::<Vec<Match>>();
+                        for (index, spans) in file_spans.iter().enumerate() {
+                            for span in spans.0.iter() {
+                                let spanned_line = &mut span
+                                    .content
+                                    .to_string()
+                                    .chars()
+                                    .map(|character| Span::from(character.to_string()))
+                                    .collect::<Vec<Span>>();
+                                let matches =
+                                    regex.find_iter(&span.content).collect::<Vec<Match>>();
 
-                                    if !matches.is_empty() {
-                                        for matched in matches {
-                                            for i in matched.start()..matched.end() {
-                                                spanned_line[i] = Span::styled(
-                                                    spanned_line[i].content.to_string(),
-                                                    Style::default()
-                                                        .add_modifier(Modifier::BOLD)
-                                                        .fg(self.nomad_style.tui.regex.match_color),
-                                                );
-                                            }
-                                            matched_lines.push(index as u16);
+                                if !matches.is_empty() {
+                                    for matched in matches {
+                                        for i in matched.start()..matched.end() {
+                                            spanned_line[i] = Span::styled(
+                                                spanned_line[i].content.to_string(),
+                                                Style::default()
+                                                    .add_modifier(Modifier::BOLD)
+                                                    .fg(self.nomad_style.tui.regex.match_color),
+                                            );
                                         }
-
-                                        collected_spans.push(Spans::from(spanned_line.clone()));
-                                    } else {
-                                        let dimmed_line = spanned_line
-                                            .iter()
-                                            .map(|span| {
-                                                Span::styled(
-                                                    span.content.to_string(),
-                                                    Style::default().add_modifier(Modifier::DIM),
-                                                )
-                                            })
-                                            .collect::<Vec<Span>>();
-
-                                        collected_spans.push(Spans::from(dimmed_line.clone()));
+                                        matched_lines.push(index as u16);
                                     }
+
+                                    collected_spans.push(Spans::from(spanned_line.clone()));
+                                } else {
+                                    let dimmed_line = spanned_line
+                                        .iter()
+                                        .map(|span| {
+                                            Span::styled(
+                                                span.content.to_string(),
+                                                Style::default().add_modifier(Modifier::DIM),
+                                            )
+                                        })
+                                        .collect::<Vec<Span>>();
+
+                                    collected_spans.push(Spans::from(dimmed_line.clone()));
                                 }
                             }
-
-                            if !matched_lines.is_empty() {
-                                self.file_contents = Some(Some(collected_spans));
-                                self.match_lines = StatefulWidget::new(
-                                    matched_lines,
-                                    ListState::default(),
-                                    WidgetMode::Standard,
-                                );
-                                self.match_lines.state.select(Some(0));
-
-                                self.popup_mode = PopupMode::Disabled;
-                            } else {
-                                self.popup_mode = PopupMode::NothingFound;
-                            }
                         }
-                        Err(error) => self.popup_mode = PopupMode::Error(error.to_string()),
+
+                        if !matched_lines.is_empty() {
+                            self.file_contents = Some(Some(collected_spans));
+                            self.match_lines = StatefulWidget::new(
+                                matched_lines,
+                                ListState::default(),
+                                WidgetMode::Standard,
+                            );
+                            self.match_lines.state.select(Some(0));
+
+                            self.popup_mode = PopupMode::Disabled;
+                        } else {
+                            self.popup_mode = PopupMode::NothingFound;
+                        }
                     }
+                    Err(error) => self.popup_mode = PopupMode::Error(error.to_string()),
                 }
             }
         }
@@ -374,12 +372,12 @@ impl<'a> App<'a> {
         self.current_directory = Path::new(new_directory).to_str().unwrap_or("?").to_string();
 
         self.breadcrumbs = StatefulWidget::new(
-            get_breadcrumbs(&new_directory)?,
+            get_breadcrumbs(new_directory)?,
             ListState::default(),
             WidgetMode::Standard,
         );
 
-        let (tree, items) = get_tree(&args, nomad_style, &new_directory)?;
+        let (tree, items) = get_tree(args, nomad_style, new_directory)?;
 
         self.directory_tree = StatefulWidget::new(tree, ListState::default(), WidgetMode::Files);
         self.directory_items = if args.modifiers.dirs {
@@ -416,9 +414,8 @@ impl<'a> App<'a> {
         args.regex.pattern = self.collected_input.pop();
 
         if let Err(error) = self.refresh(args, nomad_style, target_directory) {
-            match error {
-                NomadError::NothingFound => self.popup_mode = PopupMode::NothingFound,
-                _ => {}
+            if let NomadError::NothingFound = error {
+                self.popup_mode = PopupMode::NothingFound;
             }
         } else {
             self.popup_mode = PopupMode::Disabled;

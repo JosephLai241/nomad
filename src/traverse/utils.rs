@@ -38,18 +38,18 @@ pub enum TypeOption {
 
 /// Build an `ignore` `Types` depending on the
 pub fn build_types(
-    filetypes: &Vec<String>,
-    globs: &Vec<String>,
+    filetypes: &[String],
+    globs: &[String],
     mut type_matcher: TypesBuilder,
     type_option: TypeOption,
 ) -> Result<Types, NomadError> {
     for filetype in filetypes {
         match type_option {
             TypeOption::Match => {
-                type_matcher.select(&filetype);
+                type_matcher.select(filetype);
             }
             TypeOption::Negate => {
-                type_matcher.negate(&filetype);
+                type_matcher.negate(filetype);
             }
         };
     }
@@ -69,10 +69,9 @@ pub fn build_types(
         }
     }
 
-    type_matcher.build().map_or_else(
-        |error| Err(NomadError::IgnoreError(error)),
-        |types| Ok(types),
-    )
+    type_matcher
+        .build()
+        .map_or_else(|error| Err(NomadError::IgnoreError(error)), Ok)
 }
 
 /// Build a `Walk` object based on the client's CLI parameters.
@@ -110,23 +109,21 @@ pub fn get_file_icon(item_path: &Path) -> String {
     if let Some(icon) = EXTENSION_ICON_MAP.get(
         item_path
             .extension()
-            .unwrap_or(OsStr::new("none"))
+            .unwrap_or_else(|| OsStr::new("none"))
             .to_str()
             .unwrap(),
     ) {
         icon.to_string()
+    } else if let Some(icon) = NAME_ICON_MAP.get(
+        &item_path
+            .file_name()
+            .unwrap_or_else(|| OsStr::new("?"))
+            .to_str()
+            .unwrap_or("?"),
+    ) {
+        icon.to_string()
     } else {
-        if let Some(icon) = NAME_ICON_MAP.get(
-            &item_path
-                .file_name()
-                .unwrap_or(OsStr::new("?"))
-                .to_str()
-                .unwrap_or("?"),
-        ) {
-            icon.to_string()
-        } else {
-            "\u{f016}".to_string() // 
-        }
+        "\u{f016}".to_string() // 
     }
 }
 
@@ -141,7 +138,7 @@ pub fn build_tree(
 
     let plain_name = target_directory
         .file_name()
-        .unwrap_or(OsStr::new("?"))
+        .unwrap_or_else(|| OsStr::new("?"))
         .to_str()
         .unwrap_or("?")
         .to_string();
@@ -158,15 +155,10 @@ pub fn build_tree(
         _ => {
             if args.style.plain {
                 plain_name
+            } else if args.style.no_colors {
+                format!("{directory_icon} {plain_name}")
             } else {
-                if args.style.no_colors {
-                    format!("{directory_icon} {plain_name}")
-                } else {
-                    format!(
-                        "{directory_icon} {}",
-                        Colour::Blue.bold().paint(plain_name).to_string()
-                    )
-                }
+                format!("{directory_icon} {}", Colour::Blue.bold().paint(plain_name))
             }
         }
     };
@@ -176,7 +168,7 @@ pub fn build_tree(
         NomadMode::GitBranch => {}
         _ => {
             if args.meta.metadata {
-                let metadata = get_metadata(&args, target_directory);
+                let metadata = get_metadata(args, target_directory);
                 tree_label = format!("{metadata} {tree_label}");
             }
         }
@@ -224,14 +216,13 @@ pub fn check_nesting(
         NomadMode::GitBranch => item.components(),
         _ => item
             .strip_prefix(target_directory)
-            .unwrap_or(Path::new("?"))
+            .unwrap_or_else(|_| Path::new("?"))
             .components(),
     };
 
     for component in item_components {
-        match component {
-            Component::Normal(_) => item_depth += 1,
-            _ => {}
+        if let Component::Normal(_) = component {
+            item_depth += 1;
         }
     }
 

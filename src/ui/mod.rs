@@ -107,41 +107,37 @@ where
                             _ => {}
                         },
                         // In Normal mode, toggle only showing directories.
-                        KeyCode::Char('d') => match app.ui_mode {
-                            UIMode::Normal => {
+                        KeyCode::Char('d') => {
+                            if let UIMode::Normal = app.ui_mode {
                                 args.modifiers.dirs = !args.modifiers.dirs;
                                 if let Err(error) = app.refresh(args, nomad_style, target_directory)
                                 {
                                     app.popup_mode = PopupMode::Error(error.to_string());
                                 }
                             }
-                            _ => {}
-                        },
-                        KeyCode::Char('e') => match app.ui_mode {
-                            UIMode::Normal => match app.get_current_file() {
-                                Ok(file_path) => {
-                                    let mut found_items = Vec::new();
-                                    found_items.push(file_path);
-
-                                    exit_mode = ExitMode::Edit(found_items);
-
-                                    break;
+                        }
+                        KeyCode::Char('e') => {
+                            if let UIMode::Normal = app.ui_mode {
+                                match app.get_current_file() {
+                                    Ok(file_path) => {
+                                        exit_mode = ExitMode::Edit(vec![file_path]);
+                                    }
+                                    Err(error) => {
+                                        app.popup_mode = PopupMode::Error(error.to_string())
+                                    }
                                 }
-                                Err(error) => app.popup_mode = PopupMode::Error(error.to_string()),
-                            },
-                            _ => {}
-                        },
+                            }
+                        }
                         // In Normal mode, toggle Git markers.
-                        KeyCode::Char('g') => match app.ui_mode {
-                            UIMode::Normal => {
+                        KeyCode::Char('g') => {
+                            if let UIMode::Normal = app.ui_mode {
                                 args.style.no_git = !args.style.no_git;
                                 if let Err(error) = app.refresh(args, nomad_style, target_directory)
                                 {
                                     app.popup_mode = PopupMode::Error(error.to_string());
                                 }
                             }
-                            _ => {}
-                        },
+                        }
                         // In Normal mode, toggle showing hidden directories.
                         KeyCode::Char('h') => match app.ui_mode {
                             UIMode::Breadcrumbs => {
@@ -162,16 +158,15 @@ where
                             _ => {}
                         },
                         // In Normal mode, toggle icons.
-                        KeyCode::Char('i') => match app.ui_mode {
-                            UIMode::Normal => {
+                        KeyCode::Char('i') => {
+                            if let UIMode::Normal = app.ui_mode {
                                 args.style.no_icons = !args.style.no_icons;
                                 if let Err(error) = app.refresh(args, nomad_style, target_directory)
                                 {
                                     app.popup_mode = PopupMode::Error(error.to_string());
                                 }
                             }
-                            _ => {}
-                        },
+                        }
                         // In Normal mode, toggle directory labels.
                         KeyCode::Char('l') => match app.ui_mode {
                             UIMode::Breadcrumbs => {
@@ -192,16 +187,15 @@ where
                             _ => {}
                         },
                         // In Normal mode, toggle showing metadata for all items.
-                        KeyCode::Char('m') => match app.ui_mode {
-                            UIMode::Normal => {
+                        KeyCode::Char('m') => {
+                            if let UIMode::Normal = app.ui_mode {
                                 args.meta.metadata = !args.meta.metadata;
                                 if let Err(error) = app.refresh(args, nomad_style, target_directory)
                                 {
                                     app.popup_mode = PopupMode::Error(error.to_string());
                                 }
                             }
-                            _ => {}
-                        },
+                        }
                         // In Normal mode, toggle numbered items.
                         KeyCode::Char('n') => match app.ui_mode {
                             UIMode::Inspect => {
@@ -221,46 +215,44 @@ where
                             _ => {}
                         },
                         // In Normal mode, toggle plain mode.
-                        KeyCode::Char('p') => match app.ui_mode {
-                            UIMode::Normal => {
+                        KeyCode::Char('p') => {
+                            if let UIMode::Normal = app.ui_mode {
                                 args.style.plain = !args.style.plain;
                                 if let Err(error) = app.refresh(args, nomad_style, target_directory)
                                 {
                                     app.popup_mode = PopupMode::Error(error.to_string());
                                 }
                             }
-                            _ => {}
-                        },
+                        }
                         // Quit Rootless mode.
                         KeyCode::Char('q') => {
                             break;
                         }
                         // Reload the tree.
-                        KeyCode::Char('r') => match app.ui_mode {
-                            UIMode::Normal => {
+                        KeyCode::Char('r') => {
+                            if let UIMode::Normal = app.ui_mode {
                                 if let Err(error) = app.refresh(args, nomad_style, target_directory)
                                 {
                                     app.popup_mode = PopupMode::Error(error.to_string());
                                 }
                             }
-                            _ => {}
-                        },
+                        }
                         // In Normal mode, display all settings.
-                        KeyCode::Char('s') => match app.ui_mode {
-                            UIMode::Normal => app.popup_mode = PopupMode::Settings,
-                            _ => {}
-                        },
+                        KeyCode::Char('s') => {
+                            if let UIMode::Normal = app.ui_mode {
+                                app.popup_mode = PopupMode::Settings
+                            }
+                        }
                         // In Normal mode, disrespect all `.ignore` rules.
-                        KeyCode::Char('D') => match app.ui_mode {
-                            UIMode::Normal => {
+                        KeyCode::Char('D') => {
+                            if let UIMode::Normal = app.ui_mode {
                                 args.modifiers.disrespect = !args.modifiers.disrespect;
                                 if let Err(error) = app.refresh(args, nomad_style, target_directory)
                                 {
                                     app.popup_mode = PopupMode::Error(error.to_string());
                                 }
                             }
-                            _ => {}
-                        },
+                        }
                         // Show keybindings for a mode.
                         KeyCode::Char('K') => match app.ui_mode {
                             UIMode::Help => {}
@@ -270,26 +262,24 @@ where
                             }
                         },
                         // In Normal mode, toggle applying all labels.
-                        KeyCode::Char('L') => match app.ui_mode {
-                            UIMode::Normal => {
+                        KeyCode::Char('L') => {
+                            if let UIMode::Normal = app.ui_mode {
                                 args.labels.all_labels = !args.labels.all_labels;
                                 if let Err(error) = app.refresh(args, nomad_style, target_directory)
                                 {
                                     app.popup_mode = PopupMode::Error(error.to_string());
                                 }
                             }
-                            _ => {}
-                        },
-                        KeyCode::Char('N') => match app.ui_mode {
-                            UIMode::Inspect => {
+                        }
+                        KeyCode::Char('N') => {
+                            if let UIMode::Inspect = app.ui_mode {
                                 app.match_lines.previous();
 
                                 if let Some(index) = app.match_lines.state.selected() {
                                     app.scroll = app.match_lines.items[index] as u16;
                                 }
                             }
-                            _ => {}
-                        },
+                        }
                         // Reset all arguments.
                         KeyCode::Char('R') => match app.ui_mode {
                             UIMode::Inspect => {
@@ -353,7 +343,6 @@ where
                                                 |index| index + 1
                                             )]
                                             .join("/")
-                                            .to_string()
                                     ),
                                 ) {
                                     Ok(_) => app.ui_mode = UIMode::Normal,
@@ -363,8 +352,8 @@ where
                                 }
                             }
                             UIMode::Normal => match app.selected_is_dir() {
-                                Ok(optional_bool) => match optional_bool {
-                                    Some(is_dir) => {
+                                Ok(optional_bool) => {
+                                    if let Some(is_dir) = optional_bool {
                                         if is_dir {
                                             if let Err(error) =
                                                 app.refresh(args, nomad_style, target_directory)
@@ -376,8 +365,7 @@ where
                                             app.ui_mode = UIMode::Inspect;
                                         }
                                     }
-                                    None => {}
-                                },
+                                }
                                 Err(error) => app.popup_mode = PopupMode::Error(error.to_string()),
                             },
                             _ => {}
@@ -389,30 +377,26 @@ where
 
                         // Cycle through the breadcrumbs or lateral scrolling when
                         // inspecting a file.
-                        KeyCode::Left => match app.ui_mode {
-                            UIMode::Breadcrumbs => {
+                        KeyCode::Left => {
+                            if let UIMode::Breadcrumbs = app.ui_mode {
                                 if app.breadcrumbs.state.selected().is_none() {
                                     app.breadcrumbs
                                         .state
                                         .select(Some(app.breadcrumbs.items.len() - 1));
                                 }
-                                app.breadcrumbs.previous();
                             }
-                            _ => {}
-                        },
+                        }
                         // Cycle through the breadcrumbs or lateral scrolling when
                         // inspecting a file.
-                        KeyCode::Right => match app.ui_mode {
-                            UIMode::Breadcrumbs => {
+                        KeyCode::Right => {
+                            if let UIMode::Breadcrumbs = app.ui_mode {
                                 if app.breadcrumbs.state.selected().is_none() {
                                     app.breadcrumbs
                                         .state
                                         .select(Some(app.breadcrumbs.items.len() - 1));
                                 }
-                                app.breadcrumbs.next();
                             }
-                            _ => {}
-                        },
+                        }
                         // Scroll up the directory tree, file, settings, or help menu.
                         KeyCode::Up | KeyCode::Char('k') => match app.ui_mode {
                             UIMode::Help | UIMode::Inspect => {
@@ -595,15 +579,13 @@ where
                 // ===========
                 // Error mode.
                 // ===========
-                PopupMode::Error(_) => match key.code {
-                    _ => {
-                        reset_args(args);
+                PopupMode::Error(_) => {
+                    reset_args(args);
 
-                        if let Err(error) = app.refresh(args, nomad_style, target_directory) {
-                            app.popup_mode = PopupMode::Error(error.to_string());
-                        }
+                    if let Err(error) = app.refresh(args, nomad_style, target_directory) {
+                        app.popup_mode = PopupMode::Error(error.to_string());
                     }
-                },
+                }
 
                 // ===========
                 // Input mode.

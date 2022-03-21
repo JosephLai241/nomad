@@ -14,10 +14,10 @@ use tokei::{Config, Language, LanguageType, Report};
 ///     pub name: PathBuf,
 /// }
 /// ```
-pub fn get_file_report<'a>(
-    language_children: &'a BTreeMap<LanguageType, Vec<Report>>,
+pub fn get_file_report(
+    language_children: &BTreeMap<LanguageType, Vec<Report>>,
     path: PathBuf,
-) -> Option<&'a Report> {
+) -> Option<&'_ Report> {
     match LanguageType::from_path(&path, &Config::default()) {
         Some(language_type) => match language_children.get(&language_type) {
             Some(reports) => reports.iter().find(|report| report.name == path),

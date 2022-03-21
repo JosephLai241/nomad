@@ -138,7 +138,7 @@ pub fn run_config(
 
             TabledItems::new(
                 vec![highlight_matched(
-                    &nomad_style,
+                    nomad_style,
                     "nomad.rs".to_string(),
                     (2, 5),
                 )],

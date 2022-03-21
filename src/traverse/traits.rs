@@ -46,53 +46,49 @@ impl TransformFound<TransformedItem> for Vec<FoundItem> {
         for found_item in self.iter() {
             let item = Path::new(&found_item.path)
                 .strip_prefix(target_directory)
-                .unwrap_or(Path::new("?"));
+                .unwrap_or_else(|_| Path::new("?"));
 
             let mut components = Vec::new();
             let mut depth = 0;
             for (index, component) in item.components().enumerate() {
-                match component {
-                    Component::Normal(section) => {
-                        components.push(section.to_str().unwrap_or("?").to_string());
-                        depth += 1;
+                if let Component::Normal(section) = component {
+                    components.push(section.to_str().unwrap_or("?").to_string());
+                    depth += 1;
 
-                        let joined_path = components.join("/").to_string();
+                    let joined_path = components.join("/").to_string();
 
-                        if index < item.components().count() - 1
-                            && !directories.contains(&joined_path)
-                        {
-                            transformed.push(TransformedItem {
-                                components: components.clone(),
-                                depth,
-                                is_dir: true,
-                                is_file: false,
-                                marker: None,
-                                matched: found_item.matched,
-                                path: Path::new(target_directory)
-                                    .join(joined_path)
-                                    .to_str()
-                                    .unwrap_or("?")
-                                    .to_string(),
-                            });
+                    if index < item.components().count() - 1 && !directories.contains(&joined_path)
+                    {
+                        transformed.push(TransformedItem {
+                            components: components.clone(),
+                            depth,
+                            is_dir: true,
+                            is_file: false,
+                            marker: None,
+                            matched: found_item.matched,
+                            path: Path::new(target_directory)
+                                .join(joined_path)
+                                .to_str()
+                                .unwrap_or("?")
+                                .to_string(),
+                        });
 
-                            directories.insert(components.join("/").to_string());
-                        } else if index == item.components().count() - 1 {
-                            transformed.push(TransformedItem {
-                                components: components.clone(),
-                                depth,
-                                is_dir: false,
-                                is_file: true,
-                                marker: found_item.marker.clone(),
-                                matched: found_item.matched,
-                                path: Path::new(target_directory)
-                                    .join(joined_path)
-                                    .to_str()
-                                    .unwrap_or("?")
-                                    .to_string(),
-                            });
-                        }
+                        directories.insert(components.join("/").to_string());
+                    } else if index == item.components().count() - 1 {
+                        transformed.push(TransformedItem {
+                            components: components.clone(),
+                            depth,
+                            is_dir: false,
+                            is_file: true,
+                            marker: found_item.marker.clone(),
+                            matched: found_item.matched,
+                            path: Path::new(target_directory)
+                                .join(joined_path)
+                                .to_str()
+                                .unwrap_or("?")
+                                .to_string(),
+                        });
                     }
-                    _ => {}
                 }
             }
         }
@@ -117,52 +113,49 @@ impl TransformFound<TransformedBranch> for Vec<FoundBranch> {
             let mut components = Vec::new();
             let mut depth = 0;
             for (index, component) in item.components().enumerate() {
-                match component {
-                    Component::Normal(section) => {
-                        components.push(section.to_str().unwrap_or("?").to_string());
-                        depth += 1;
+                if let Component::Normal(section) = component {
+                    components.push(section.to_str().unwrap_or("?").to_string());
+                    depth += 1;
 
-                        let joined_branch_name = components.join("/").to_string();
+                    let joined_branch_name = components.join("/").to_string();
 
-                        if index < item.components().count() - 1
-                            && !branch_parents.contains(&joined_branch_name)
-                        {
-                            transformed.push(TransformedBranch {
-                                components: components.clone(),
-                                depth,
-                                full_branch: Path::new(&joined_branch_name)
-                                    .to_str()
-                                    .unwrap_or("?")
-                                    .to_string(),
-                                is_current_branch: found_branch.is_current_branch,
-                                is_end: false,
-                                is_head: found_branch.is_head,
-                                is_parent: true,
-                                marker: None,
-                                matched: None,
-                                upstream: found_branch.upstream.clone(),
-                            });
+                    if index < item.components().count() - 1
+                        && !branch_parents.contains(&joined_branch_name)
+                    {
+                        transformed.push(TransformedBranch {
+                            components: components.clone(),
+                            depth,
+                            full_branch: Path::new(&joined_branch_name)
+                                .to_str()
+                                .unwrap_or("?")
+                                .to_string(),
+                            is_current_branch: found_branch.is_current_branch,
+                            is_end: false,
+                            is_head: found_branch.is_head,
+                            is_parent: true,
+                            marker: None,
+                            matched: None,
+                            upstream: found_branch.upstream.clone(),
+                        });
 
-                            branch_parents.insert(components.join("/").to_string());
-                        } else if index == item.components().count() - 1 {
-                            transformed.push(TransformedBranch {
-                                components: components.clone(),
-                                depth,
-                                full_branch: Path::new(&joined_branch_name)
-                                    .to_str()
-                                    .unwrap_or("?")
-                                    .to_string(),
-                                is_current_branch: found_branch.is_current_branch,
-                                is_end: true,
-                                is_head: found_branch.is_head,
-                                is_parent: false,
-                                marker: found_branch.marker.clone(),
-                                matched: found_branch.matched,
-                                upstream: found_branch.upstream.clone(),
-                            });
-                        }
+                        branch_parents.insert(components.join("/").to_string());
+                    } else if index == item.components().count() - 1 {
+                        transformed.push(TransformedBranch {
+                            components: components.clone(),
+                            depth,
+                            full_branch: Path::new(&joined_branch_name)
+                                .to_str()
+                                .unwrap_or("?")
+                                .to_string(),
+                            is_current_branch: found_branch.is_current_branch,
+                            is_end: true,
+                            is_head: found_branch.is_head,
+                            is_parent: false,
+                            marker: found_branch.marker.clone(),
+                            matched: found_branch.matched,
+                            upstream: found_branch.upstream.clone(),
+                        });
                     }
-                    _ => {}
                 }
             }
         }
@@ -215,12 +208,12 @@ impl ToTree for Vec<TransformedItem> {
         // This holds every single item in the directory and is only returned in
         // NomadMode::Rootless.
         let mut directory_items: Vec<DirItem> = Vec::new();
-        match nomad_mode {
-            NomadMode::Rootless => directory_items.push(DirItem {
+
+        if let NomadMode::Rootless = nomad_mode {
+            directory_items.push(DirItem {
                 marker: None,
                 path: target_directory.to_string(),
-            }),
-            _ => {}
+            })
         }
 
         let tokei = if args.meta.loc {
@@ -229,23 +222,19 @@ impl ToTree for Vec<TransformedItem> {
             None
         };
 
-        let (config, mut tree) = build_tree(
-            &args,
-            &nomad_mode,
-            &nomad_style,
-            Path::new(target_directory),
-        );
+        let (config, mut tree) =
+            build_tree(args, &nomad_mode, nomad_style, Path::new(target_directory));
 
         let start = Instant::now();
         for item in self.iter() {
             check_nesting(
                 current_depth,
                 Path::new(&target_directory)
-                    .join(Path::new(&item.components.join("/").to_string()))
+                    .join(Path::new(&item.components.join("/")))
                     .as_path(),
                 &nomad_mode,
                 Path::new(&target_directory)
-                    .join(Path::new(&previous_item.components.join("/").to_string()))
+                    .join(Path::new(&previous_item.components.join("/")))
                     .as_path(),
                 target_directory,
                 &mut tree,
@@ -263,7 +252,7 @@ impl ToTree for Vec<TransformedItem> {
                     directory_label.push_str(&loop_count.to_string());
                 }
 
-                labeled_items.insert(format!("{directory_label}"), item.path.to_string());
+                labeled_items.insert(directory_label.to_string(), item.path.to_string());
 
                 letter_index += 1;
 
@@ -274,7 +263,7 @@ impl ToTree for Vec<TransformedItem> {
                 };
 
                 tree.begin_child(format_directory(
-                    &args,
+                    args,
                     Path::new(&item.path),
                     label,
                     item.matched,
@@ -296,7 +285,7 @@ impl ToTree for Vec<TransformedItem> {
 
                 if args.meta.loc {
                     tree.begin_child(format_content(
-                        &args,
+                        args,
                         item.marker.clone(),
                         icon,
                         Path::new(&item.path),
@@ -315,7 +304,7 @@ impl ToTree for Vec<TransformedItem> {
                     }
                 } else {
                     tree.add_empty_child(format_content(
-                        &args,
+                        args,
                         item.marker.clone(),
                         icon,
                         Path::new(&item.path),
@@ -332,16 +321,15 @@ impl ToTree for Vec<TransformedItem> {
             current_depth = item.depth as usize;
             previous_item = item;
 
-            match nomad_mode {
-                NomadMode::Rootless => directory_items.push(DirItem {
+            if let NomadMode::Rootless = nomad_mode {
+                directory_items.push(DirItem {
                     marker: item.marker.clone(),
                     path: Path::new(&item.path)
                         .canonicalize()?
                         .to_str()
                         .unwrap_or("?")
                         .to_string(),
-                }),
-                _ => {}
+                })
             }
         }
 
@@ -402,7 +390,7 @@ impl ToTree for Vec<TransformedBranch> {
         };
 
         let (config, mut tree) =
-            build_tree(args, &nomad_mode, &nomad_style, Path::new(target_directory));
+            build_tree(args, &nomad_mode, nomad_style, Path::new(target_directory));
 
         let start = Instant::now();
         for item in self.iter() {
@@ -421,7 +409,7 @@ impl ToTree for Vec<TransformedBranch> {
                     Colour::Blue.bold().paint(
                         Path::new(&item.full_branch)
                             .file_name()
-                            .unwrap_or(&OsStr::new("?"))
+                            .unwrap_or_else(|| OsStr::new("?"))
                             .to_str()
                             .unwrap_or("?")
                     )
@@ -435,7 +423,7 @@ impl ToTree for Vec<TransformedBranch> {
                     None
                 };
 
-                tree.add_empty_child(format_branch(&item, nomad_style, number));
+                tree.add_empty_child(format_branch(item, nomad_style, number));
 
                 num_branches += 1;
             }

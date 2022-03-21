@@ -42,7 +42,7 @@ pub fn display_branches(
     };
 
     let mut branches: Vec<FoundBranch> = Vec::new();
-    let current_branch = get_repo_branch(&repo);
+    let current_branch = get_repo_branch(repo);
 
     // At first I tried to do something like this to iterate over all branches:
     //
@@ -153,28 +153,26 @@ pub fn display_branches(
                     });
                 }
             }
+        } else if args.flat {
+            display_flat_branch(
+                &branch,
+                &branch_name,
+                is_current_branch,
+                marker,
+                None,
+                nomad_style,
+                number,
+                upstream,
+            );
         } else {
-            if args.flat {
-                display_flat_branch(
-                    &branch,
-                    &branch_name,
-                    is_current_branch,
-                    marker,
-                    None,
-                    nomad_style,
-                    number,
-                    upstream,
-                );
-            } else {
-                branches.push(FoundBranch {
-                    full_branch: branch_name.clone(),
-                    is_current_branch,
-                    is_head: branch.is_head(),
-                    marker,
-                    matched: None,
-                    upstream,
-                });
-            }
+            branches.push(FoundBranch {
+                full_branch: branch_name.clone(),
+                is_current_branch,
+                is_head: branch.is_head(),
+                marker,
+                matched: None,
+                upstream,
+            });
         }
 
         num_branches += 1;
@@ -252,14 +250,11 @@ fn display_flat_branch(
         }
         None => branch_name.to_string(),
     };
-    let formatted_branch = format!(
-        "{}",
-        if is_current_branch {
-            Colour::Green.bold().paint(branch_label).to_string()
-        } else {
-            branch_label
-        }
-    );
+    let formatted_branch = if is_current_branch {
+        Colour::Green.bold().paint(branch_label).to_string()
+    } else {
+        branch_label
+    };
 
     let number_label = match number {
         Some(number) => format!(
@@ -273,7 +268,7 @@ fn display_flat_branch(
         None => "".to_string(),
     };
     let marker_label = match marker {
-        Some(marker) => format!("{} ", Colour::Green.bold().paint(marker).to_string()),
+        Some(marker) => format!("{} ", Colour::Green.bold().paint(marker)),
         None => "".to_string(),
     };
     let head_label = if branch.is_head() {

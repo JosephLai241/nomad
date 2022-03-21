@@ -28,7 +28,7 @@ pub fn check_for_update() -> Result<(), NomadError> {
             let latest_release = releases.pop();
 
             if let Some(latest) = latest_release {
-                if latest.version != cargo_crate_version!().to_string() {
+                if latest.version != *env!("CARGO_PKG_VERSION") {
                     println!(
                         "\nNew release available! {} ==> {}\nRun `nd upgrade` to upgrade to the newest version.\n",
                         Colour::Red.bold().paint(cargo_crate_version!()),
@@ -78,12 +78,10 @@ pub fn update_self() -> Result<(), NomadError> {
     if update_status.updated() {
         println!(
             "\nSuccessfully updated nomad from {} to {}!\n",
-            Colour::Fixed(172)
-                .bold()
-                .paint(format!("{current_version}")),
+            Colour::Fixed(172).bold().paint(current_version.to_string()),
             Colour::Green
                 .bold()
-                .paint(format!("{}", update_status.version()))
+                .paint(update_status.version().to_string())
         );
     } else {
         println!(

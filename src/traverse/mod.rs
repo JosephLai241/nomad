@@ -59,42 +59,39 @@ pub fn walk_directory(
                         entry.path().to_str().unwrap_or("?"),
                     );
                     None
-                } else {
-                    if let Some(ref regex) = regex_expression {
-                        if let Some(matched) = regex.find(
-                            &entry
-                                .path()
-                                .strip_prefix(target_directory)
-                                .unwrap_or(Path::new("?"))
-                                .to_str()
-                                .unwrap_or("?")
-                                .to_string(),
-                        ) {
-                            Some(FoundItem {
-                                marker: git_markers
-                                    .get(
-                                        &canonicalize_path(entry.path().to_str().unwrap_or("?"))
-                                            .unwrap_or("?".to_string()),
-                                    )
-                                    .map_or(None, |marker| Some(marker.to_string())),
-                                matched: Some((matched.start(), matched.end())),
-                                path: entry.path().to_str().unwrap_or("?").to_string(),
-                            })
-                        } else {
-                            None
-                        }
-                    } else {
+                } else if let Some(ref regex) = regex_expression {
+                    if let Some(matched) = regex.find(
+                        entry
+                            .path()
+                            .strip_prefix(target_directory)
+                            .unwrap_or_else(|_| Path::new("?"))
+                            .to_str()
+                            .unwrap_or("?"),
+                    ) {
                         Some(FoundItem {
                             marker: git_markers
                                 .get(
                                     &canonicalize_path(entry.path().to_str().unwrap_or("?"))
-                                        .unwrap_or("?".to_string()),
+                                        .unwrap_or_else(|_| "?".to_string()),
                                 )
-                                .map_or(None, |marker| Some(marker.to_string())),
-                            matched: None,
+                                .map(|marker| marker.to_string()),
+                            matched: Some((matched.start(), matched.end())),
                             path: entry.path().to_str().unwrap_or("?").to_string(),
                         })
+                    } else {
+                        None
                     }
+                } else {
+                    Some(FoundItem {
+                        marker: git_markers
+                            .get(
+                                &canonicalize_path(entry.path().to_str().unwrap_or("?"))
+                                    .unwrap_or_else(|_| "?".to_string()),
+                            )
+                            .map(|marker| marker.to_string()),
+                        matched: None,
+                        path: entry.path().to_str().unwrap_or("?").to_string(),
+                    })
                 }
             } else {
                 None

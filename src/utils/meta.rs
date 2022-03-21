@@ -41,13 +41,11 @@ fn convert_bytes(bytes: i64) -> String {
     let final_number = if rounded_size.fract() == 0.0 {
         let int = rounded_size.round() as i64;
         format!("{int:>3}")
+    } else if rounded_size > 10.0 {
+        let floored_number = rounded_size.floor() as i64;
+        format!("{floored_number:>3}")
     } else {
-        if rounded_size > 10.0 {
-            let floored_number = rounded_size.floor() as i64;
-            format!("{floored_number:>3}")
-        } else {
-            format!("{:>3}", format!("{:.1}", rounded_size))
-        }
+        format!("{:>3}", format!("{:.1}", rounded_size))
     };
 
     format!("{final_number} {label:<2}")
@@ -83,28 +81,23 @@ pub fn get_metadata(args: &GlobalArgs, item: &Path) -> String {
     let metadata = item.metadata().ok();
 
     if let Some(metadata) = metadata {
-        let plain_group = format!(
-            "{}",
-            get_group_by_gid(metadata.gid())
-                .expect("None")
-                .name()
-                .to_str()
-                .expect("None")
-                .to_string()
-        );
+        let plain_group = get_group_by_gid(metadata.gid())
+            .expect("None")
+            .name()
+            .to_str()
+            .expect("None")
+            .to_string();
         let group = if args.style.plain || args.style.no_colors {
             plain_group
         } else {
             Colour::Fixed(193)
-                .paint(format!(
-                    "{}",
+                .paint(
                     get_group_by_gid(metadata.gid())
                         .expect("None")
                         .name()
                         .to_str()
-                        .expect("None")
-                        .to_string()
-                ))
+                        .expect("None"),
+                )
                 .to_string()
         };
 
@@ -115,7 +108,7 @@ pub fn get_metadata(args: &GlobalArgs, item: &Path) -> String {
             colorize_permission_bits(plain_mode)
         };
 
-        let plain_last_modified = format!("{}", convert_time(metadata.mtime()));
+        let plain_last_modified = convert_time(metadata.mtime());
         let last_modified = if args.style.plain || args.style.no_colors {
             plain_last_modified
         } else {
@@ -132,15 +125,12 @@ pub fn get_metadata(args: &GlobalArgs, item: &Path) -> String {
             Colour::Fixed(172).paint(plain_size).to_string()
         };
 
-        let plain_user = format!(
-            "{}",
-            get_user_by_uid(metadata.uid())
-                .expect("None")
-                .name()
-                .to_str()
-                .expect("None")
-                .to_string()
-        );
+        let plain_user = get_user_by_uid(metadata.uid())
+            .expect("None")
+            .name()
+            .to_str()
+            .expect("None")
+            .to_string();
         let user = if args.style.plain || args.style.no_colors {
             plain_user
         } else {

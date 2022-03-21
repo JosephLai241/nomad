@@ -34,7 +34,7 @@ pub enum SearchMode {
 /// `item_labels`, all items within that directory are returned.
 pub fn indiscriminate_search(
     args: &Args,
-    item_labels: &Vec<String>,
+    item_labels: &[String],
     nomad_style: &NomadStyle,
     repo: Option<&Repository>,
     search_mode: SearchMode,
@@ -65,7 +65,7 @@ pub fn indiscriminate_search(
                                     for file_path in marker_map.keys() {
                                         let path_parent = Path::new(file_path)
                                             .parent()
-                                            .unwrap_or(Path::new("?"))
+                                            .unwrap_or_else(|| Path::new("?"))
                                             .to_str()
                                             .unwrap_or("?");
 
@@ -112,10 +112,7 @@ pub fn indiscriminate_search(
             );
 
             for label in not_found {
-                println!(
-                    "==> {}",
-                    Colour::Fixed(172).bold().paint(format!("{label}"))
-                );
+                println!("==> {}", Colour::Fixed(172).bold().paint(label));
             }
         }
 

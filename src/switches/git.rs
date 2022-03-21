@@ -29,7 +29,7 @@ pub fn run_git(
     nomad_style: &NomadStyle,
     target_directory: &str,
 ) {
-    if let Some(repo) = get_repo(&target_directory) {
+    if let Some(repo) = get_repo(target_directory) {
         match git_command {
             GitOptions::Add(add_options) => {
                 let stage_mode = match add_options.all {
@@ -43,7 +43,7 @@ pub fn run_git(
                     nomad_style,
                     &repo,
                     stage_mode,
-                    &target_directory,
+                    target_directory,
                 ) {
                     paint_error(NomadError::GitError {
                         context: "Unable to stage files".into(),
@@ -55,27 +55,25 @@ pub fn run_git(
                 Ok(file_number) => {
                     match indiscriminate_search(
                         args,
-                        &vec![file_number.to_string()],
+                        &[file_number.to_string()],
                         nomad_style,
                         Some(&repo),
                         SearchMode::Normal,
-                        &target_directory,
+                        target_directory,
                     ) {
                         Some(ref mut found_items) => match found_items.pop() {
                             Some(item) => {
-                                if &blame_options.lines.len() > &2 {
+                                if blame_options.lines.len() > 2 {
                                     println!(
                                         "\n{}\n",
                                         Colour::Red
                                             .bold()
                                             .paint("Line range only takes two values - a lower and upper bound")
                                     );
-                                } else {
-                                    if let Err(error) =
-                                        bat_blame(item, blame_options, &repo, &target_directory)
-                                    {
-                                        paint_error(error);
-                                    }
+                                } else if let Err(error) =
+                                    bat_blame(item, blame_options, &repo, target_directory)
+                                {
+                                    paint_error(error);
                                 }
                             }
                             None => println!(
@@ -92,19 +90,18 @@ pub fn run_git(
                 Err(_) => paint_error(NomadError::GitBlameError),
             },
             GitOptions::Branch(branch_options) => {
-                match display_branches(branch_options, nomad_style, &repo, &target_directory) {
-                    Ok(tree_items) => match tree_items {
-                        Some((tree, config, _)) => {
+                match display_branches(branch_options, nomad_style, &repo, target_directory) {
+                    Ok(tree_items) => {
+                        if let Some((tree, config, _)) = tree_items {
                             if let Some(export) = &branch_options.export {
                                 if let Err(error) =
-                                    export_tree(config, ExportMode::GitBranch, &export, tree)
+                                    export_tree(config, ExportMode::GitBranch, export, tree)
                                 {
                                     paint_error(error);
                                 }
                             }
                         }
-                        None => {}
-                    },
+                    }
                     Err(error) => paint_error(error),
                 }
             }
@@ -121,17 +118,16 @@ pub fn run_git(
                         nomad_style,
                         Some(&repo),
                         SearchMode::GitDiff,
-                        &target_directory,
+                        target_directory,
                     ) {
                         Some(found_items) => {
-                            if let Err(error) =
-                                bat_diffs(diff, Some(found_items), &target_directory)
+                            if let Err(error) = bat_diffs(diff, Some(found_items), target_directory)
                             {
                                 paint_error(error);
                             }
                         }
                         None => {
-                            if let Err(error) = bat_diffs(diff, None, &target_directory) {
+                            if let Err(error) = bat_diffs(diff, None, target_directory) {
                                 paint_error(error);
                             }
                         }
@@ -151,7 +147,7 @@ pub fn run_git(
                 if let Err(error) = modify_trees(
                     args,
                     &restore_options.item_labels,
-                    &nomad_style,
+                    nomad_style,
                     &repo,
                     restore_mode,
                     target_directory,
@@ -166,7 +162,7 @@ pub fn run_git(
                 if let Some(branch_name) = get_repo_branch(&repo) {
                     println!(
                         "\nOn branch: {}",
-                        Colour::Green.bold().paint(format!("{branch_name}"))
+                        Colour::Green.bold().paint(branch_name.to_string())
                     );
 
                     if let Err(error) = display_commits_ahead(&branch_name, &repo) {
@@ -174,12 +170,12 @@ pub fn run_git(
                     }
                 }
 
-                match display_status_tree(&status_options, nomad_style, &repo, &target_directory) {
+                match display_status_tree(status_options, nomad_style, &repo, target_directory) {
                     Ok(tree_items) => {
                         if let Some((tree, config)) = tree_items {
                             if let Some(export) = &status_options.export {
                                 if let Err(error) =
-                                    export_tree(config, ExportMode::GitStatus, &export, tree)
+                                    export_tree(config, ExportMode::GitStatus, export, tree)
                                 {
                                     paint_error(error);
                                 }

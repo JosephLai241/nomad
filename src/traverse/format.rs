@@ -40,7 +40,7 @@ pub fn format_directory(
                 .paint(highlight_matched(
                     nomad_style,
                     item.strip_prefix(target_directory)
-                        .unwrap_or(Path::new("?"))
+                        .unwrap_or_else(|_| Path::new("?"))
                         .to_str()
                         .unwrap_or("?")
                         .to_string(),
@@ -52,7 +52,7 @@ pub fn format_directory(
     };
 
     let mut formatted = if args.style.no_icons || args.style.plain {
-        format!("{directory_label}")
+        directory_label
     } else {
         format!("{icon} {directory_label}")
     };
@@ -60,11 +60,7 @@ pub fn format_directory(
     if let Some(label) = label {
         formatted = format!(
             "[{}] {formatted}",
-            nomad_style
-                .tree
-                .label_colors
-                .directory_labels
-                .paint(format!("{label}"))
+            nomad_style.tree.label_colors.directory_labels.paint(label)
         );
     }
 
@@ -99,12 +95,10 @@ pub fn format_content(
                 }
             } else {
                 let formatted_filename = paint_git_item(
-                    &item
-                        .strip_prefix(target_directory)
-                        .unwrap_or(Path::new("?"))
+                    item.strip_prefix(target_directory)
+                        .unwrap_or_else(|_| Path::new("?"))
                         .to_str()
-                        .unwrap_or("?")
-                        .to_string(),
+                        .unwrap_or("?"),
                     &marker,
                     nomad_style,
                     matched,
@@ -116,28 +110,26 @@ pub fn format_content(
                     format!("{marker} {icon} {formatted_filename}")
                 }
             }
+        } else if args.style.no_icons || args.style.plain {
+            filename
+        } else if args.style.no_colors {
+            format!("{icon} {filename}")
         } else {
-            if args.style.no_icons || args.style.plain {
-                format!("{filename}")
-            } else if args.style.no_colors {
-                format!("{icon} {filename}")
+            filename = if let Some(ranges) = matched {
+                highlight_matched(
+                    nomad_style,
+                    item.strip_prefix(target_directory)
+                        .unwrap_or_else(|_| Path::new("?"))
+                        .to_str()
+                        .unwrap_or("?")
+                        .to_string(),
+                    ranges,
+                )
             } else {
-                filename = if let Some(ranges) = matched {
-                    highlight_matched(
-                        nomad_style,
-                        item.strip_prefix(target_directory)
-                            .unwrap_or(Path::new("?"))
-                            .to_str()
-                            .unwrap_or("?")
-                            .to_string(),
-                        ranges,
-                    )
-                } else {
-                    filename
-                };
+                filename
+            };
 
-                format!("{icon} {filename}")
-            }
+            format!("{icon} {filename}")
         };
 
     if let Some(number) = number {
@@ -186,18 +178,18 @@ pub fn highlight_matched(nomad_style: &NomadStyle, path: String, ranges: (usize,
         prefix.append(&mut painted_matched);
         prefix.append(&mut suffix);
 
-        let highlighted_path = prefix.join("").to_string();
+        let highlighted_path = prefix.join("");
 
         Path::new(&highlighted_path)
             .file_name()
-            .unwrap_or(OsStr::new("?"))
+            .unwrap_or_else(|| OsStr::new("?"))
             .to_str()
             .unwrap_or("?")
             .to_string()
     } else {
         Path::new(&path)
             .file_name()
-            .unwrap_or(OsStr::new("?"))
+            .unwrap_or_else(|| OsStr::new("?"))
             .to_str()
             .unwrap_or("?")
             .to_string()
@@ -212,16 +204,13 @@ pub fn format_branch(
 ) -> String {
     let mut branch_name = Path::new(&item.full_branch)
         .file_name()
-        .unwrap_or(&OsStr::new("?"))
+        .unwrap_or_else(|| OsStr::new("?"))
         .to_str()
         .unwrap_or("?")
         .to_string();
 
     if item.is_current_branch {
-        branch_name = Colour::Green
-            .bold()
-            .paint(format!("{branch_name}"))
-            .to_string();
+        branch_name = Colour::Green.bold().paint(branch_name).to_string();
     }
 
     if let Some(ranges) = item.matched {
@@ -245,7 +234,7 @@ pub fn format_branch(
         branch_name.push_str(&format!(" [{}]", Colour::Red.bold().paint("HEAD")));
     }
     if let Some(upstream) = &item.upstream {
-        branch_name.push_str(&upstream);
+        branch_name.push_str(upstream);
     }
 
     branch_name

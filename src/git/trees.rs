@@ -33,7 +33,7 @@ pub enum TreeMode {
 ///
 pub fn modify_trees(
     args: &Args,
-    item_labels: &Vec<String>,
+    item_labels: &[String],
     nomad_style: &NomadStyle,
     repo: &Repository,
     stage_mode: TreeMode,
@@ -70,7 +70,7 @@ pub fn modify_trees(
 
                     match stage_mode {
                         TreeMode::Stage => {
-                            if let Err(_) = index.add_path(relative_path) {
+                            if index.add_path(relative_path).is_err() {
                                 index.remove_path(relative_path)?;
                             }
 

@@ -36,14 +36,11 @@ pub fn get_settings<'a>(args: &GlobalArgs) -> Vec<Row<'a>> {
         assign_boolean_flag(" label directories", args.labels.label_directories),
         Row::new(vec![
             Cell::from(" max depth"),
-            Cell::from(format!(
-                "{}",
-                if let Some(ref depth) = args.modifiers.max_depth {
-                    depth.to_string()
-                } else {
-                    "None".to_string()
-                }
-            ))
+            Cell::from(if let Some(ref depth) = args.modifiers.max_depth {
+                depth.to_string()
+            } else {
+                "None".to_string()
+            })
             .style(Style::default().fg(if args.modifiers.max_depth.is_some() {
                 Color::Green
             } else {
@@ -52,14 +49,11 @@ pub fn get_settings<'a>(args: &GlobalArgs) -> Vec<Row<'a>> {
         ]),
         Row::new(vec![
             Cell::from(" max filesize"),
-            Cell::from(format!(
-                "{}",
-                if let Some(ref size) = args.modifiers.max_filesize {
-                    size.to_string()
-                } else {
-                    "None".to_string()
-                }
-            ))
+            Cell::from(if let Some(ref size) = args.modifiers.max_filesize {
+                size.to_string()
+            } else {
+                "None".to_string()
+            })
             .style(
                 Style::default().fg(if args.modifiers.max_filesize.is_some() {
                     Color::Green
@@ -74,14 +68,11 @@ pub fn get_settings<'a>(args: &GlobalArgs) -> Vec<Row<'a>> {
         assign_boolean_flag(" numbered", args.labels.numbers),
         Row::new(vec![
             Cell::from(" pattern"),
-            Cell::from(format!(
-                "{}",
-                if let Some(ref pattern) = args.regex.pattern {
-                    pattern.to_string()
-                } else {
-                    "None".to_string()
-                }
-            ))
+            Cell::from(if let Some(ref pattern) = args.regex.pattern {
+                pattern.to_string()
+            } else {
+                "None".to_string()
+            })
             .style(Style::default().fg(if args.regex.pattern.is_some() {
                 Color::Green
             } else {
@@ -96,11 +87,8 @@ pub fn get_settings<'a>(args: &GlobalArgs) -> Vec<Row<'a>> {
 pub fn get_breadcrumbs(target_directory: &str) -> Result<Vec<String>, NomadError> {
     let mut breadcrumbs = Vec::new();
     for component in Path::new(target_directory).canonicalize()?.components() {
-        match component {
-            Component::Normal(section) => {
-                breadcrumbs.push(section.to_str().unwrap_or("?").to_string());
-            }
-            _ => {}
+        if let Component::Normal(section) = component {
+            breadcrumbs.push(section.to_str().unwrap_or("?").to_string());
         }
     }
 
@@ -127,7 +115,7 @@ pub fn get_tree(
 
     Ok((
         String::from_utf8_lossy(&tree_buf)
-            .split("\n")
+            .split('\n')
             .map(|line| line.to_string())
             .collect::<Vec<String>>(),
         directory_items,

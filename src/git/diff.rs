@@ -10,7 +10,7 @@ use git2::{Delta, Diff, DiffDelta, DiffFormat, Error, Index, ObjectType, Reposit
 use crate::errors::NomadError;
 
 /// Get the diff between the old Git tree and the working directory using the Git index.
-pub fn get_repo_diffs<'a>(repo: &'a Repository) -> Result<Diff<'a>, Error> {
+pub fn get_repo_diffs(repo: &Repository) -> Result<Diff<'_>, Error> {
     let previous_head = repo.head()?.peel(ObjectType::Tree)?.id();
     let old_tree = repo.find_tree(previous_head)?;
 
@@ -69,7 +69,7 @@ fn get_diffs(
                     .map(|full_path| {
                         Path::new(full_path)
                             .strip_prefix(target_directory)
-                            .unwrap_or(Path::new("?"))
+                            .unwrap_or_else(|_| Path::new("?"))
                             .to_str()
                             .unwrap_or("?")
                             .to_string()
@@ -122,7 +122,6 @@ fn get_diffs(
                             Colour::White.bold().paint("==>"),
                             Colour::Green.bold().paint(hunk.new_start().to_string())
                         )
-                        .to_string()
                     } else {
                         Colour::White
                             .bold()
@@ -241,7 +240,7 @@ fn get_diffs(
                 let formatted_filename = get_formatted_filename(
                     added_lines,
                     deleted_lines,
-                    current_delta.clone(),
+                    current_delta,
                     file_mode.clone(),
                     filename.clone(),
                     new_file.clone(),
@@ -251,10 +250,10 @@ fn get_diffs(
 
                 if let Some(target_items) = &stripped_items {
                     if target_items.contains(&old_file) || target_items.contains(&new_file) {
-                        formatted_diffs.push((formatted_filename, content.join("").to_string()));
+                        formatted_diffs.push((formatted_filename, content.join("")));
                     }
                 } else {
-                    formatted_diffs.push((formatted_filename, content.join("").to_string()));
+                    formatted_diffs.push((formatted_filename, content.join("")));
                 }
 
                 let (new_filename, old_filename) = get_new_old_filenames(&delta);
@@ -297,10 +296,10 @@ fn get_diffs(
 
         if let Some(target_items) = &stripped_items {
             if target_items.contains(&old_file) || target_items.contains(&new_file) {
-                formatted_diffs.push((formatted_filename, content.join("").to_string()));
+                formatted_diffs.push((formatted_filename, content.join("")));
             }
         } else {
-            formatted_diffs.push((formatted_filename, content.join("").to_string()));
+            formatted_diffs.push((formatted_filename, content.join("")));
         }
     }
 
@@ -313,14 +312,14 @@ fn get_new_old_filenames(delta: &DiffDelta) -> (String, String) {
         delta
             .new_file()
             .path()
-            .unwrap_or(Path::new("?"))
+            .unwrap_or_else(|| Path::new("?"))
             .to_str()
             .unwrap_or("?")
             .to_string(),
         delta
             .old_file()
             .path()
-            .unwrap_or(Path::new("?"))
+            .unwrap_or_else(|| Path::new("?"))
             .to_str()
             .unwrap_or("?")
             .to_string(),
@@ -425,7 +424,7 @@ pub fn get_diff_stats(
     old_tree: &Tree,
     repo: &Repository,
 ) -> (Option<usize>, Option<usize>, Option<usize>) {
-    if let Ok(diff) = repo.diff_tree_to_index(Some(old_tree), Some(&index), None) {
+    if let Ok(diff) = repo.diff_tree_to_index(Some(old_tree), Some(index), None) {
         if let Ok(diff_stats) = diff.stats() {
             (
                 Some(diff_stats.files_changed()),
