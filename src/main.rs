@@ -2,6 +2,15 @@
 //!
 //! [`tree`]: https://linux.die.net/man/1/tree
 
+// NOTE - Clippy allowed lints are subject to change in the future.
+#![allow(clippy::field_reassign_with_default)]
+#![allow(clippy::format_in_format_args)]
+#![allow(clippy::needless_range_loop)]
+#![allow(clippy::too_many_arguments)]
+#![allow(clippy::type_complexity)]
+#![allow(clippy::wildcard_in_or_patterns)]
+#![allow(clippy::zero_prefixed_literal)]
+
 mod cli;
 mod config;
 mod errors;
@@ -87,7 +96,7 @@ fn main() -> Result<(), NomadError> {
                 paint_error(error);
                 None
             },
-            |path| Some(path),
+            Some,
         )
     } else {
         get_current_directory().map_or_else(
@@ -95,7 +104,7 @@ fn main() -> Result<(), NomadError> {
                 paint_error(error);
                 None
             },
-            |path| Some(path),
+            Some,
         )
     };
 
@@ -103,7 +112,7 @@ fn main() -> Result<(), NomadError> {
         if let Some(sub_command) = &args.sub_commands {
             match sub_command {
                 SubCommands::Bat { item_labels } => {
-                    match indiscriminate_search(
+                    if let Some(found_items) = indiscriminate_search(
                         &args,
                         item_labels,
                         &nomad_style,
@@ -111,19 +120,16 @@ fn main() -> Result<(), NomadError> {
                         SearchMode::Normal,
                         &target_directory,
                     ) {
-                        Some(found_items) => {
-                            if let Err(error) = run_bat(found_items) {
-                                paint_error(error);
-                            }
+                        if let Err(error) = run_bat(found_items) {
+                            paint_error(error);
                         }
-                        None => {}
                     }
                 }
                 SubCommands::Config(config_options) => {
                     run_config(config_options, config_path, &nomad_style);
                 }
                 SubCommands::Edit { item_labels } => {
-                    match indiscriminate_search(
+                    if let Some(found_items) = indiscriminate_search(
                         &args,
                         item_labels,
                         &nomad_style,
@@ -131,12 +137,9 @@ fn main() -> Result<(), NomadError> {
                         SearchMode::Normal,
                         &target_directory,
                     ) {
-                        Some(found_items) => {
-                            if let Err(error) = open_files(found_items) {
-                                paint_error(error);
-                            }
+                        if let Err(error) = open_files(found_items) {
+                            paint_error(error);
                         }
-                        None => {}
                     }
                 }
                 SubCommands::Filetype(filetype_option) => {
@@ -151,14 +154,13 @@ fn main() -> Result<(), NomadError> {
                     args.global.style.no_colors = true;
 
                     match enter_rootless_mode(&mut args.global, &nomad_style, &target_directory) {
-                        Ok(exit_mode) => match exit_mode {
-                            ExitMode::Edit(found_items) => {
+                        Ok(exit_mode) => {
+                            if let ExitMode::Edit(found_items) = exit_mode {
                                 if let Err(error) = open_files(found_items) {
                                     paint_error(error);
                                 }
                             }
-                            _ => {}
-                        },
+                        }
                         Err(error) => {
                             paint_error(error);
                         }
@@ -172,10 +174,8 @@ fn main() -> Result<(), NomadError> {
                         if let Err(error) = check_for_update() {
                             paint_error(error);
                         }
-                    } else {
-                        if let Err(error) = update_self() {
-                            paint_error(error);
-                        }
+                    } else if let Err(error) = update_self() {
+                        paint_error(error);
                     }
                 }
             }
