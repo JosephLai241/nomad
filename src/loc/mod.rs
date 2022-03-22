@@ -5,7 +5,7 @@ pub mod utils;
 
 use std::path::PathBuf;
 
-use ansi_term::Colour;
+use ansi_term::{Colour, Style};
 use tokei::{Config, Language, Languages};
 
 use self::{format::tree_stats_from_report, utils::get_file_report};
@@ -34,8 +34,9 @@ pub fn loc_in_file(file_path: &str, tokei: &Language) -> Vec<String> {
             formatted_stats.push(stats.lines);
         }
         None => formatted_stats.push(format!(
-            "| {}",
-            Colour::Red.bold().paint("No tokei data available")
+            "{} {}",
+            Style::new().bold().paint("|"),
+            Colour::Fixed(172).bold().paint("No tokei data available")
         )),
     }
 
