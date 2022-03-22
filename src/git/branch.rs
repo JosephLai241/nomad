@@ -245,9 +245,12 @@ fn display_flat_branch(
     upstream: Option<String>,
 ) {
     let branch_label = match matched {
-        Some(matched) => {
-            highlight_matched(nomad_style, branch_name.to_string(), (matched.0, matched.1))
-        }
+        Some(matched) => highlight_matched(
+            false,
+            nomad_style,
+            branch_name.to_string(),
+            (matched.0, matched.1),
+        ),
         None => branch_name.to_string(),
     };
     let formatted_branch = if is_current_branch {

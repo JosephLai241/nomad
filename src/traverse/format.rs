@@ -38,6 +38,7 @@ pub fn format_directory(
             Some(ranges) => Colour::Blue
                 .bold()
                 .paint(highlight_matched(
+                    true,
                     nomad_style,
                     item.strip_prefix(target_directory)
                         .unwrap_or_else(|_| Path::new("?"))
@@ -117,6 +118,7 @@ pub fn format_content(
         } else {
             filename = if let Some(ranges) = matched {
                 highlight_matched(
+                    false,
                     nomad_style,
                     item.strip_prefix(target_directory)
                         .unwrap_or_else(|_| Path::new("?"))
@@ -150,12 +152,23 @@ pub fn format_content(
 }
 
 /// Reformat the filename if a pattern was provided and matched.
-pub fn highlight_matched(nomad_style: &NomadStyle, path: String, ranges: (usize, usize)) -> String {
+pub fn highlight_matched(
+    for_dir: bool,
+    nomad_style: &NomadStyle,
+    path: String,
+    ranges: (usize, usize),
+) -> String {
     if (0..path.len()).contains(&ranges.0) && (0..path.len() + 1).contains(&ranges.1) {
         let mut prefix = path[..ranges.0]
             .chars()
             .into_iter()
-            .map(|character| format!("{character}"))
+            .map(|character| {
+                if for_dir {
+                    Colour::Blue.bold().paint(character.to_string()).to_string()
+                } else {
+                    format!("{character}")
+                }
+            })
             .collect::<Vec<String>>();
         let mut painted_matched = path[ranges.0..ranges.1]
             .chars()
@@ -172,7 +185,13 @@ pub fn highlight_matched(nomad_style: &NomadStyle, path: String, ranges: (usize,
         let mut suffix = path[ranges.1..]
             .chars()
             .into_iter()
-            .map(|character| format!("{character}"))
+            .map(|character| {
+                if for_dir {
+                    Colour::Blue.bold().paint(character.to_string()).to_string()
+                } else {
+                    format!("{character}")
+                }
+            })
             .collect::<Vec<String>>();
 
         prefix.append(&mut painted_matched);
@@ -214,7 +233,7 @@ pub fn format_branch(
     }
 
     if let Some(ranges) = item.matched {
-        branch_name = highlight_matched(nomad_style, item.full_branch.to_string(), ranges);
+        branch_name = highlight_matched(false, nomad_style, item.full_branch.to_string(), ranges);
     }
 
     if let Some(marker) = &item.marker {
