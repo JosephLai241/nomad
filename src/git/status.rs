@@ -93,23 +93,31 @@ pub fn display_commits_ahead(branch_name: &str, repo: &Repository) -> Result<(),
     let head_oid = repo.head()?.peel(ObjectType::Commit)?.id();
 
     let origin_branch = format!("origin/{branch_name}");
-    let last_commit_oid = repo.revparse_single(&origin_branch)?.id();
 
-    let (ahead, _behind) = repo.graph_ahead_behind(head_oid, last_commit_oid)?;
+    if let Ok(git_object) = repo.revparse_single(&origin_branch) {
+        let last_commit_oid = git_object.id();
 
-    if ahead > 0 {
-        println!(
-            "{} of {} by {} commit{plurality}.\n  └── Run `{}` to publish your local changes.",
-            Style::new().underline().paint("Ahead"),
-            Colour::Blue.bold().paint(origin_branch),
-            Colour::Green.bold().paint(format!("{}", ahead)),
-            Style::new().bold().paint("git push"),
-            plurality = if ahead > 1 { "s" } else { "" }
-        );
+        let (ahead, _behind) = repo.graph_ahead_behind(head_oid, last_commit_oid)?;
+
+        if ahead > 0 {
+            println!(
+                "{} of {} by {} commit{plurality}.\n  └── Run `{}` to publish your local changes.",
+                Style::new().underline().paint("Ahead"),
+                Colour::Blue.bold().paint(origin_branch),
+                Colour::Green.bold().paint(format!("{}", ahead)),
+                Style::new().bold().paint("git push"),
+                plurality = if ahead > 1 { "s" } else { "" }
+            );
+        } else {
+            println!(
+                "Up to date with {}.",
+                Colour::Blue.bold().paint(origin_branch)
+            );
+        }
     } else {
         println!(
-            "Up to date with {}.",
-            Colour::Blue.bold().paint(origin_branch)
+            "{}",
+            Colour::Fixed(172).bold().paint("No upstream branch found.")
         );
     }
 
