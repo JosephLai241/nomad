@@ -4,7 +4,10 @@ use crate::{
     cli::global::GlobalArgs,
     git::utils::paint_git_item,
     style::models::NomadStyle,
-    utils::{meta::get_metadata, paint::paint_symlink, paths::get_filename},
+    utils::{
+        meta::get_metadata,
+        paths::{get_filename, get_symlink},
+    },
 };
 
 use ansi_term::Colour;
@@ -50,7 +53,16 @@ pub fn format_directory(
     };
 
     if item.is_symlink() {
-        directory_label = format!("{directory_label} {}", paint_symlink(item));
+        let symlink = get_symlink(item);
+
+        directory_label = format!(
+            "{directory_label} {}",
+            if args.style.plain || args.style.no_colors {
+                symlink
+            } else {
+                Colour::Yellow.bold().paint(symlink).to_string()
+            }
+        );
     }
 
     let mut formatted = if args.style.no_icons || args.style.plain {
@@ -136,7 +148,16 @@ pub fn format_content(
         };
 
     if item.is_symlink() {
-        item_string = format!("{item_string} {}", paint_symlink(item));
+        let symlink = get_symlink(item);
+
+        item_string = format!(
+            "{item_string} {}",
+            if args.style.plain || args.style.no_colors {
+                symlink
+            } else {
+                Colour::Yellow.bold().paint(symlink).to_string()
+            }
+        );
     }
 
     if let Some(number) = number {

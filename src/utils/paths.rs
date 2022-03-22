@@ -7,6 +7,7 @@ use anyhow::{Context, Result};
 use std::{
     env,
     ffi::OsStr,
+    fs::read_link,
     path::{Path, PathBuf},
 };
 
@@ -41,4 +42,18 @@ pub fn get_filename(item: &Path) -> String {
         .to_str()
         .unwrap_or("?")
         .to_string()
+}
+
+/// Get the symlinked item.
+pub fn get_symlink(item: &Path) -> String {
+    let points_to = read_link(item).map_or("?".to_string(), |pathbuf_path| {
+        pathbuf_path
+            .canonicalize()
+            .unwrap_or_else(|_| PathBuf::from("?"))
+            .into_os_string()
+            .into_string()
+            .map_or("?".to_string(), |path_string| path_string)
+    });
+
+    format!("⇒ {points_to}")
 }
