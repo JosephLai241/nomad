@@ -143,7 +143,7 @@ fn main() -> Result<(), NomadError> {
                         }
                     }
                 }
-                SubCommands::Filetype(filetype_option) => {
+                SubCommands::Ft(filetype_option) => {
                     run_filetypes(filetype_option, &nomad_style, &target_directory);
                 }
                 SubCommands::Git(git_command) => {
