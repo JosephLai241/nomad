@@ -18,8 +18,6 @@ pub enum TreeMode {
     /// Stage all modified, deleted, or untracked files from the working directory
     /// into the index.
     StageAll,
-    /// Restore staged files back to the working directory.
-    RestoreStaged,
     /// Restore files in the working directory back to their clean Git state.
     RestoreWorkingDirectory,
 }
@@ -76,17 +74,14 @@ pub fn modify_trees(
 
                             staged_files += 1;
                         }
-                        TreeMode::RestoreStaged => {
-                            restore_staged(
+                        TreeMode::RestoreWorkingDirectory => {
+                            restore_file(
                                 &head_tree,
                                 &mut index,
                                 relative_path,
                                 repo,
                                 &mut staged_files,
                             )?;
-                        }
-                        TreeMode::RestoreWorkingDirectory => {
-                            restore_file(relative_path, repo, &mut staged_files)?;
                         }
                         _ => {}
                     }
@@ -98,7 +93,7 @@ pub fn modify_trees(
 
                 let info = match stage_mode {
                     TreeMode::Stage => "Staged",
-                    TreeMode::RestoreStaged | TreeMode::RestoreWorkingDirectory => "Restored",
+                    TreeMode::RestoreWorkingDirectory => "Restored",
                     _ => "",
                 };
 
@@ -117,67 +112,29 @@ pub fn modify_trees(
     Ok(())
 }
 
-/// Restore a staged file to its working directory.
-fn restore_staged(
+/// Restore a file to its working directory or clean state.
+fn restore_file(
     head_tree: &Tree,
     index: &mut Index,
     relative_path: &Path,
     repo: &Repository,
     staged_files: &mut i32,
 ) -> Result<(), Error> {
-    match head_tree.get_name(relative_path.to_str().unwrap_or("?")) {
-        Some(tree_entry) => match index.get_path(relative_path, 0) {
-            Some(index_entry) => {
-                let original_blob = tree_entry.to_object(repo)?.peel_to_blob()?;
+    if head_tree
+        .get_name(relative_path.to_str().unwrap_or("?"))
+        .is_some()
+    {
+        let mut checkout_options = CheckoutBuilder::new();
+        checkout_options.force();
+        checkout_options.path(relative_path);
 
-                index.add_frombuffer(&index_entry, original_blob.content())?;
-                *staged_files += 1;
-            }
-            None => {
-                // The Git stage number indicates the file's Git status.
-                // Values other than '0' means the file contains a merge conflict.
-                //
-                // The following line assumes the file that will be restored is
-                // in a clean state (does not contain merge conflicts).
-                //
-                // ```rust
-                // match index.get_path(relative_path, 0)
-                // ```
-                //
-                // If this returns `None`, this means the file had a merge conflict
-                // and cannot be restored until merge conflicts are resolved.
-                //
-                println!(
-                    "{}",
-                    Colour::Fixed(172).bold().paint(format!(
-                        "{} contains a merge conflict!",
-                        relative_path.display()
-                    ))
-                );
-            }
-        },
-        None => {
-            // Indicates this file was untracked prior to adding it to the index.
-            index.remove_path(relative_path)?;
-            *staged_files += 1;
-        }
+        repo.checkout_head(Some(&mut checkout_options))?;
+        *staged_files += 1;
+    } else {
+        // Indicates this file was untracked prior to adding it to the index.
+        index.remove_path(relative_path)?;
+        *staged_files += 1;
     }
-
-    Ok(())
-}
-
-/// Restore a file to its working directory or clean state.
-fn restore_file(
-    relative_path: &Path,
-    repo: &Repository,
-    staged_files: &mut i32,
-) -> Result<(), Error> {
-    let mut checkout_options = CheckoutBuilder::new();
-    checkout_options.force();
-    checkout_options.path(relative_path);
-
-    repo.checkout_head(Some(&mut checkout_options))?;
-    *staged_files += 1;
 
     Ok(())
 }
