@@ -20,6 +20,8 @@ pub struct TreeSettings {
     pub labels: Option<LabelColors>,
     /// Contains the indentation setting.
     pub indent: Option<usize>,
+    /// Contains settings for the tree items' appearance.
+    pub items: Option<TreeItems>,
     /// Contains indent characters for the tree itself.
     pub indent_chars: Option<IndentCharacters>,
     /// Contains the padding setting.
@@ -37,6 +39,20 @@ pub struct TUISettings {
     pub style: Option<TUIStyle>,
     /// Contains the setting for the color of the regex match in the text view.
     pub regex: Option<Regex>,
+}
+
+/// Contains settings for the tree items' appearance.
+#[derive(Debug, Deserialize, Serialize)]
+pub struct TreeItems {
+    /// The colors for items in the tree.
+    pub colors: Option<TreeItemColor>,
+}
+
+/// Contains settings for tree items' appearance.
+#[derive(Debug, Deserialize, Serialize)]
+pub struct TreeItemColor {
+    /// The color for directories.
+    pub directory_color: Option<String>,
 }
 
 /// Contains settings for the color of tree labels (items and directories).

@@ -42,6 +42,25 @@
 #indent = 4
 #padding = 1
 
+
+#
+# Uncomment the item below this table to set tree item colors.
+#
+[tree.items.colors]
+#directory_color = "blue"
+
+
+#
+# Uncomment the items below this table to set the tree's indent characters.
+#
+[tree.indent_chars]
+#down = "|"
+#down_and_right = "├"
+#empty = " "
+#right = "─"
+#turn_right = "└"
+
+
 #
 # Uncomment the items below this table to set label styles.
 #
@@ -59,17 +78,6 @@
 [tree.labels]
 #item_labels = "d78700"
 #directory_labels = "d78700"
-
-
-#
-# Uncomment the items below this table to set the tree's indent characters.
-#
-[tree.indent_chars]
-#down = "|"
-#down_and_right = "├"
-#empty = " "
-#right = "─"
-#turn_right = "└"
 
 
 #
