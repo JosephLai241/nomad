@@ -4,11 +4,7 @@ use crate::{
     cli::global::GlobalArgs,
     git::utils::paint_git_item,
     style::models::NomadStyle,
-    utils::{
-        meta::get_metadata,
-        paint::{paint_directory, paint_symlink},
-        paths::get_filename,
-    },
+    utils::{meta::get_metadata, paint::paint_symlink, paths::get_filename},
 };
 
 use ansi_term::Colour;
@@ -35,20 +31,24 @@ pub fn format_directory(
         get_filename(item)
     } else {
         match matched {
-            Some(ranges) => Colour::Blue
-                .bold()
-                .paint(highlight_matched(
-                    true,
-                    nomad_style,
-                    item.strip_prefix(target_directory)
-                        .unwrap_or_else(|_| Path::new("?"))
-                        .to_str()
-                        .unwrap_or("?")
-                        .to_string(),
-                    ranges,
-                ))
+            Some(ranges) => highlight_matched(
+                true,
+                nomad_style,
+                item.strip_prefix(target_directory)
+                    .unwrap_or_else(|_| Path::new("?"))
+                    .to_str()
+                    .unwrap_or("?")
+                    .to_string(),
+                ranges,
+            )
+            .to_string(),
+            //None => paint_directory(item),
+            None => nomad_style
+                .tree
+                .item_colors
+                .directory_color
+                .paint(get_filename(&item))
                 .to_string(),
-            None => paint_directory(item),
         }
     };
 
@@ -164,7 +164,12 @@ pub fn highlight_matched(
             .into_iter()
             .map(|character| {
                 if for_dir {
-                    Colour::Blue.bold().paint(character.to_string()).to_string()
+                    nomad_style
+                        .tree
+                        .item_colors
+                        .directory_color
+                        .paint(character.to_string())
+                        .to_string()
                 } else {
                     format!("{character}")
                 }
@@ -187,7 +192,12 @@ pub fn highlight_matched(
             .into_iter()
             .map(|character| {
                 if for_dir {
-                    Colour::Blue.bold().paint(character.to_string()).to_string()
+                    nomad_style
+                        .tree
+                        .item_colors
+                        .directory_color
+                        .paint(character.to_string())
+                        .to_string()
                 } else {
                     format!("{character}")
                 }
