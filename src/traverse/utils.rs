@@ -181,7 +181,7 @@ pub fn build_tree(
 }
 
 /// Build a new `Style` based on the settings in `NomadStyle`.
-fn build_tree_style(nomad_style: &NomadStyle) -> PrintConfig {
+pub fn build_tree_style(nomad_style: &NomadStyle) -> PrintConfig {
     let mut branch_style = Style::default();
 
     branch_style.bold = true;

@@ -4,8 +4,8 @@ use structopt::StructOpt;
 
 #[derive(Debug, PartialEq, StructOpt)]
 pub enum ConfigOptions {
-    /// Display the configuration settings in tables.
-    Display,
     /// Edit the configuration file.
     Edit,
+    /// Preview the configuration settings in a tree.
+    Preview,
 }

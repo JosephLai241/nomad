@@ -41,13 +41,12 @@ pub fn format_directory(
                     .unwrap_or("?")
                     .to_string(),
                 ranges,
-            )
-            .to_string(),
+            ),
             None => nomad_style
                 .tree
                 .item_colors
                 .directory_color
-                .paint(get_filename(&item))
+                .paint(get_filename(item))
                 .to_string(),
         }
     };

@@ -64,32 +64,6 @@ impl TableView for TabledItems<String> {
     }
 }
 
-impl TableView for TabledItems<(&str, &String)> {
-    /// Display a table for items that need to be contained in a `(&str, &String)`.
-    fn display_table(self) {
-        let mut table = Table::new();
-
-        table.max_column_width = self.table_width;
-        table.style = TableStyle::rounded();
-
-        table.add_row(Row::new(
-            self.labels
-                .iter()
-                .map(|label| TableCell::new(Colour::White.bold().paint(label).to_string()))
-                .collect::<Vec<TableCell>>(),
-        ));
-
-        for (git_status, marker) in self.items {
-            table.add_row(Row::new(vec![
-                TableCell::new(git_status),
-                TableCell::new(marker),
-            ]));
-        }
-
-        println!("\n{}", table.render());
-    }
-}
-
 impl TableView for TabledItems<(&str, &String, &String)> {
     /// Display a table for items that need to be contained in a `(&str, &String, &String)`.
     fn display_table(self) {
