@@ -63,12 +63,21 @@ pub struct TreeStyle {
     pub indent: usize,
     /// Contains indent characters for the tree itself.
     pub indent_chars: IndentStyles,
+    /// Contains the colors for items in the tree.
+    pub item_colors: ItemColors,
     /// Contains colors for the tree labels.
     pub label_colors: LabelColors,
     /// Contains the padding setting.
     pub padding: usize,
     /// The color styles for all things regex.
     pub regex: TreeRegexStyle,
+}
+
+/// Contains the colors for items in the tree.
+#[derive(Debug)]
+pub struct ItemColors {
+    /// The color for directories.
+    pub directory_color: Style,
 }
 
 /// Contains colors for the tree labels.
@@ -177,6 +186,9 @@ impl Default for NomadStyle {
                     empty: UTF_CHARS.empty.to_string(),
                     right: UTF_CHARS.right.to_string(),
                     turn_right: UTF_CHARS.turn_right.to_string(),
+                },
+                item_colors: ItemColors {
+                    directory_color: Colour::Blue.bold(),
                 },
                 label_colors: LabelColors {
                     item_labels: Colour::Fixed(068).bold(),

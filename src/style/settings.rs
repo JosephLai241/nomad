@@ -37,6 +37,15 @@ pub fn process_settings(nomad_config: NomadConfig) -> NomadStyle {
             process_indent_chars(indent_chars, &mut nomad_style);
         }
 
+        if let Some(items) = tree_settings.items {
+            if let Some(colors) = items.colors {
+                if let Some(directory_color) = colors.directory_color {
+                    nomad_style.tree.item_colors.directory_color =
+                        convert_to_ansi_style(&directory_color.to_lowercase());
+                }
+            }
+        }
+
         if let Some(git_settings) = tree_settings.git {
             process_git_settings(&mut nomad_style, &git_settings);
         }
