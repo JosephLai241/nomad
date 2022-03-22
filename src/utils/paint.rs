@@ -1,6 +1,5 @@
 //! Apply colors to a directory's contents.
 
-use super::paths::get_filename;
 use crate::errors::NomadError;
 
 use ansi_term::Colour;
@@ -15,10 +14,8 @@ pub fn paint_error(error: NomadError) {
     println!("\n{}\n", Colour::Red.bold().paint(error.to_string()));
 }
 
-/// Paint a symlinked item.
+/// Get the painted symlinked item.
 pub fn paint_symlink(item: &Path) -> String {
-    let filename = get_filename(item);
-
     let points_to = read_link(item).map_or("?".to_string(), |pathbuf_path| {
         pathbuf_path
             .canonicalize()
@@ -30,6 +27,6 @@ pub fn paint_symlink(item: &Path) -> String {
 
     Colour::Yellow
         .bold()
-        .paint(format!("{filename} ⇒ {points_to}"))
+        .paint(format!("⇒ {points_to}"))
         .to_string()
 }

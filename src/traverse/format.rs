@@ -25,9 +25,7 @@ pub fn format_directory(
     let icon = "\u{f115}".to_string(); // 
     let metadata = get_metadata(args, item);
 
-    let directory_label = if item.is_symlink() {
-        paint_symlink(item)
-    } else if args.style.plain || args.style.no_colors {
+    let mut directory_label = if args.style.plain || args.style.no_colors {
         get_filename(item)
     } else {
         match matched {
@@ -42,7 +40,6 @@ pub fn format_directory(
                 ranges,
             )
             .to_string(),
-            //None => paint_directory(item),
             None => nomad_style
                 .tree
                 .item_colors
@@ -51,6 +48,10 @@ pub fn format_directory(
                 .to_string(),
         }
     };
+
+    if item.is_symlink() {
+        directory_label = format!("{directory_label} {}", paint_symlink(item));
+    }
 
     let mut formatted = if args.style.no_icons || args.style.plain {
         directory_label
@@ -133,6 +134,10 @@ pub fn format_content(
 
             format!("{icon} {filename}")
         };
+
+    if item.is_symlink() {
+        item_string = format!("{item_string} {}", paint_symlink(item));
+    }
 
     if let Some(number) = number {
         item_string = format!(
