@@ -15,11 +15,6 @@ pub fn paint_error(error: NomadError) {
     println!("\n{}\n", Colour::Red.bold().paint(error.to_string()));
 }
 
-/// Paint a directory.
-pub fn paint_directory(item: &Path) -> String {
-    Colour::Blue.bold().paint(get_filename(item)).to_string()
-}
-
 /// Paint a symlinked item.
 pub fn paint_symlink(item: &Path) -> String {
     let filename = get_filename(item);
