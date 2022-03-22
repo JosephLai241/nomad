@@ -96,7 +96,7 @@
 # item's status.
 #
 [tree.git.markers]
-#conflicted_marker = "CONFLICT"
+#conflicted_marker = "!"
 #deleted_marker = "D"
 #modified_marker = "M"
 #renamed_marker = "R"

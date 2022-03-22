@@ -160,7 +160,7 @@ impl Default for NomadStyle {
         Self {
             git: GitStyle {
                 conflicted_color: Colour::Red.bold(),
-                conflicted_marker: "CONFLICT".to_string(),
+                conflicted_marker: "!".to_string(),
                 deleted_color: Colour::Red.bold(),
                 deleted_marker: "D".to_string(),
                 modified_color: Colour::Fixed(172).bold(),
