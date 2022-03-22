@@ -4,7 +4,6 @@ use structopt::StructOpt;
 
 use super::global::GlobalArgs;
 
-/// This enum provides pattern matching options.
 #[derive(Debug, PartialEq, StructOpt)]
 pub enum FileTypeOptions {
     /// Only display files matching the specified filetypes and/or globs.
@@ -16,7 +15,6 @@ pub enum FileTypeOptions {
     Options { filetype: Option<String> },
 }
 
-/// This struct provides options for filetype matching.
 #[derive(Debug, PartialEq, StructOpt)]
 pub struct MatchOptions {
     #[structopt(
@@ -37,7 +35,6 @@ pub struct MatchOptions {
     pub globs: Vec<String>,
 }
 
-/// This struct provides options for filetype negating.
 #[derive(Debug, PartialEq, StructOpt)]
 pub struct NegateOptions {
     #[structopt(

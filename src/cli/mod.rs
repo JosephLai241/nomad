@@ -20,7 +20,7 @@ use self::{
 #[derive(Debug, PartialEq, StructOpt)]
 #[structopt(
     name = "nomad",
-    about = "The next gen tree command",
+    about = "The customizable next gen tree command with Git integration and TUI",
     author = "Joseph Lai"
 )]
 pub struct Args {
@@ -53,9 +53,11 @@ pub enum SubCommands {
     /// This may be used after running nomad in a labeled mode.
     Edit { item_labels: Vec<String> },
     /// Filter directory items by filetype.
-    Filetype(FileTypeOptions),
+    Ft(FileTypeOptions),
     /// Run commonly used Git commands.
     /// Some commands may be used after running nomad in a labeled mode.
+    ///
+    /// Use the `-h`/`--help` flags to see the available options for each command.
     Git(GitOptions),
     /// Retrieve releases for this program (retrieved from GitHub).
     Releases(ReleaseOptions),

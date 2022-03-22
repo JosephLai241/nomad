@@ -4,7 +4,6 @@ use structopt::StructOpt;
 
 use super::global::{LabelArgs, MetaArgs, RegexArgs, StyleArgs};
 
-/// This enum provides some commonly used Git options.
 #[derive(Debug, PartialEq, StructOpt)]
 pub enum GitOptions {
     /// The `git add` command.
@@ -30,7 +29,6 @@ pub enum GitOptions {
     Status(StatusOptions),
 }
 
-/// This struct provides options for the `git add` command.
 #[derive(Debug, PartialEq, StructOpt)]
 pub struct AddOptions {
     #[structopt(help = "The item labels to add")]
@@ -44,7 +42,6 @@ pub struct AddOptions {
     pub all: bool,
 }
 
-/// This struct provides options for the `git blame` command.
 #[derive(Debug, PartialEq, StructOpt)]
 pub struct BlameOptions {
     #[structopt(
@@ -64,7 +61,6 @@ pub struct BlameOptions {
     pub lines: Vec<usize>,
 }
 
-/// This struct provides options for the `git branch` command.
 #[derive(Debug, PartialEq, StructOpt)]
 pub struct BranchOptions {
     #[structopt(
@@ -93,19 +89,14 @@ pub struct BranchOptions {
     pub no_icons: bool,
 }
 
-/// This struct provides options for the `git restore` command.
 #[derive(Debug, PartialEq, StructOpt)]
 pub struct RestoreOptions {
     #[structopt(
         help = "Restore these items to its clean Git state. Restores in the working tree by default"
     )]
     pub item_labels: Vec<String>,
-
-    #[structopt(short = "S", long, help = "Restore these items in the index")]
-    pub staged: bool,
 }
 
-/// This struct provides options for the `git status` command.
 #[derive(Debug, PartialEq, StructOpt)]
 pub struct StatusOptions {
     #[structopt(

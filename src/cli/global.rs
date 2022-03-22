@@ -2,7 +2,6 @@
 
 use structopt::StructOpt;
 
-/// This struct contains general use flags.
 #[derive(Debug, PartialEq, StructOpt)]
 pub struct GlobalArgs {
     #[structopt(
@@ -34,7 +33,6 @@ pub struct GlobalArgs {
     pub statistics: bool,
 }
 
-/// This struct contains flags that label tree items.
 #[derive(Debug, PartialEq, StructOpt)]
 pub struct LabelArgs {
     #[structopt(
@@ -59,7 +57,6 @@ pub struct LabelArgs {
     pub numbers: bool,
 }
 
-/// This struct contains flags that implement `Tokei` or extract file metadata.
 #[derive(Debug, PartialEq, StructOpt)]
 pub struct MetaArgs {
     #[structopt(
@@ -88,7 +85,6 @@ pub struct MetaArgs {
     pub summarize: bool,
 }
 
-/// This struct contains flags that may alter the items that are displayed in the tree.
 #[derive(Debug, PartialEq, StructOpt)]
 pub struct ModifierArgs {
     #[structopt(long = "dirs", help = "Only display directories")]
@@ -110,7 +106,6 @@ pub struct ModifierArgs {
     pub max_filesize: Option<u64>,
 }
 
-/// This struct contains flags that implement regex.
 #[derive(Debug, PartialEq, StructOpt)]
 pub struct RegexArgs {
     #[structopt(
@@ -121,7 +116,6 @@ pub struct RegexArgs {
     pub pattern: Option<String>,
 }
 
-/// This struct contains flags that alter how the tree looks.
 #[derive(Debug, PartialEq, StructOpt)]
 pub struct StyleArgs {
     #[structopt(long = "no-colors", help = "Do not display any colors")]
