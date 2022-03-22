@@ -46,6 +46,17 @@
 #
 # Uncomment the item below this table to set tree item colors.
 #
+# Default colors
+# --------------
+#    * "black"
+#    * "blue"
+#    * "cyan"
+#    * "green"
+#    * "purple"
+#    * "red"
+#    * "white"
+#    * "yellow"
+#
 [tree.items.colors]
 #directory_color = "blue"
 
