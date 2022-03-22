@@ -5,6 +5,7 @@
 // NOTE - Clippy allowed lints are subject to change in the future.
 #![allow(clippy::field_reassign_with_default)]
 #![allow(clippy::format_in_format_args)]
+#![allow(clippy::manual_map)]
 #![allow(clippy::needless_range_loop)]
 #![allow(clippy::too_many_arguments)]
 #![allow(clippy::type_complexity)]
