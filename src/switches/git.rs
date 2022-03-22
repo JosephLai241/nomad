@@ -139,17 +139,12 @@ pub fn run_git(
                 }),
             },
             GitOptions::Restore(restore_options) => {
-                let restore_mode = match restore_options.staged {
-                    true => TreeMode::RestoreStaged,
-                    false => TreeMode::RestoreWorkingDirectory,
-                };
-
                 if let Err(error) = modify_trees(
                     args,
                     &restore_options.item_labels,
                     nomad_style,
                     &repo,
-                    restore_mode,
+                    TreeMode::RestoreWorkingDirectory,
                     target_directory,
                 ) {
                     paint_error(NomadError::GitError {
