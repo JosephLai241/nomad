@@ -102,12 +102,12 @@ pub fn display_preview_tree(nomad_style: &NomadStyle) -> Result<(), NomadError> 
         nomad_style
             .git
             .staged_renamed_color
-            .paint("staged deleted file")
+            .paint("staged renamed file")
     ));
 
     // Last working directory Git change.
     tree.add_empty_child(format!(
-        "{} \u{e74e} renamed file", // ""
+        "{} \u{e74e} untracked file", // ""
         nomad_style
             .git
             .untracked_color
