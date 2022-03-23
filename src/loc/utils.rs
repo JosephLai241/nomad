@@ -2,7 +2,7 @@
 
 use std::{collections::BTreeMap, path::PathBuf};
 
-use tokei::{Config, Language, LanguageType, Report};
+use tokei::{Config, LanguageType, Report};
 
 /// Get the `Report` for a specific file.
 ///
