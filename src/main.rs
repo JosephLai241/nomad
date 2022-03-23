@@ -27,8 +27,9 @@ mod utils;
 
 use cli::{get_args, SubCommands};
 use config::toml::parse_config;
-use loc::loc_in_dir;
+use loc::run_tokei;
 use releases::{check_for_update, update_self};
+use style::settings::process_settings;
 use switches::{config::run_config, filetype::run_filetypes, git::run_git, release::run_releases};
 use traverse::{modes::NomadMode, utils::build_walker, walk_directory};
 use ui::{enter_rootless_mode, ExitMode};
@@ -47,8 +48,6 @@ use errors::NomadError;
 use lazy_static::lazy_static;
 
 use std::collections::HashMap;
-
-use crate::style::settings::process_settings;
 
 lazy_static! {
     /// The alphabet in `Vec<char>`.
@@ -170,6 +169,9 @@ fn main() -> Result<(), NomadError> {
                 SubCommands::Releases(release_option) => {
                     run_releases(release_option);
                 }
+                SubCommands::Tokei => {
+                    run_tokei(&target_directory);
+                }
                 SubCommands::Upgrade(upgrade_options) => {
                     if upgrade_options.check {
                         if let Err(error) = check_for_update() {
@@ -182,9 +184,6 @@ fn main() -> Result<(), NomadError> {
             }
         } else {
             // Run `nomad` in normal mode.
-            if args.global.meta.loc && args.global.meta.no_tree {
-                loc_in_dir(&target_directory);
-            }
             match build_walker(&args.global, &target_directory, None) {
                 Ok(mut walker) => {
                     match walk_directory(
