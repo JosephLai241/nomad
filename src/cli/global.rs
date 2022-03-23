@@ -73,12 +73,6 @@ pub struct MetaArgs {
     pub metadata: bool,
 
     #[structopt(
-        long = "no-tree",
-        help = "Only display `tokei` (lines of code counter) statistics. This only applies if `--loc` is provided"
-    )]
-    pub no_tree: bool,
-
-    #[structopt(
         long = "summary",
         help = "Display `tokei` (lines of code counter) statistics. This only applies if `--loc` is provided"
     )]

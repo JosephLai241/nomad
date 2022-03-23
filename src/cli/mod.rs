@@ -63,6 +63,8 @@ pub enum SubCommands {
     Releases(ReleaseOptions),
     /// Enter rootless (interactive) mode.
     Rootless,
+    /// Run `tokei` (lines of code counter).
+    Tokei,
     /// Upgrade nomad or just check if there is an upgrade available.
     Upgrade(UpgradeOptions),
 }
