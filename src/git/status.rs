@@ -42,7 +42,6 @@ pub fn display_status_tree(
         meta: MetaArgs {
             loc: args.meta.loc,
             metadata: args.meta.metadata,
-            no_tree: args.meta.no_tree,
             summarize: args.meta.summarize,
         },
         modifiers: ModifierArgs {

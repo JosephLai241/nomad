@@ -198,7 +198,6 @@ pub fn display_branches(
         meta: MetaArgs {
             loc: false,
             metadata: false,
-            no_tree: false,
             summarize: false,
         },
         modifiers: ModifierArgs {
