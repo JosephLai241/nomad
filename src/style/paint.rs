@@ -33,6 +33,12 @@ pub fn process_git_settings(nomad_style: &mut NomadStyle, git_settings: &TreeGit
         if let Some(color) = &colors.staged_renamed_color {
             nomad_style.git.staged_renamed_color = convert_to_ansi_style(&color.to_lowercase());
         }
+        if let Some(color) = &colors.staged_typechanged_color {
+            nomad_style.git.staged_typechanged_color = convert_to_ansi_style(&color.to_lowercase());
+        }
+        if let Some(color) = &colors.typechanged_color {
+            nomad_style.git.typechanged_color = convert_to_ansi_style(&color.to_lowercase());
+        }
         if let Some(color) = &colors.untracked_color {
             nomad_style.git.untracked_color = convert_to_ansi_style(&color.to_lowercase());
         }
@@ -62,6 +68,12 @@ pub fn process_git_settings(nomad_style: &mut NomadStyle, git_settings: &TreeGit
         }
         if let Some(marker) = &markers.staged_renamed_marker {
             nomad_style.git.staged_renamed_marker = marker.to_string();
+        }
+        if let Some(marker) = &markers.staged_typechanged_marker {
+            nomad_style.git.staged_typechanged_marker = marker.to_string();
+        }
+        if let Some(marker) = &markers.typechanged_marker {
+            nomad_style.git.typechanged_marker = marker.to_string();
         }
         if let Some(marker) = &markers.untracked_marker {
             nomad_style.git.untracked_marker = marker.to_string();

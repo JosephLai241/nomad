@@ -160,7 +160,7 @@ pub struct Colors {
     /// The color associated with staged typechanged files.
     pub staged_typechanged_color: Option<String>,
     /// The color associated with typechanged files.
-    pub typechanged_marker: Option<String>,
+    pub typechanged_color: Option<String>,
     /// The color associated with untracked files.
     pub untracked_color: Option<String>,
 }
