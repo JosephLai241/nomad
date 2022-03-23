@@ -130,6 +130,10 @@ pub struct Markers {
     pub staged_modified_marker: Option<String>,
     /// The string that marks a staged renamed file.
     pub staged_renamed_marker: Option<String>,
+    /// The string that marks a staged typechanged file.
+    pub staged_typechanged_marker: Option<String>,
+    /// The string that marks a typechanged file.
+    pub typechanged_marker: Option<String>,
     /// The string that marks an untracked file.
     pub untracked_marker: Option<String>,
 }
@@ -153,6 +157,10 @@ pub struct Colors {
     pub staged_modified_color: Option<String>,
     /// The color associated with staged renamed files.
     pub staged_renamed_color: Option<String>,
+    /// The color associated with staged typechanged files.
+    pub staged_typechanged_color: Option<String>,
+    /// The color associated with typechanged files.
+    pub typechanged_marker: Option<String>,
     /// The color associated with untracked files.
     pub untracked_color: Option<String>,
 }

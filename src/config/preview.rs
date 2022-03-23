@@ -57,6 +57,13 @@ pub fn display_preview_tree(nomad_style: &NomadStyle) -> Result<(), NomadError> 
             .renamed_color
             .paint(nomad_style.git.renamed_marker.to_string())
     ));
+    tree.add_empty_child(format!(
+        "{} \u{f17a} typechanged file", // ""
+        nomad_style
+            .git
+            .typechanged_color
+            .paint(nomad_style.git.typechanged_marker.to_string())
+    ));
 
     // Staged (index) Git changes.
     tree.add_empty_child(format!(
@@ -103,6 +110,17 @@ pub fn display_preview_tree(nomad_style: &NomadStyle) -> Result<(), NomadError> 
             .git
             .staged_renamed_color
             .paint("staged renamed file")
+    ));
+    tree.add_empty_child(format!(
+        "{} \u{f17a} {}", // ""
+        nomad_style
+            .git
+            .staged_typechanged_color
+            .paint(nomad_style.git.staged_typechanged_marker.to_string()),
+        nomad_style
+            .git
+            .staged_typechanged_color
+            .paint("staged typechanged file")
     ));
 
     // Last working directory Git change.

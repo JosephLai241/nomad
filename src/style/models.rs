@@ -50,6 +50,14 @@ pub struct GitStyle {
     pub staged_renamed_color: Style,
     /// The string that marks a staged renamed file.
     pub staged_renamed_marker: String,
+    /// The color that marks a staged typechanged file.
+    pub staged_typechanged_color: Style,
+    /// The string that marks a staged typechanged file.
+    pub staged_typechanged_marker: String,
+    /// The color that marks a typechanged file.
+    pub typechanged_color: Style,
+    /// The string that marks a typechanged file.
+    pub typechanged_marker: String,
     /// The color of the untracked file's marker.
     pub untracked_color: Style,
     /// The string that marks an untracked file.
@@ -175,6 +183,10 @@ impl Default for NomadStyle {
                 staged_modified_marker: "SM".to_string(),
                 staged_renamed_color: Colour::Fixed(172).bold(),
                 staged_renamed_marker: "SR".to_string(),
+                staged_typechanged_color: Colour::Purple.bold(),
+                staged_typechanged_marker: "STC".to_string(),
+                typechanged_color: Colour::Purple.bold(),
+                typechanged_marker: "TC".to_string(),
                 untracked_color: Colour::Fixed(243).bold(),
                 untracked_marker: "U".to_string(),
             },

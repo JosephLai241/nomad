@@ -92,6 +92,17 @@ pub fn get_status_markers(
                             .to_string()
                     }
                 }
+                s if s.contains(Status::INDEX_TYPECHANGE) => {
+                    if args.no_colors {
+                        nomad_style.git.staged_typechanged_marker.clone()
+                    } else {
+                        nomad_style
+                            .git
+                            .staged_typechanged_color
+                            .paint(&nomad_style.git.staged_typechanged_marker)
+                            .to_string()
+                    }
+                }
                 s if s.contains(Status::WT_DELETED) => {
                     if args.no_colors {
                         nomad_style.git.deleted_marker.clone()
@@ -133,6 +144,17 @@ pub fn get_status_markers(
                             .git
                             .renamed_color
                             .paint(&nomad_style.git.renamed_marker)
+                            .to_string()
+                    }
+                }
+                s if s.contains(Status::WT_TYPECHANGE) => {
+                    if args.no_colors {
+                        nomad_style.git.typechanged_marker.clone()
+                    } else {
+                        nomad_style
+                            .git
+                            .typechanged_color
+                            .paint(&nomad_style.git.typechanged_marker)
                             .to_string()
                     }
                 }

@@ -100,12 +100,14 @@
 #deleted_marker = "D"
 #modified_marker = "M"
 #renamed_marker = "R"
+#typechanged_marker = "TC"
 #untracked_marker = "U"
 
 #staged_added_marker = "SA"
 #staged_deleted_marker = "SD"
 #staged_modified_marker = "SM"
 #staged_renamed_marker = "SR"
+#staged_typechanged_marker = "STC"
 
 
 #
@@ -127,12 +129,14 @@
 #deleted_color = "red"
 #modified_color = "d78700"          # A shade of orange.
 #renamed_color = "red"
+#typechanged_color = "purple"
 #untracked_color = "767676"         # A shade of gray.
 
 #staged_added_color = "green"
 #staged_deleted_color = "red"
 #staged_modified_color = "d78700"   # A shade of orange.
 #staged_renamed_color = "red"
+#staged_typechanged_color = "purple"
 
 
 #
