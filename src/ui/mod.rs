@@ -116,18 +116,16 @@ where
                                 }
                             }
                         }
-                        KeyCode::Char('e') => {
-                            if let UIMode::Normal = app.ui_mode {
-                                match app.get_current_file() {
-                                    Ok(file_path) => {
-                                        exit_mode = ExitMode::Edit(vec![file_path]);
-                                    }
-                                    Err(error) => {
-                                        app.popup_mode = PopupMode::Error(error.to_string())
-                                    }
+                        KeyCode::Char('e') => match app.ui_mode {
+                            UIMode::Inspect | UIMode::Normal => match app.get_current_file() {
+                                Ok(file_path) => {
+                                    exit_mode = ExitMode::Edit(vec![file_path]);
+                                    break;
                                 }
-                            }
-                        }
+                                Err(error) => app.popup_mode = PopupMode::Error(error.to_string()),
+                            },
+                            _ => {}
+                        },
                         // In Normal mode, toggle Git markers.
                         KeyCode::Char('g') => {
                             if let UIMode::Normal = app.ui_mode {
@@ -632,7 +630,14 @@ where
                     KeyCode::Char('q') => {
                         break;
                     }
-                    _ => app.popup_mode = PopupMode::Disabled,
+                    _ => {
+                        app.popup_mode = PopupMode::Disabled;
+
+                        args.regex.pattern = None;
+                        if let Err(error) = app.refresh(args, nomad_style, target_directory) {
+                            app.popup_mode = PopupMode::Error(error.to_string())
+                        }
+                    }
                 },
 
                 // ===============
