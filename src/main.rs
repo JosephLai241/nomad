@@ -38,7 +38,7 @@ use utils::{
     export::{export_tree, ExportMode},
     icons::{get_icons_by_extension, get_icons_by_name},
     open::open_files,
-    paint::paint_error,
+    paint::{paint_error, show_banner},
     paths::{canonicalize_path, get_current_directory},
     search::{indiscriminate_search, SearchMode},
 };
@@ -87,125 +87,130 @@ lazy_static! {
 fn main() -> Result<(), NomadError> {
     let mut args = get_args();
 
-    let (nomad_config, config_path) = parse_config()?;
-    let nomad_style = process_settings(nomad_config);
-
-    let target_directory = if let Some(ref directory) = args.directory {
-        canonicalize_path(directory).map_or_else(
-            |error| {
-                paint_error(error);
-                None
-            },
-            Some,
-        )
+    if args.banner {
+        show_banner();
     } else {
-        get_current_directory().map_or_else(
-            |error| {
-                paint_error(error);
-                None
-            },
-            Some,
-        )
-    };
+        let (nomad_config, config_path) = parse_config()?;
+        let nomad_style = process_settings(nomad_config);
 
-    if let Some(target_directory) = target_directory {
-        if let Some(sub_command) = &args.sub_commands {
-            match sub_command {
-                SubCommands::Bat { item_labels } => {
-                    if let Some(found_items) = indiscriminate_search(
-                        &args,
-                        item_labels,
-                        &nomad_style,
-                        None,
-                        SearchMode::Normal,
-                        &target_directory,
-                    ) {
-                        if let Err(error) = run_bat(found_items) {
-                            paint_error(error);
-                        }
-                    }
-                }
-                SubCommands::Config(config_options) => {
-                    run_config(config_options, config_path, &nomad_style);
-                }
-                SubCommands::Edit { item_labels } => {
-                    if let Some(found_items) = indiscriminate_search(
-                        &args,
-                        item_labels,
-                        &nomad_style,
-                        None,
-                        SearchMode::Normal,
-                        &target_directory,
-                    ) {
-                        if let Err(error) = open_files(found_items) {
-                            paint_error(error);
-                        }
-                    }
-                }
-                SubCommands::Ft(filetype_option) => {
-                    run_filetypes(filetype_option, &nomad_style, &target_directory);
-                }
-                SubCommands::Git(git_command) => {
-                    run_git(&args, git_command, &nomad_style, &target_directory);
-                }
-                SubCommands::Rootless => {
-                    // ANSI escape codes do not correctly render in the alternate screen,
-                    // which is why `--no-colors` has to be enabled.
-                    args.global.style.no_colors = true;
-
-                    match enter_rootless_mode(&mut args.global, &nomad_style, &target_directory) {
-                        Ok(exit_mode) => {
-                            if let ExitMode::Edit(found_items) = exit_mode {
-                                if let Err(error) = open_files(found_items) {
-                                    paint_error(error);
-                                }
-                            }
-                        }
-                        Err(error) => {
-                            paint_error(error);
-                        }
-                    }
-                }
-                SubCommands::Releases(release_option) => {
-                    run_releases(release_option);
-                }
-                SubCommands::Tokei => {
-                    run_tokei(&target_directory);
-                }
-                SubCommands::Upgrade(upgrade_options) => {
-                    if upgrade_options.check {
-                        if let Err(error) = check_for_update() {
-                            paint_error(error);
-                        }
-                    } else if let Err(error) = update_self() {
-                        paint_error(error);
-                    }
-                }
-            }
+        let target_directory = if let Some(ref directory) = args.directory {
+            canonicalize_path(directory).map_or_else(
+                |error| {
+                    paint_error(error);
+                    None
+                },
+                Some,
+            )
         } else {
-            // Run `nomad` in normal mode.
-            match build_walker(&args.global, &target_directory, None) {
-                Ok(mut walker) => {
-                    match walk_directory(
-                        &args.global,
-                        NomadMode::Normal,
-                        &nomad_style,
-                        &target_directory,
-                        &mut walker,
-                    ) {
-                        Ok((tree, config, _)) => {
-                            if let Some(export) = args.global.export {
-                                if let Err(error) =
-                                    export_tree(config, ExportMode::Normal, &export, tree)
-                                {
-                                    paint_error(error);
-                                }
+            get_current_directory().map_or_else(
+                |error| {
+                    paint_error(error);
+                    None
+                },
+                Some,
+            )
+        };
+
+        if let Some(target_directory) = target_directory {
+            if let Some(sub_command) = &args.sub_commands {
+                match sub_command {
+                    SubCommands::Bat { item_labels } => {
+                        if let Some(found_items) = indiscriminate_search(
+                            &args,
+                            item_labels,
+                            &nomad_style,
+                            None,
+                            SearchMode::Normal,
+                            &target_directory,
+                        ) {
+                            if let Err(error) = run_bat(found_items) {
+                                paint_error(error);
                             }
                         }
-                        Err(error) => paint_error(error),
+                    }
+                    SubCommands::Config(config_options) => {
+                        run_config(config_options, config_path, &nomad_style);
+                    }
+                    SubCommands::Edit { item_labels } => {
+                        if let Some(found_items) = indiscriminate_search(
+                            &args,
+                            item_labels,
+                            &nomad_style,
+                            None,
+                            SearchMode::Normal,
+                            &target_directory,
+                        ) {
+                            if let Err(error) = open_files(found_items) {
+                                paint_error(error);
+                            }
+                        }
+                    }
+                    SubCommands::Ft(filetype_option) => {
+                        run_filetypes(filetype_option, &nomad_style, &target_directory);
+                    }
+                    SubCommands::Git(git_command) => {
+                        run_git(&args, git_command, &nomad_style, &target_directory);
+                    }
+                    SubCommands::Rootless => {
+                        // ANSI escape codes do not correctly render in the alternate screen,
+                        // which is why `--no-colors` has to be enabled.
+                        args.global.style.no_colors = true;
+
+                        match enter_rootless_mode(&mut args.global, &nomad_style, &target_directory)
+                        {
+                            Ok(exit_mode) => {
+                                if let ExitMode::Edit(found_items) = exit_mode {
+                                    if let Err(error) = open_files(found_items) {
+                                        paint_error(error);
+                                    }
+                                }
+                            }
+                            Err(error) => {
+                                paint_error(error);
+                            }
+                        }
+                    }
+                    SubCommands::Releases(release_option) => {
+                        run_releases(release_option);
+                    }
+                    SubCommands::Tokei => {
+                        run_tokei(&target_directory);
+                    }
+                    SubCommands::Upgrade(upgrade_options) => {
+                        if upgrade_options.check {
+                            if let Err(error) = check_for_update() {
+                                paint_error(error);
+                            }
+                        } else if let Err(error) = update_self() {
+                            paint_error(error);
+                        }
                     }
                 }
-                Err(error) => paint_error(error),
+            } else {
+                // Run `nomad` in normal mode.
+                match build_walker(&args.global, &target_directory, None) {
+                    Ok(mut walker) => {
+                        match walk_directory(
+                            &args.global,
+                            NomadMode::Normal,
+                            &nomad_style,
+                            &target_directory,
+                            &mut walker,
+                        ) {
+                            Ok((tree, config, _)) => {
+                                if let Some(export) = args.global.export {
+                                    if let Err(error) =
+                                        export_tree(config, ExportMode::Normal, &export, tree)
+                                    {
+                                        paint_error(error);
+                                    }
+                                }
+                            }
+                            Err(error) => paint_error(error),
+                        }
+                    }
+                    Err(error) => paint_error(error),
+                }
             }
         }
     }
