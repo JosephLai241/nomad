@@ -296,7 +296,7 @@ impl ToTree for Vec<TransformedItem> {
                     ));
 
                     if let Some(ref tokei) = tokei {
-                        for stat in loc_in_file(&item.path, tokei) {
+                        for stat in loc_in_file(args, &item.path, tokei) {
                             tree.add_empty_child(stat);
                         }
 
