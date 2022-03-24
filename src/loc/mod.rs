@@ -13,6 +13,8 @@ use term_table::{
 };
 use tokei::{Config, Language, Languages, Sort};
 
+use crate::cli::global::GlobalArgs;
+
 use self::{format::tree_stats_from_report, utils::get_file_report};
 
 // FUTURE: Add a table in `nomad.toml` called `[tokei]` to set the `Config`
@@ -27,23 +29,27 @@ pub fn loc_in_dir(target_directory: &str) -> Language {
 }
 
 /// Get the `CodeStats` for a single file from the `Language` struct.
-pub fn loc_in_file(file_path: &str, tokei: &Language) -> Vec<String> {
+pub fn loc_in_file(args: &GlobalArgs, file_path: &str, tokei: &Language) -> Vec<String> {
     let report = get_file_report(&tokei.children, PathBuf::from(file_path));
 
     let mut formatted_stats = Vec::new();
 
-    match tree_stats_from_report(report) {
+    match tree_stats_from_report(args, report) {
         Some(stats) => {
             formatted_stats.push(stats.blanks);
             formatted_stats.push(stats.code);
             formatted_stats.push(stats.comments);
             formatted_stats.push(stats.lines);
         }
-        None => formatted_stats.push(format!(
-            "{} {}",
-            Style::new().bold().paint("|"),
-            Colour::Fixed(172).bold().paint("No tokei data available")
-        )),
+        None => formatted_stats.push(if args.style.no_colors || args.style.plain {
+            "| No tokei data available".to_string()
+        } else {
+            format!(
+                "{} {}",
+                Style::new().bold().paint("|"),
+                Colour::Fixed(172).bold().paint("No tokei data available")
+            )
+        }),
     }
 
     formatted_stats
@@ -100,8 +106,12 @@ fn display_summary_table(summary: Language) {
         vec!["Files", "Lines", "Code", "Comments", "Blanks"]
             .iter()
             .map(|header| {
-                let mut cell =
-                    TableCell::new(Colour::White.bold().paint(header.clone()).to_string());
+                let mut cell = TableCell::new(
+                    Colour::White
+                        .bold()
+                        .paint(&(*header).to_string())
+                        .to_string(),
+                );
                 cell.alignment = Alignment::Right;
 
                 cell

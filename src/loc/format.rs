@@ -3,6 +3,8 @@
 use ansi_term::{Colour, Style};
 use tokei::Report;
 
+use crate::cli::global::GlobalArgs;
+
 /// Contains formatted strings for a file's individual tokei metadata.
 pub struct TokeiTreeStats {
     /// The formatted string indicating the number of blank lines in this file.
@@ -16,35 +18,54 @@ pub struct TokeiTreeStats {
 }
 
 /// Format the file's complimentary `Report` for normal/tree view.
-pub fn tree_stats_from_report(report: Option<&'_ Report>) -> Option<TokeiTreeStats> {
+pub fn tree_stats_from_report(
+    args: &GlobalArgs,
+    report: Option<&'_ Report>,
+) -> Option<TokeiTreeStats> {
     report.map(|metadata| TokeiTreeStats {
-        blanks: format!(
-            "{} Blanks   {}",
-            Style::new().bold().paint("|"),
-            Colour::Fixed(030)
-                .bold()
-                .paint(format!("{}", metadata.stats.blanks))
-        ),
-        code: format!(
-            "{} Code     {}",
-            Style::new().bold().paint("|"),
-            Colour::Fixed(030)
-                .bold()
-                .paint(format!("{}", metadata.stats.code))
-        ),
-        comments: format!(
-            "{} Comments {}",
-            Style::new().bold().paint("|"),
-            Colour::Fixed(030)
-                .bold()
-                .paint(format!("{}", metadata.stats.comments))
-        ),
-        lines: format!(
-            "{} Lines    {}",
-            Style::new().bold().paint("|"),
-            Colour::Fixed(030)
-                .bold()
-                .paint(format!("{}", metadata.stats.lines()))
-        ),
+        blanks: if args.style.no_colors || args.style.plain {
+            format!("| Blanks   {}", metadata.stats.blanks)
+        } else {
+            format!(
+                "{} Blanks   {}",
+                Style::new().bold().paint("|"),
+                Colour::Fixed(030)
+                    .bold()
+                    .paint(format!("{}", metadata.stats.blanks))
+            )
+        },
+        code: if args.style.no_colors || args.style.plain {
+            format!("| Code     {}", metadata.stats.code)
+        } else {
+            format!(
+                "{} Code     {}",
+                Style::new().bold().paint("|"),
+                Colour::Fixed(030)
+                    .bold()
+                    .paint(format!("{}", metadata.stats.code))
+            )
+        },
+        comments: if args.style.no_colors || args.style.plain {
+            format!("| Comments {}", metadata.stats.comments)
+        } else {
+            format!(
+                "{} Comments {}",
+                Style::new().bold().paint("|"),
+                Colour::Fixed(030)
+                    .bold()
+                    .paint(format!("{}", metadata.stats.comments))
+            )
+        },
+        lines: if args.style.no_colors || args.style.plain {
+            format!("| Lines    {}", metadata.stats.lines())
+        } else {
+            format!(
+                "{} Lines    {}",
+                Style::new().bold().paint("|"),
+                Colour::Fixed(030)
+                    .bold()
+                    .paint(format!("{}", metadata.stats.lines()))
+            )
+        },
     })
 }
