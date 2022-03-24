@@ -633,9 +633,6 @@ where
                     _ => {
                         if let UIMode::Normal = app.ui_mode {
                             args.regex.pattern = None;
-                            if let Err(error) = app.refresh(args, nomad_style, target_directory) {
-                                app.popup_mode = PopupMode::Error(error.to_string())
-                            }
                         }
 
                         app.popup_mode = PopupMode::Disabled;
