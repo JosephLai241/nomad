@@ -24,6 +24,9 @@ use self::{
     author = "Joseph Lai"
 )]
 pub struct Args {
+    #[structopt(long, help = "Display the banner")]
+    pub banner: bool,
+
     #[structopt(help = "Display a tree for this directory")]
     pub directory: Option<String>,
 
