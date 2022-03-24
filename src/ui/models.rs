@@ -24,14 +24,14 @@ impl Default for Keybindings<'_> {
         let inspect = vec![
             (" /", "search for a pattern within the file"),
             (" 0", "scroll to the top of the file"),
-            (
-                " 1 - 9",
-                "scroll 'n' lines down. <SHIFT> + 'n' scrolls 'n' lines up",
-            ),
+            (" 1 - 9", "scroll 'n' lines down"),
+            ("", "<SHIFT> + 'n' scrolls 'n' lines up"),
             (" j, down", "scroll down the file"),
             (" k, up", "scroll up the file"),
-            (" n", "snap to the next pattern match in the file"),
-            (" N", "snap to the previous pattern match in the file"),
+            (" n", "snap to the next pattern match"),
+            ("", "in the file"),
+            (" N", "snap to the previous pattern match"),
+            ("", "in the file"),
             (" R", "refresh the file contents"),
             (" <ESC>", "return to normal tree mode"),
         ];
@@ -39,10 +39,8 @@ impl Default for Keybindings<'_> {
             (" /", "search for a pattern in file paths"),
             (" 0", "scroll to the top of the tree"),
             (" d", "toggle only displaying directories"),
-            (
-                " e",
-                "edit the selected item in a text editor (if it is a file)",
-            ),
+            (" e", "edit the selected item in a text editor"),
+            ("", "(if it is a file)"),
             (" g", "toggle Git markers"),
             (" h", "toggle displaying hidden items"),
             (" i", "toggle icons"),
@@ -54,17 +52,14 @@ impl Default for Keybindings<'_> {
             (" p", "toggle plain mode"),
             (" r", "refresh the tree with your current settings"),
             (" s", "toggle the settings pane for the current tree"),
-            (
-                " D",
-                "toggle disrespecting all rules specified in ignore-type files",
-            ),
+            (" D", "toggle disrespecting all rules specified"),
+            ("", "in ignore-type files"),
             (" L", "toggle all labels (directories and items)"),
-            (" R", "reset all current settings and refresh the tree"),
+            (" R", "reset all current settings and refresh"),
+            ("", "the tree"),
             (" <ESC>", "move to breadcrumbs mode"),
-            (
-                " <ENTER>",
-                "enter the selected directory, or inspect the selected file",
-            ),
+            (" <ENTER>", "enter the selected directory, or inspect"),
+            ("", "the selected file"),
         ];
 
         Self {
