@@ -281,6 +281,8 @@ impl<'a> App<'a> {
                                 WidgetMode::Standard,
                             );
                             self.match_lines.state.select(Some(0));
+                            self.scroll = self.match_lines.items
+                                [self.match_lines.state.selected().unwrap_or(0)];
 
                             self.popup_mode = PopupMode::Disabled;
                         } else {
