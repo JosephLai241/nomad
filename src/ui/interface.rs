@@ -19,6 +19,25 @@ use super::{
     widgets::{cat_view, error_view, get_breadcrumbs, help_view, normal_view, nothing_found_view},
 };
 
+/// The message that is displayed in the `cat` view area if the user is in normal
+/// mode and the current highlighted item is a directory.
+const EMPTY_CAT_MESSAGE: &str = r#"
+press <ENTER> or 'r' to enter this directory
+
+press 's' to display your current settings
+
+press <ESC> to cycle through widgets
+
+press 'K' to bring up the available keybindings for your current mode
+(your current mode is displayed in the top right corner of the TUI)
+
+
+press 'q' to exit Rootless mode
+
+press '?' to display the help menu
+
+"#;
+
 /// Render the user interface for the TUI.
 pub fn render_ui<B>(app: &mut App, args: &mut GlobalArgs, frame: &mut Frame<B>)
 where
@@ -61,23 +80,23 @@ where
                 &mut app.directory_tree.state,
             );
 
-            let centered_right_chunk = Layout::default()
-                .direction(Direction::Vertical)
-                .constraints([
-                    Constraint::Percentage(40),
-                    Constraint::Percentage(5),
-                    Constraint::Percentage(10),
-                    Constraint::Percentage(5),
-                    Constraint::Percentage(40),
-                ])
-                .split(normal_chunks[1])[2];
-
             match cat_view(app) {
                 Some(paragraph) => match paragraph {
                     Some(cat_view) => {
                         frame.render_widget(cat_view, normal_chunks[1]);
                     }
                     None => {
+                        let centered_right_chunk = Layout::default()
+                            .direction(Direction::Vertical)
+                            .constraints([
+                                Constraint::Percentage(40),
+                                Constraint::Percentage(5),
+                                Constraint::Percentage(10),
+                                Constraint::Percentage(5),
+                                Constraint::Percentage(40),
+                            ])
+                            .split(normal_chunks[1])[2];
+
                         frame.render_widget(
                             Paragraph::new("<EMPTY>")
                                 .alignment(Alignment::Center)
@@ -89,15 +108,24 @@ where
                     }
                 },
                 None => {
+                    let centered_info_chunk = Layout::default()
+                        .direction(Direction::Vertical)
+                        .constraints([
+                            Constraint::Percentage(20),
+                            Constraint::Percentage(60),
+                            Constraint::Percentage(20),
+                        ])
+                        .split(normal_chunks[1])[1];
+
                     frame.render_widget(
-                        Paragraph::new("press <ENTER> or 'r' to enter this directory")
+                        Paragraph::new(EMPTY_CAT_MESSAGE)
                             .alignment(Alignment::Center)
                             .style(
                                 Style::default()
                                     .add_modifier(Modifier::BOLD)
                                     .add_modifier(Modifier::DIM),
                             ),
-                        centered_right_chunk,
+                        centered_info_chunk,
                     );
                 }
             }
