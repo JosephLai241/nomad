@@ -22,19 +22,24 @@ use super::{
 /// The message that is displayed in the `cat` view area if the user is in normal
 /// mode and the current highlighted item is a directory.
 const EMPTY_CAT_MESSAGE: &str = r#"
-press <ENTER> or 'r' to enter this directory
-
-press 's' to display your current settings
-
-press <ESC> to cycle through widgets
-
-press 'K' to bring up the available keybindings for your current mode
-(your current mode is displayed in the top right corner of the TUI)
+       ________  ________  ________  ________   _______
+      ╱    ╱   ╲╱        ╲╱        ╲╱        ╲_╱       ╲
+     ╱         ╱         ╱         ╱         ╱         ╱
+    ╱         ╱         ╱         ╱         ╱         ╱
+    ╲__╱_____╱╲________╱╲__╱__╱__╱╲___╱____╱╲________╱
 
 
-press 'q' to exit Rootless mode
+    press <ENTER> or 'r' to enter this directory
 
-press '?' to display the help menu
+    press 's' to display your current settings
+
+    press <ESC> to cycle through widgets
+
+    press 'K' to display the available keybindings for the current widget
+
+    press 'q' to exit Rootless mode
+
+    press '?' to display the help menu
 
 "#;
 
@@ -50,24 +55,7 @@ where
 
     match &app.ui_mode {
         UIMode::Breadcrumbs | UIMode::Inspect | UIMode::Normal => {
-            let nav_chunks = Layout::default()
-                .direction(Direction::Horizontal)
-                .constraints([Constraint::Percentage(93), Constraint::Percentage(7)])
-                .split(chunks[0]);
-
-            frame.render_widget(get_breadcrumbs(app), nav_chunks[0]);
-            frame.render_widget(
-                Paragraph::new("help:❓")
-                    .alignment(Alignment::Center)
-                    .block(
-                        Block::default()
-                            .borders(Borders::ALL)
-                            .border_type(BorderType::Rounded)
-                            .style(Style::default().add_modifier(Modifier::DIM)),
-                    )
-                    .style(Style::default().add_modifier(Modifier::DIM)),
-                nav_chunks[1],
-            );
+            frame.render_widget(get_breadcrumbs(app), chunks[0]);
 
             let normal_chunks = Layout::default()
                 .direction(Direction::Horizontal)
@@ -118,13 +106,11 @@ where
                         .split(normal_chunks[1])[1];
 
                     frame.render_widget(
-                        Paragraph::new(EMPTY_CAT_MESSAGE)
-                            .alignment(Alignment::Center)
-                            .style(
-                                Style::default()
-                                    .add_modifier(Modifier::BOLD)
-                                    .add_modifier(Modifier::DIM),
-                            ),
+                        Paragraph::new(EMPTY_CAT_MESSAGE).style(
+                            Style::default()
+                                .add_modifier(Modifier::BOLD)
+                                .add_modifier(Modifier::DIM),
+                        ),
                         centered_info_chunk,
                     );
                 }
