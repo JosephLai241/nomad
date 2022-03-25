@@ -40,8 +40,11 @@ pub fn get_status_markers(
     let mut formatted_items = HashMap::new();
 
     for repo_item in repo.statuses(Some(&mut status_options))?.iter() {
-        let item_name = Path::new(target_directory)
-            .join(Path::new(repo_item.path().unwrap_or("?")))
+        let item_name = repo
+            .path()
+            .parent()
+            .unwrap_or(Path::new(target_directory))
+            .join(repo_item.path().unwrap_or("?"))
             .to_str()
             .unwrap_or("?")
             .to_string();
