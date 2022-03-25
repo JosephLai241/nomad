@@ -36,7 +36,7 @@ pub fn get_breadcrumbs<'a>(app: &App) -> Tabs<'a> {
             UIMode::Breadcrumbs => Style::default()
                 .add_modifier(Modifier::BOLD)
                 .bg(app.nomad_style.tui.border_color)
-                .fg(Color::Black),
+                .fg(Color::White),
             _ => Style::default()
                 .add_modifier(Modifier::BOLD)
                 .bg(Color::Black)
@@ -116,7 +116,24 @@ pub fn cat_view<'a>(app: &'a App) -> Option<Option<Paragraph<'a>>> {
                                     } else {
                                         Spans::from(vec![
                                             Span::styled(
-                                                format!(" {} ", app.match_lines.items.len()),
+                                                " [",
+                                                Style::default()
+                                                    .add_modifier(Modifier::BOLD)
+                                                    .fg(Color::White),
+                                            ),
+                                            Span::styled(
+                                                format!(
+                                                    "{} / {}",
+                                                    app.match_lines.state.selected().unwrap_or(1)
+                                                        + 1,
+                                                    app.match_lines.items.len()
+                                                ),
+                                                Style::default()
+                                                    .add_modifier(Modifier::BOLD)
+                                                    .fg(Color::White),
+                                            ),
+                                            Span::styled(
+                                                "] ",
                                                 Style::default()
                                                     .add_modifier(Modifier::BOLD)
                                                     .fg(Color::White),
@@ -135,24 +152,27 @@ pub fn cat_view<'a>(app: &'a App) -> Option<Option<Paragraph<'a>>> {
                                                     .fg(app.nomad_style.tui.regex.match_color),
                                             ),
                                             Span::styled(
-                                                "[",
+                                                "| ",
                                                 Style::default()
                                                     .add_modifier(Modifier::BOLD)
                                                     .fg(Color::White),
+                                            ),
+                                            Span::styled(
+                                                "LINE ",
+                                                Style::default()
+                                                    .add_modifier(Modifier::BOLD)
+                                                    .fg(app.nomad_style.tui.regex.match_color),
                                             ),
                                             Span::styled(
                                                 format!(
-                                                    "{} / {}",
-                                                    app.match_lines.state.selected().unwrap_or(1)
-                                                        + 1,
-                                                    app.match_lines.items.len()
+                                                    "{} ",
+                                                    app.match_lines.items[app
+                                                        .match_lines
+                                                        .state
+                                                        .selected()
+                                                        .unwrap_or(0)]
+                                                        + 1
                                                 ),
-                                                Style::default()
-                                                    .add_modifier(Modifier::BOLD)
-                                                    .fg(Color::White),
-                                            ),
-                                            Span::styled(
-                                                "] ",
                                                 Style::default()
                                                     .add_modifier(Modifier::BOLD)
                                                     .fg(Color::White),
