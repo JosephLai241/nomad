@@ -331,7 +331,7 @@ impl<'a> App<'a> {
     /// and `directory_tree`.
     pub fn refresh(
         &mut self,
-        args: &GlobalArgs,
+        args: &mut GlobalArgs,
         nomad_style: &'a NomadStyle,
         target_directory: &str,
     ) -> Result<(), NomadError> {
@@ -402,6 +402,8 @@ impl<'a> App<'a> {
 
         self.popup_mode = PopupMode::Disabled;
         self.ui_mode = UIMode::Normal;
+
+        args.regex.pattern = None;
 
         Ok(())
     }
