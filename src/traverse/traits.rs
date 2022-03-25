@@ -371,7 +371,7 @@ impl ToTree for Vec<TransformedBranch> {
         nomad_style: &NomadStyle,
         target_directory: &str,
     ) -> Result<(StringItem, PrintConfig, Option<Vec<DirItem>>), NomadError> {
-        let _labeled_items: HashMap<String, String> = HashMap::new();
+        let labeled_items: HashMap<String, String> = HashMap::new();
         let mut numbered_items: HashMap<String, String> = HashMap::new();
 
         let mut current_depth = 0;
@@ -432,7 +432,7 @@ impl ToTree for Vec<TransformedBranch> {
             previous_item = item;
         }
 
-        store_directory_contents(_labeled_items, numbered_items)?;
+        store_directory_contents(labeled_items, numbered_items)?;
 
         let final_tree = tree.build();
 
