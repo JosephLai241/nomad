@@ -141,26 +141,32 @@ fn build_status_tree(
 
     let (tree, config, _) = marker_map
         .iter()
-        .filter_map(|(absolute_path, marker)| match regex_expression {
-            Some(ref regex) => match regex.find(
-                Path::new(&absolute_path)
-                    .strip_prefix(target_directory)
-                    .unwrap_or_else(|_| Path::new("?"))
-                    .to_str()
-                    .unwrap_or("?"),
-            ) {
-                Some(matched) => Some(FoundItem {
-                    marker: Some(marker.to_string()),
-                    matched: Some((matched.start(), matched.end())),
-                    path: absolute_path.clone(),
-                }),
-                None => None,
-            },
-            None => Some(FoundItem {
-                marker: Some(marker.to_string()),
-                matched: None,
-                path: absolute_path.to_string(),
-            }),
+        .filter_map(|(absolute_path, marker)| {
+            if absolute_path.contains(target_directory) {
+                match regex_expression {
+                    Some(ref regex) => match regex.find(
+                        Path::new(&absolute_path)
+                            .strip_prefix(target_directory)
+                            .unwrap_or_else(|_| Path::new("?"))
+                            .to_str()
+                            .unwrap_or("?"),
+                    ) {
+                        Some(matched) => Some(FoundItem {
+                            marker: Some(marker.to_string()),
+                            matched: Some((matched.start(), matched.end())),
+                            path: absolute_path.clone(),
+                        }),
+                        None => None,
+                    },
+                    None => Some(FoundItem {
+                        marker: Some(marker.to_string()),
+                        matched: None,
+                        path: absolute_path.to_string(),
+                    }),
+                }
+            } else {
+                None
+            }
         })
         .sorted_by_key(|found_item| found_item.path.to_string())
         .collect::<Vec<FoundItem>>()
