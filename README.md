@@ -52,7 +52,7 @@
 	+ [`config preview` - Preview Your Settings](#config-preview---preview-your-settings)
 * [`releases` - View `nomad` Releases](#releases---view-nomad-releases)
     + [`releases all` - View All Releases](#releases-all---view-all-releases)
-    + [`releases VERSION_NUMBER` - View Release Data for a Specific Version](#releases-version_number-view-release-data-for-a-specific-version)
+    + [`releases VERSION_NUMBER` - View Release Data for a Specific Version](#releases-version_number---view-release-data-for-a-specific-version)
 * [Upgrading `nomad`](#upgrading-nomad)
 
 # Introduction
@@ -297,7 +297,7 @@ Both the `-f` and `-g` flags accept a list of filetypes or globs. An example:
 nd ft match -f rust toml py -g "*.asdf" "*.qwerty"
 ```
 
-## Negating Fiietypes or Globs
+## Negating Filetypes or Globs
 
 You can exclude filetypes or globs by using the `negate` subcommand. Use the `-f` flag to include filetypes and the `-g` flag to match globs.
 
@@ -393,9 +393,9 @@ Here is a table that contains the default Git status markers, the marker's color
 
 > \* The filename will also be painted the same color.
 
-[Back to Table of Contents](#table-of-contents)
-
 If you do not like the default marker or color configuration, you can [customize it to your liking](#customizing-nomad)
+
+[Back to Table of Contents](#table-of-contents)
 
 ## `git add`
 
