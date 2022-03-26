@@ -38,6 +38,8 @@ pub enum UIMode {
 pub enum PopupMode {
     /// No popup is rendered.
     Disabled,
+    /// Render a popup warning "Unable to search for patterns in an empty file".
+    EmptyFileSearchError,
     /// Render a popup with the error message if applicable.
     Error(String),
     /// Nothing was found after a pattern was provided.

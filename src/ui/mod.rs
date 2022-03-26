@@ -14,6 +14,7 @@ use self::{
     interface::render_ui,
     text::HELP_TEXT,
     utils::reset_args,
+    widgets::cat_view,
 };
 use crate::{cli::global::GlobalArgs, errors::NomadError, style::models::NomadStyle};
 
@@ -101,7 +102,11 @@ where
                                     app.popup_mode = PopupMode::Error(error.to_string());
                                 }
 
-                                app.popup_mode = PopupMode::PatternInput;
+                                if cat_view(&app).flatten().is_some() {
+                                    app.popup_mode = PopupMode::PatternInput;
+                                } else {
+                                    app.popup_mode = PopupMode::EmptyFileSearchError;
+                                }
                             }
                             UIMode::Normal => app.popup_mode = PopupMode::PatternInput,
                             _ => {}
@@ -573,6 +578,13 @@ where
                         _ => {}
                     }
                 }
+
+                // ==============================
+                // Empty file search error popup.
+                // ==============================
+                PopupMode::EmptyFileSearchError => match key.code {
+                    _ => app.popup_mode = PopupMode::Disabled,
+                },
 
                 // ===========
                 // Error mode.

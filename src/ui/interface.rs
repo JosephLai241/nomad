@@ -118,6 +118,20 @@ where
 
             match &app.popup_mode {
                 PopupMode::Disabled => {}
+                PopupMode::EmptyFileSearchError => {
+                    let popup_area = get_single_line_popup_area(chunks[1]);
+
+                    frame.render_widget(Clear, popup_area);
+                    frame.render_widget(
+                        Paragraph::new("Unable to search for patterns in an empty file!")
+                            .alignment(Alignment::Center)
+                            .block(Block::default().borders(Borders::ALL).border_style(
+                                Style::default().add_modifier(Modifier::BOLD).fg(Color::Red),
+                            ))
+                            .style(Style::default().add_modifier(Modifier::BOLD).fg(Color::Red)),
+                        popup_area,
+                    );
+                }
                 PopupMode::Error(error) => {
                     let error_area = get_error_popup_area(chunks[1]);
 
