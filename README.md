@@ -16,6 +16,7 @@
 
 * [Introduction](#introduction)
 * [What `nomad` Has to Offer](#what-nomad-has-to-offer)
+* [Current Limitations](#current-limitations)
 * [Prerequisite Setup](#prerequisite-setup)
     + [Installing a NerdFont on MacOS](#installing-a-nerdfont-on-macos)
 	+ [Installing a NerdFont on Linux](#installing-a-nerdfont-on-linux)
@@ -44,6 +45,7 @@
 	    * [Usage](#usage-3)
 	+ [`git commit`](#git-commit)
 	+ [`git diff`](#git-diff)
+* [Rootless Mode](#rootless-mode)
 * [Customizing `nomad`](#customizing-nomad)
     + ["What Can I Customize?"](#what-can-i-customize)
 	+ [`config edit` - Edit the Configuration File](#config-edit---edit-the-configuration-file)
@@ -79,6 +81,14 @@ There are a ton of features baked into `nomad`. Here is a list of all it has to 
 * It's self-upgrading and you can see the available releases all from your terminal!
 
 Since there are so many features, I have included a link that points back to the table of contents at the end of each section for your convenience.
+
+# Current Limitations
+
+As of v1.0.0, `nomad` unfortunately experiences a performance hit when running it in very large directories. This is due to the way the directory tree is built.
+
+This project uses the [`ptree`][ptree] crate to build the tree via its `TreeBuilder`. The `TreeBuilder` stores all tree items before building and displaying the tree, so the tree will only be displayed after all items (depending on your traversal settings) have been visited.
+
+I have plans to replace this crate with a tree implementation that will display items in real time when they are visited, but for now I would recommend against running it in very large directories.
 
 # Prerequisite Setup
 
@@ -493,6 +503,20 @@ nd git restore 2 5 b
 
 [Back to Table of Contents](#table-of-contents)
 
+# Rootless Mode
+
+Rootless mode is `nomad` in TUI form. You can interactively traverse directories while in this mode, preview files, and even run regex searches within the file.
+
+<!-- ADD ROOTLESS MODE GIF HERE -->
+
+Press `?` in Rootless mode to bring up the Help widget. This widget details how Rootless mode works, navigation, and keybindings.
+
+> **NOTE:** As of v1.0.0, Rootless mode does not support mouse interaction and operates solely on keyboard bindings.
+
+Git status colors are respected in this mode and can also be customized if you do not like the default configuration. See the [Customizing `nomad`](#customizing-nomad) section to learn how to do so.
+
+[Back to Table of Contents](#table-of-contents)
+
 # Customizing `nomad`
 
 You can customize `nomad` to your liking if you do not like the default configuration.
@@ -577,14 +601,16 @@ nd releases v1.0.0
 
 <!-- LINKS -->
 [bat]: https://github.com/sharkdp/bat
+[lsd]: https://github.com/Peltoche/lsd
+[ptree]: https://docs.rs/ptree/latest/ptree/
+[regex]: https://docs.rs/regex/latest/regex/
+
 [Homebrew]: https://brew.sh/
 [iTerm2]: https://iterm2.com/
-[lsd]: https://github.com/Peltoche/lsd
 [Nano]: https://www.nano-editor.org/
 [Neovim]: https://github.com/neovim/neovim
 [NerdFont]: https://www.nerdfonts.com/
 [NerdFont Installation]: https://github.com/ryanoasis/nerd-fonts#font-installation
-[regex]: https://docs.rs/regex/latest/regex/
 [Tokei]: https://github.com/XAMPPRocky/tokei
 [Vi]: http://ex-vi.sourceforge.net/
 [Vim]: https://www.vim.org/
