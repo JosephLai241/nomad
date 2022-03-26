@@ -71,12 +71,6 @@ pub struct MetaArgs {
         help = "Show item metadata such as file permissions, owner, group, file size, and last modified time"
     )]
     pub metadata: bool,
-
-    #[structopt(
-        long = "summary",
-        help = "Display `tokei` (lines of code counter) statistics. This only applies if `--loc` is provided"
-    )]
-    pub summarize: bool,
 }
 
 #[derive(Debug, PartialEq, StructOpt)]
