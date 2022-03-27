@@ -33,6 +33,7 @@
     + [`git restore`](#git-restore)
     + [`git status`](#git-status)
 * [Rootless Mode](#rootless-mode)
+* [Configuration/Customization](#configurationcustomization)
 * [Inspirations](#inspirations)
 
 # Introduction
@@ -88,6 +89,10 @@ The manual for `nomad` was originally this `README`, but it was too long to comf
 # Rootless Mode
 
 Rootless mode is the TUI (terminal UI) mode that allows you to dynamically interact with directory trees.
+
+# Configuration/Customization
+
+You can configure/customize `nomad` *without* the hassle of creating your own configuration file in the correct directory.
 
 # Inspirations
 
