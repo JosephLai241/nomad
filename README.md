@@ -15,7 +15,7 @@
 # Table of Contents
 
 * [Introduction](#introduction)
-* ["This `README` is just a bunch of GIFs. Where the hell is the manual?"](#this-readme-is-just-a-bunch-of-gifs-where-the-hell-is-the-manual)
+    + ["This `README` is just a bunch of GIFs. Where the hell is the manual?"](#this-readme-is-just-a-bunch-of-gifs-where-the-hell-is-the-manual)
 * [Prerequisites](#prerequisites)
 * [Standard Usage](#standard-usage)
 * [`bat` Files in the Tree](#bat-files-in-the-tree)
@@ -41,7 +41,7 @@
 
 I think the `tree` command is a useful CLI tool, but is unfortunately lacking some features that I think would make it even better. I decided to build my own next gen `tree` command that implements the features I would have wanted in the original `tree` command.
 
-# "This `README` is just a bunch of GIFs. Where the hell is the manual?"
+## "This `README` is just a bunch of GIFs. Where the hell is the manual?"
 
 The manual for `nomad` was originally this `README`, but it was too long to comfortably navigate. This `README` merely serves as a preview of sorts with some information.
 
