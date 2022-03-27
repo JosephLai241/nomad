@@ -1,0 +1,11 @@
+[book]
+authors = ["Joseph Lai"]
+language = "en"
+multilingual = false
+src = "src"
+title = "nomad"
+
+[output.html]
+default-theme = "Ayu"
+git-repository-url = "https://github.com/JosephLai241/nomad"
+preferred-dark-theme = "Ayu"

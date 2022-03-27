@@ -1,2 +1,4 @@
+manual/book/*
 /target/
+
 Cargo.lock
