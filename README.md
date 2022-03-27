@@ -87,6 +87,8 @@ The manual for `nomad` was originally this `README`, but it was too long to comf
 
 # Rootless Mode
 
+Rootless mode is the TUI (terminal UI) mode that allows you to dynamically interact with directory trees.
+
 # Inspirations
 
 Be sure to check out the tools that inspired me to create this project!
@@ -104,3 +106,5 @@ Be sure to check out the tools that inspired me to create this project!
 [nomad manual]: https://some-link.com <!-- UPDATE THIS ONCE THE MANUAL'S DEPLOYED -->
 
 [Neovim]: https://github.com/neovim/neovim
+[NerdFont]: https://www.nerdfonts.com/
+[NerdFont Installation]: https://github.com/ryanoasis/nerd-fonts#font-installation
