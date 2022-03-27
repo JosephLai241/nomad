@@ -92,7 +92,7 @@ Rootless mode is the TUI (terminal UI) mode that allows you to dynamically inter
 
 # Configuration/Customization
 
-You can configure/customize `nomad` *without* the hassle of creating your own configuration file in the correct directory.
+You can configure/customize `nomad` *without* the hassles of creating your own configuration file in the correct directory with the correct syntax.
 
 # Inspirations
 
