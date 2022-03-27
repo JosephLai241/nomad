@@ -108,7 +108,8 @@ Be sure to check out the tools that inspired me to create this project!
 [tokei]: https://github.com/XAMPPRocky/tokei
 [tree]: https://linux.die.net/man/1/tree
 
-[nomad manual]: https://some-link.com <!-- UPDATE THIS ONCE THE MANUAL'S DEPLOYED -->
+<!-- UPDATE THIS ONCE THE MANUAL'S DEPLOYED -->
+[nomad manual]: https://some-link.com
 
 [Neovim]: https://github.com/neovim/neovim
 [NerdFont]: https://www.nerdfonts.com/
