@@ -6,7 +6,12 @@ use std::{
     path::Path,
 };
 
-use crate::{cli, errors::NomadError, utils::meta::convert_time, XTERM_COLORS};
+use crate::{
+    cli,
+    errors::NomadError,
+    utils::{meta::convert_time, paint::convert_ansi_to_syntect},
+    SYNTAX_SET, THEME_SET, XTERM_COLORS,
+};
 
 use ansi_term::Colour;
 use anyhow::Result;
@@ -14,17 +19,23 @@ use bat::{Input, PagingMode, PrettyPrinter, WrappingMode};
 use git2::{BlameOptions, Repository};
 use lazy_static::lazy_static;
 use rand::{prelude::SliceRandom, thread_rng};
+use syntect::{
+    easy::HighlightLines,
+    highlighting::{Style as SyntectStyle, StyleModifier},
+    util::as_24_bit_terminal_escaped,
+};
 
 lazy_static! {
-    /// Blacklisted colors for Git blame. These colors are darker and may be difficult
-    /// to read or are too similar to the default shade of white.
-    static ref BLACKLIST: Vec<u8> = vec![
-        000, 001, 004, 005, 015, 016, 017, 018, 019, 020, 049, 051, 052, 053, 054,
-        055, 056, 057, 058, 059, 060, 061, 062, 081, 085, 086, 087, 088, 089, 090,
-        091, 092, 121, 122, 123, 124, 125, 126, 157, 158, 159, 192, 193, 194, 195,
-        218, 224, 225, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239,
-        240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254,
-        255
+    ///// Blacklisted colors for Git blame. These colors are darker and may be difficult
+    ///// to read or are too similar to the default shade of white.
+    /// Whitelisted colors for Git blame. These background colors allow an easier reading experience
+    /// for syntax highlighting on its foreground.
+    static ref WHITELIST: Vec<u8> = vec![
+        000, 001, 004, 005, 017, 018, 019, 020, 052, 053, 054, 055, 056, 057, 058,
+        059, 060, 061, 062, 088, 089, 090, 091, 092, 124, 125, 126, 127, 128, 129,
+        130, 131, 132, 133, 134, 136, 137, 138, 139, 160, 161, 162, 163, 165, 166,
+        167, 196, 197, 198, 199, 200, 201, 202, 203, 204, 208, 236, 237, 238, 239,
+        240, 241, 242, 243, 244, 245, 246
     ];
 }
 
@@ -128,6 +139,11 @@ fn get_blame(
     let blob = repo.find_blob(object.id())?;
     let reader = BufReader::new(blob.content());
 
+    let syntax = SYNTAX_SET
+        .find_syntax_for_file(relative_path)?
+        .unwrap_or(SYNTAX_SET.find_syntax_plain_text());
+    let mut highlighter = HighlightLines::new(syntax, &THEME_SET.themes["base16-eighties.dark"]);
+
     let mut found_authors: HashMap<String, Option<u8>> = HashMap::new();
     let mut found_emails: HashSet<String> = HashSet::new();
     let mut formatted_blame: Vec<String> = Vec::new();
@@ -180,15 +196,41 @@ fn get_blame(
 
             let commit_id = repo.find_commit(hunk.final_commit_id())?.id().to_string();
 
+            let code_with_syntax_highlight = {
+                let mut paint_background = false;
+                let ranges = highlighter
+                    .highlight(&line, &SYNTAX_SET)
+                    .iter()
+                    .map(|(style, line)| {
+                        let new_style = match found_authors.get(&author) {
+                            Some(Some(color)) => {
+                                paint_background = true;
+
+                                style.apply(StyleModifier {
+                                    background: Some(convert_ansi_to_syntect(*color)),
+                                    font_style: None,
+                                    foreground: None,
+                                })
+                            }
+                            _ => *style,
+                        };
+
+                        (new_style, *line)
+                    })
+                    .collect::<Vec<(SyntectStyle, &str)>>();
+
+                format!(
+                    "{}\u{001b}[0m", // Have to reset the style at the end of each line, otherwise it gets applied to the next line.
+                    as_24_bit_terminal_escaped(&ranges[..], paint_background)
+                )
+            };
+
             formatted_blame.push(format!(
                 "{} {} {} | {}",
                 Colour::Fixed(028).paint(&commit_id[..7]),
                 Colour::Fixed(193).paint(&formatted_author),
                 Colour::Fixed(194).paint(&formatted_meta),
-                match found_authors.get(&author) {
-                    Some(Some(color)) => Colour::Fixed(*color).paint(line).to_string(),
-                    _ => line,
-                }
+                code_with_syntax_highlight
             ));
 
             final_line_num = index + 1;
@@ -234,7 +276,7 @@ fn get_random_color(
 
         let mut new_color = false;
         while !new_color {
-            if taken_colors.contains(color) || BLACKLIST.contains(color) {
+            if taken_colors.contains(color) || !WHITELIST.contains(color) {
                 color = XTERM_COLORS.choose(&mut thread_rng()).unwrap_or(&007);
             } else {
                 new_color = true;

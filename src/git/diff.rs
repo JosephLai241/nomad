@@ -1,13 +1,43 @@
 //! Exposing functionality for the Git diff command.
 
-use std::{path::Path, str::from_utf8};
+use std::{ffi::OsStr, path::Path, str::from_utf8};
 
 use ansi_term::Colour;
 use anyhow::Result;
 use bat::{Input, PagingMode, PrettyPrinter, WrappingMode};
 use git2::{Delta, Diff, DiffDelta, DiffFormat, Error, Index, ObjectType, Repository, Tree};
+use lazy_static::lazy_static;
+use syntect::{
+    easy::HighlightLines,
+    highlighting::{Color, Style, StyleModifier},
+    util::as_24_bit_terminal_escaped,
+};
 
-use crate::errors::NomadError;
+use crate::{errors::NomadError, SYNTAX_SET, THEME_SET};
+
+lazy_static! {
+    /// A dark green color to indicate added lines.
+    static ref GREEN: Color = Color {
+        r: 030,
+        g: 052,
+        b: 024,
+        a: 0x1A,
+    };
+    /// A dark orange color to indicate conflicts in conflicting files.
+    static ref ORANGE: Color = Color {
+        r: 107,
+        g: 068,
+        b: 000,
+        a: 0x1A,
+    };
+    /// A dark red color to indicate deleted lines.
+    static ref RED: Color = Color {
+        r: 075,
+        g: 022,
+        b: 022,
+        a: 0x1A,
+    };
+}
 
 /// Get the diff between the old Git tree and the working directory using the Git index.
 pub fn get_repo_diffs(repo: &Repository) -> Result<Diff<'_>, Error> {
@@ -98,6 +128,35 @@ fn get_diffs(
     let mut formatted_diffs: Vec<(String, String)> = Vec::new();
 
     diff.print(DiffFormat::Patch, |delta, hunk, line| {
+        let old_syntax = SYNTAX_SET
+            .find_syntax_by_extension(
+                delta
+                    .old_file()
+                    .path()
+                    .unwrap_or_else(|| Path::new("?"))
+                    .extension()
+                    .unwrap_or_else(|| OsStr::new("?"))
+                    .to_str()
+                    .unwrap_or("?"),
+            )
+            .unwrap_or(SYNTAX_SET.find_syntax_plain_text());
+        let new_syntax = SYNTAX_SET
+            .find_syntax_by_extension(
+                delta
+                    .new_file()
+                    .path()
+                    .unwrap_or_else(|| Path::new("?"))
+                    .extension()
+                    .unwrap_or_else(|| OsStr::new("?"))
+                    .to_str()
+                    .unwrap_or("?"),
+            )
+            .unwrap_or(SYNTAX_SET.find_syntax_plain_text());
+        let mut old_highlighter =
+            HighlightLines::new(old_syntax, &THEME_SET.themes["base16-eighties.dark"]);
+        let mut new_highlighter =
+            HighlightLines::new(new_syntax, &THEME_SET.themes["base16-eighties.dark"]);
+
         if filename.is_empty() {
             let (new_filename, old_filename) = get_new_old_filenames(&delta);
             new_file = new_filename;
@@ -153,67 +212,61 @@ fn get_diffs(
                 _ => {
                     let content_text = from_utf8(line.content()).unwrap_or("?");
 
-                    match delta.status() {
+                    let highlighted_line = match delta.status() {
                         Delta::Added => {
-                            content.push(format!(
-                                "{} {}",
-                                colorize_origin(line.origin()),
-                                Colour::Green.paint(content_text)
-                            ));
-
                             current_delta = Some(Delta::Added);
                             added_lines += 1;
+
+                            highlight_line(Some(*GREEN), content_text, &mut new_highlighter, true)
                         }
                         Delta::Conflicted => {
-                            content.push(format!(
-                                "{} {}",
-                                colorize_origin(line.origin()),
-                                Colour::Fixed(172).paint(content_text)
-                            ));
-
                             current_delta = Some(Delta::Conflicted);
+
+                            highlight_line(Some(*ORANGE), content_text, &mut old_highlighter, true)
                         }
                         Delta::Deleted => {
-                            content.push(format!(
-                                "{} {}",
-                                colorize_origin(line.origin()),
-                                Colour::Red.paint(content_text)
-                            ));
-
                             current_delta = Some(Delta::Deleted);
                             deleted_lines += 1;
+
+                            highlight_line(Some(*RED), content_text, &mut old_highlighter, true)
                         }
                         Delta::Modified => {
-                            let colorized_content = match line.origin() {
-                                '+' | '>' => {
-                                    added_lines += 1;
+                            let (background_color, mut modified_highlighter, paint_background) =
+                                match line.origin() {
+                                    '+' | '>' => {
+                                        added_lines += 1;
 
-                                    Colour::Green.paint(content_text).to_string()
-                                }
-                                '-' | '<' => {
-                                    deleted_lines += 1;
+                                        (Some(*GREEN), new_highlighter, true)
+                                    }
+                                    '-' | '<' => {
+                                        deleted_lines += 1;
 
-                                    Colour::Red.paint(content_text).to_string()
-                                }
-                                _ => Colour::White.paint(content_text).to_string(),
-                            };
+                                        (Some(*RED), old_highlighter, true)
+                                    }
+                                    _ => (None, old_highlighter, false),
+                                };
 
-                            content.push(format!(
-                                "{} {colorized_content}",
-                                colorize_origin(line.origin()),
-                            ));
                             current_delta = Some(Delta::Modified);
+
+                            highlight_line(
+                                background_color,
+                                content_text,
+                                &mut modified_highlighter,
+                                paint_background,
+                            )
                         }
                         Delta::Renamed | Delta::Typechange => {
-                            content.push(format!(
-                                "{} {}",
-                                colorize_origin(line.origin()),
-                                Colour::Green.paint(content_text)
-                            ));
                             current_delta = Some(Delta::Renamed);
+
+                            highlight_line(Some(*GREEN), content_text, &mut new_highlighter, true)
                         }
-                        _ => {}
-                    }
+                        _ => highlight_line(None, content_text, &mut old_highlighter, false),
+                    };
+
+                    content.push(format!(
+                        "{} {highlighted_line}",
+                        colorize_origin(line.origin())
+                    ))
                 }
             }
 
@@ -333,6 +386,33 @@ fn colorize_origin(marker: char) -> String {
         '-' | '<' => Colour::Red.bold().paint(format!("{marker}")).to_string(),
         _ => Colour::White.bold().paint(format!("{marker}")).to_string(),
     }
+}
+
+/// Add syntax highlighting to a line and set its background color based on the diff status.
+fn highlight_line(
+    color: Option<Color>,
+    content_text: &str,
+    highlighter: &mut HighlightLines,
+    paint_background: bool,
+) -> String {
+    let ranges = highlighter
+        .highlight(content_text, &SYNTAX_SET)
+        .iter()
+        .map(|(style, line)| {
+            let style = style.apply(StyleModifier {
+                background: color,
+                font_style: None,
+                foreground: None,
+            });
+
+            (style, *line)
+        })
+        .collect::<Vec<(Style, &str)>>();
+
+    format!(
+        "{}\u{001b}[0m", // Have to reset the style at the end of each line, otherwise it gets applied to the next line.
+        as_24_bit_terminal_escaped(&ranges[..], paint_background)
+    )
 }
 
 /// Get the formatted filename for a Git diff.
