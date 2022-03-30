@@ -31,6 +31,7 @@ use loc::run_tokei;
 use releases::{check_for_update, update_self};
 use style::settings::process_settings;
 use switches::{config::run_config, filetype::run_filetypes, git::run_git, release::run_releases};
+use syntect::{highlighting::ThemeSet, parsing::SyntaxSet};
 use traverse::{modes::NomadMode, utils::build_walker, walk_directory};
 use ui::{enter_rootless_mode, ExitMode};
 use utils::{
@@ -81,6 +82,10 @@ lazy_static! {
         217, 218, 219, 208, 209, 210, 211, 212, 213, 202, 203, 204, 205, 206, 207,
         196, 197, 198, 199, 200, 201
     ];
+    /// Syntect `SyntaxSet` for syntax highlighting.
+    static ref SYNTAX_SET: SyntaxSet = SyntaxSet::load_defaults_nonewlines();
+    /// Syntect `ThemeSet` for syntax highlighting.
+    static ref THEME_SET: ThemeSet = ThemeSet::load_defaults();
 }
 
 /// Run `nomad`.
