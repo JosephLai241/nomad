@@ -15,8 +15,8 @@ jobs:
 
     - name: Setup mdBook
       uses: peaceiris/actions-mdbook@v1
-        with:
-          mdbook-version: 'latest'
+      with:
+        mdbook-version: 'latest'
 
     - name: Build manual
       run: mdbook build
@@ -27,19 +27,3 @@ jobs:
       with:
         branch: gh-pages
         folder: manual/book
-
-    #- name: Deploy GitHub Pages
-      #run: |
-        #cd manual
-        #mdbook build
-        #git worktree add gh-pages gh-pages
-        #git config user.name "Deploy from CI"
-        #git config user.email ""
-        #cd gh-pages
-        ## Delete the ref to avoid keeping history.
-        #git update-ref -d refs/heads/gh-pages
-        #rm -rf *
-        #mv ../book/* .
-        #git add .
-        #git commit -m "Deploy $GITHUB_SHA to gh-pages"
-        #git push --force
