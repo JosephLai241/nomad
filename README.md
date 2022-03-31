@@ -109,7 +109,7 @@ Be sure to check out the tools that inspired me to create this project!
 [tree]: https://linux.die.net/man/1/tree
 
 <!-- UPDATE THIS ONCE THE MANUAL'S DEPLOYED -->
-[nomad manual]: https://some-link.com
+[nomad manual]: https://josephlai241.github.io/nomad/
 
 [Neovim]: https://github.com/neovim/neovim
 [NerdFont]: https://www.nerdfonts.com/
