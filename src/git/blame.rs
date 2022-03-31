@@ -141,7 +141,7 @@ fn get_blame(
 
     let syntax = SYNTAX_SET
         .find_syntax_for_file(relative_path)?
-        .unwrap_or(SYNTAX_SET.find_syntax_plain_text());
+        .unwrap_or_else(|| SYNTAX_SET.find_syntax_plain_text());
     let mut highlighter = HighlightLines::new(syntax, &THEME_SET.themes["base16-eighties.dark"]);
 
     let mut found_authors: HashMap<String, Option<u8>> = HashMap::new();

@@ -43,7 +43,7 @@ pub fn get_status_markers(
         let item_name = repo
             .path()
             .parent()
-            .unwrap_or(Path::new(target_directory))
+            .unwrap_or_else(|| Path::new(target_directory))
             .join(repo_item.path().unwrap_or("?"))
             .to_str()
             .unwrap_or("?")

@@ -139,7 +139,7 @@ fn get_diffs(
                     .to_str()
                     .unwrap_or("?"),
             )
-            .unwrap_or(SYNTAX_SET.find_syntax_plain_text());
+            .unwrap_or_else(|| SYNTAX_SET.find_syntax_plain_text());
         let new_syntax = SYNTAX_SET
             .find_syntax_by_extension(
                 delta
@@ -151,7 +151,7 @@ fn get_diffs(
                     .to_str()
                     .unwrap_or("?"),
             )
-            .unwrap_or(SYNTAX_SET.find_syntax_plain_text());
+            .unwrap_or_else(|| SYNTAX_SET.find_syntax_plain_text());
         let mut old_highlighter =
             HighlightLines::new(old_syntax, &THEME_SET.themes["base16-eighties.dark"]);
         let mut new_highlighter =
