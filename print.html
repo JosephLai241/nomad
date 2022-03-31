@@ -1,0 +1,574 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js ayu">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>nomad</title>
+        <meta name="robots" content="noindex" />
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "ayu" : "ayu";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('ayu')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="offerings.html"><strong aria-hidden="true">2.</strong> What nomad Has to Offer</a></li><li class="chapter-item expanded "><a href="current_limitations.html"><strong aria-hidden="true">3.</strong> Current Limitations</a></li><li class="chapter-item expanded "><a href="prerequisites/prerequisites.html"><strong aria-hidden="true">4.</strong> Prerequisite Setup</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="prerequisites/macos.html"><strong aria-hidden="true">4.1.</strong> Installing a NerdFont on MacOS</a></li><li class="chapter-item expanded "><a href="prerequisites/linux.html"><strong aria-hidden="true">4.2.</strong> Installing a NerdFont on Linux</a></li><li class="chapter-item expanded "><a href="prerequisites/windows.html"><strong aria-hidden="true">4.3.</strong> Installing a NerdFont on Windows</a></li><li class="chapter-item expanded "><a href="prerequisites/lames.html"><strong aria-hidden="true">4.4.</strong> &quot;I don't want to install a NerdFont&quot;</a></li></ol></li><li class="chapter-item expanded "><a href="standard_usage.html"><strong aria-hidden="true">5.</strong> Standard Usage</a></li><li class="chapter-item expanded "><a href="labels.html"><strong aria-hidden="true">6.</strong> Running nomad With Item Labels</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="unlocked_functionality.html"><strong aria-hidden="true">6.1.</strong> Unlocked Functionality via Labels</a></li></ol></li><li class="chapter-item expanded "><a href="bat.html"><strong aria-hidden="true">7.</strong> bat - bat Files</a></li><li class="chapter-item expanded "><a href="edit.html"><strong aria-hidden="true">8.</strong> edit - Edit Files</a></li><li class="chapter-item expanded "><a href="tokei.html"><strong aria-hidden="true">9.</strong> tokei - Display Code Statistics</a></li><li class="chapter-item expanded "><a href="filetypes/filetypes.html"><strong aria-hidden="true">10.</strong> ft - Filtering Items by Filetype or Glob</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="filetypes/match.html"><strong aria-hidden="true">10.1.</strong> Matching Filetypes or Globs</a></li><li class="chapter-item expanded "><a href="filetypes/negate.html"><strong aria-hidden="true">10.2.</strong> Negating Fiietypes or Globs</a></li><li class="chapter-item expanded "><a href="filetypes/options.html"><strong aria-hidden="true">10.3.</strong> Listing Filetype Definitions</a></li></ol></li><li class="chapter-item expanded "><a href="git/git.html"><strong aria-hidden="true">11.</strong> git - Run Git Commands</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="git/status_markers.html"><strong aria-hidden="true">11.1.</strong> Git Status Markers</a></li><li class="chapter-item expanded "><a href="git/status.html"><strong aria-hidden="true">11.2.</strong> git status - git status in Tree Form</a></li><li class="chapter-item expanded "><a href="git/add.html"><strong aria-hidden="true">11.3.</strong> git add</a></li><li class="chapter-item expanded "><a href="git/blame.html"><strong aria-hidden="true">11.4.</strong> git blame</a></li><li class="chapter-item expanded "><a href="git/branch.html"><strong aria-hidden="true">11.5.</strong> git branch</a></li><li class="chapter-item expanded "><a href="git/commit.html"><strong aria-hidden="true">11.6.</strong> git commit</a></li><li class="chapter-item expanded "><a href="git/diff.html"><strong aria-hidden="true">11.7.</strong> git diff</a></li><li class="chapter-item expanded "><a href="git/restore.html"><strong aria-hidden="true">11.8.</strong> git restore</a></li></ol></li><li class="chapter-item expanded "><a href="rootless.html"><strong aria-hidden="true">12.</strong> Rootless Mode</a></li><li class="chapter-item expanded "><a href="customization/customization.html"><strong aria-hidden="true">13.</strong> Customizing nomad</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="customization/customizables.html"><strong aria-hidden="true">13.1.</strong> &quot;What Can I Customize?&quot;</a></li><li class="chapter-item expanded "><a href="customization/edit.html"><strong aria-hidden="true">13.2.</strong> config edit - Edit the Configuration File</a></li><li class="chapter-item expanded "><a href="customization/preview.html"><strong aria-hidden="true">13.3.</strong> config preview - Preview Your Settings</a></li></ol></li><li class="chapter-item expanded "><a href="releases/releases.html"><strong aria-hidden="true">14.</strong> releases - View nomad Releases</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="releases/all.html"><strong aria-hidden="true">14.1.</strong> releases all - View All Releases</a></li><li class="chapter-item expanded "><a href="releases/version_number.html"><strong aria-hidden="true">14.2.</strong> releases VERSION_NUMBER - View Release Data for a Specific Version</a></li></ol></li><li class="chapter-item expanded "><a href="upgrading.html"><strong aria-hidden="true">15.</strong> Upgrading nomad</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu (default)</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">nomad</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/JosephLai241/nomad" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <pre><code>   ________  ________  ________  ________   _______ 
+  ╱    ╱   ╲╱        ╲╱        ╲╱        ╲_╱       ╲
+ ╱         ╱         ╱         ╱         ╱         ╱
+╱         ╱         ╱         ╱         ╱         ╱ 
+╲__╱_____╱╲________╱╲__╱__╱__╱╲___╱____╱╲________╱  
+</code></pre>
+<blockquote>
+<p>The customizable next gen <code>tree</code> command with Git integration and TUI.</p>
+</blockquote>
+<p><img src="https://img.shields.io/badge/Rust-black?style=flat-square&amp;logo=rust" alt="Rust" />
+<img src="https://img.shields.io/github/workflow/status/JosephLai241/nomad/Rust?style=flat-square&amp;logo=github" alt="GitHub Workflow Status" />
+<img src="https://img.shields.io/github/v/release/JosephLai241/nomad?style=flat-square" alt="GitHub release (latest by date)" />
+<img src="https://img.shields.io/tokei/lines/github/JosephLai241/nomad?style=flat-square" alt="Lines of code" />
+<img src="https://img.shields.io/github/license/JosephLai241/nomad?style=flat-square" alt="License" /></p>
+<p><code>nomad</code> is a modern, customizable <a href="https://linux.die.net/man/1/tree"><code>tree</code></a> alternative that aims to expand upon the concept by simplifying the way you interact with files and directories within your terminal.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="what-nomad-has-to-offer"><a class="header" href="#what-nomad-has-to-offer">What <code>nomad</code> Has to Offer</a></h1>
+<p>When used without extra options, <code>nomad</code> will display a stylized tree for a directory while respecting any rules that are specified in any ignore-type files such as <code>.gitignore</code>s (this can be disabled).</p>
+<p>There are a ton of features baked into <code>nomad</code>. Here is a list of all it has to offer (so far):</p>
+<ul>
+<li>Display tree items with NerdFont-supported icons and Git status markers regardless of whether you run <code>nomad</code> in a directory containing a Git repository.</li>
+<li>Filter (including or excluding) directory items by filetype or glob patterns.</li>
+<li>Interact with directory items without typing paths.
+<ul>
+<li><a href="https://github.com/sharkdp/bat"><code>bat</code></a>, an improved <code>cat</code> alternative written in Rust, or open file(s) in the tree.</li>
+<li>Quickly <code>git diff/add/restore/blame</code> files.</li>
+</ul>
+</li>
+<li>Integrated Git
+<ul>
+<li>In addition to <code>git diff/add/restore/blame</code>, <code>git status</code> and <code>git branch</code> are implemented in tree form.</li>
+</ul>
+<ul>
+<li>Visually improved <code>git diff</code> and <code>git blame</code>.</li>
+</ul>
+</li>
+<li><a href="./rootless.html">Rootless mode</a> -- <code>nomad</code> in a TUI (terminal UI) with file preview and pattern searching capability.</li>
+<li>Integrated <a href="https://github.com/XAMPPRocky/tokei"><code>Tokei</code></a>, a program that displays statistics about your code such as the number of files, total lines, comments, and blank lines.</li>
+<li>Convenient configuration editing and preview.</li>
+<li>It's self-upgrading and you can see the available releases all from your terminal!</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="current-limitations"><a class="header" href="#current-limitations">Current Limitations</a></h1>
+<p>As of v1.0.0, <code>nomad</code> unfortunately experiences a performance hit when running it in very large directories. This is due to the way the directory tree is built.</p>
+<p>This project uses the <a href="https://docs.rs/ptree/latest/ptree/"><code>ptree</code></a> crate to build the tree via its <code>TreeBuilder</code>. The <code>TreeBuilder</code> stores all tree items before building and displaying the tree, so the tree will only be displayed after all items (depending on your traversal settings) have been visited.</p>
+<p>I have plans to replace this crate with a tree implementation that will display items in real time when they are visited, but for now I would recommend against running it in very large directories.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="prerequisite-setup"><a class="header" href="#prerequisite-setup">Prerequisite Setup</a></h1>
+<p><strong><code>nomad</code> requires a <a href="https://www.nerdfonts.com/">NerdFont</a> to correctly display the icons.</strong> Install a NerdFont before installing <code>nomad</code>, otherwise you will be very sad when you see what the tree looks like without a NerdFont.</p>
+<p>I will provide instructions to install the Hack NerdFont on your system. If you want to use another font, follow the <a href="https://github.com/ryanoasis/nerd-fonts#font-installation">NerdFont installation guide</a> for instructions on how to do so for your system.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="installing-a-nerdfont-on-macos"><a class="header" href="#installing-a-nerdfont-on-macos">Installing a NerdFont on MacOS</a></h1>
+<p>Installing a NerdFont on <strong>MacOS</strong> is particularly easy because NerdFonts are available via <a href="https://brew.sh/">Homebrew</a>.</p>
+<p>To install the Hack NerdFont, for example, run these commands:</p>
+<pre><code>brew tap homebrew/cask-fonts
+brew install --cask font-hack-nerd-font
+</code></pre>
+<p>Then go to your terminal's preferences and set the font to the newly installed NerdFont. If you're using <a href="https://iterm2.com/">iTerm2</a>, this is located at:</p>
+<pre><code>iTerm2 -&gt; Preferences -&gt; Profiles tab -&gt; Text tab -&gt; Font dropdown -&gt; Hack Nerd Font Mono
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="installing-a-nerdfont-on-linux"><a class="header" href="#installing-a-nerdfont-on-linux">Installing a NerdFont on Linux</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="installing-a-nerdfont-on-windows"><a class="header" href="#installing-a-nerdfont-on-windows">Installing a NerdFont on Windows</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="i-dont-want-to-install-a-nerdfont"><a class="header" href="#i-dont-want-to-install-a-nerdfont">&quot;I don't want to install a Nerdfont&quot;</a></h1>
+<p>If you do not want a crispy looking tree, you can include the <code>--mute-icons</code> flag to disable icons.</p>
+<p>Including this flag every time you run <code>nomad</code> can become cumbersome, so it may be helpful to create an alias for it in your <code>.bashrc</code> or equivalent:</p>
+<pre><code class="language-bash"># In `.bashrc`
+
+alias nd=&quot;nd --mute-icons&quot;
+</code></pre>
+<p>Also, you are lame as <strong>fuck</strong>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="standard-usage"><a class="header" href="#standard-usage">Standard Usage</a></h1>
+<p>You can display a tree for your current directory just by running <code>nd</code> after <code>cd</code>ing into that directory.</p>
+<pre><code>cd some_directory/
+nd
+</code></pre>
+<p>Alternatively, pass in the name of the directory you wish to target:</p>
+<pre><code>nd some_directory/
+</code></pre>
+<p><code>nomad</code> will assign an icon to each file within the tree based on its respective filetype and search for Git repositories in the target directory. If Git repositories are detected, Git markers will show next to the item indicating its Git status.</p>
+<p>Git markers are shown regardless of whether you are running <code>nomad</code> in a directory containing a Git repository. For example, let's say you have a directory named <code>rust/</code> containing multiple Rust projects that are tracked by Git and are stored in sub-directories. Many of these projects contain changes that you have not committed. Running <code>nomad</code> on the <code>rust/</code> directory will display the Git changes for all of these projects. This provides a convenient overview for which projects have changes that you need to commit/revisit.</p>
+<p>See the <a href="./git/status_markers.html">Git Status Markers</a> section for more details.</p>
+<h2 id="flags"><a class="header" href="#flags">Flags</a></h2>
+<p>Here are the flags you can use in standard mode:</p>
+<pre><code>FLAGS:
+    -L, --all-labels           Label both files and directories. Alias for `-n -l`
+        --banner               Display the banner
+        --dirs                 Only display directories
+        --disrespect           Disrespect all ignore rules
+    -h, --help                 Prints help information
+        --hidden               Display hidden files
+    -l, --label-directories    Label directories with characters
+        --loc                  Display code statistics (lines of code, blanks, and comments) for each item
+    -m, --metadata             Show item metadata such as file permissions, owner, group, file size, and last modified time 
+        --no-colors            Do not display any colors
+        --no-git               Do not display Git status markers
+        --no-icons             Do not display icons
+    -n, --numbered             Label directory items with numbers
+        --plain                Mute icons, Git markers, and colors to display a plain tree
+    -s, --stats                Display traversal statistics after the tree is displayed
+    -V, --version              Prints version information
+
+OPTIONS:
+        --export &lt;export&gt;                Export the tree to a file. Optionally include a target filename
+        --max-depth &lt;max-depth&gt;          Set the maximum depth to recurse
+        --max-filesize &lt;max-filesize&gt;    Set the maximum filesize (in bytes) to include in the tree
+    -p, --pattern &lt;pattern&gt;              Only display items matching this pattern. Supports regex expressions
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="labeled-modes"><a class="header" href="#labeled-modes">Labeled Modes</a></h1>
+<p>Running <code>nomad</code> in a labeled mode unlocks its full potential and allows you to perform actions on items in the tree very quickly.</p>
+<p>The flags that enable labels are:</p>
+<ul>
+<li><code>-l</code> - labels directories</li>
+<li><code>-n</code> - labels items</li>
+<li><code>-L</code> - labels both directories and items. This is an alias for <code>-l -n</code></li>
+</ul>
+<p>Directories are labeled with a letter and items are labeled by numbers. Numbers may be appended to directory labels if there are more than 26 directories in the tree.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="unlocked-functionality-via-labeled-modes"><a class="header" href="#unlocked-functionality-via-labeled-modes">Unlocked Functionality via Labeled Modes</a></h1>
+<p>By using a labeled mode, you gain access to the following subcommands:</p>
+<ul>
+<li><a href="./bat.html"><code>bat</code> - <code>bat</code> file(s)</a></li>
+<li><a href="./edit.html"><code>edit</code> - open file(s) in a text editor</a></li>
+<li><code>git GIT_SUBCOMMAND</code> - execute <code>git</code> <a href="./git/add.html"><code>add</code></a>, <a href="./git/blame.html"><code>blame</code></a>, <a href="./git/diff.html"><code>diff</code></a>, and <a href="./git/restore.html"><code>restore</code></a> for file(s)</li>
+</ul>
+<p><strong>All of these subcommands will accept item and/or directory labels.</strong> See their respective sections for more details.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="bat---bat-files"><a class="header" href="#bat---bat-files"><code>bat</code> - <code>bat</code> Files</a></h1>
+<blockquote>
+<p><strong>NOTE</strong>: Requires a preceeding run in a <a href="./labels.html">labeled mode</a>.</p>
+</blockquote>
+<p>You can quickly <code>bat</code> files by using the <code>bat</code> subcommand. As mentioned before, <code>bat</code> is a modern <code>cat</code> alternative that supports syntax highlighting and displays Git change markers like you would see in your text editor, to name two of its features.</p>
+<p>For example, if you wanted to <code>bat</code> the 2nd and 5th file as well as all files in the directory labeled &quot;b&quot;, you would run the following command:</p>
+<pre><code>nd bat 2 5 b
+</code></pre>
+<p>Files will be <code>bat</code>ed in the order of the labels you provide.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="edit---edit-files"><a class="header" href="#edit---edit-files"><code>edit</code> - Edit Files</a></h1>
+<blockquote>
+<p><strong>NOTE</strong>: Requires a preceeding run in a <a href="./labels.html">labeled mode</a>.</p>
+</blockquote>
+<p>You can quickly open files in a text editor by using the <code>edit</code> subcommand.</p>
+<p><code>nomad</code> will try to find your default <code>$EDITOR</code> setting and open files with that editor if you have specified one. If your <code>$EDITOR</code> is not set, it will try to open files with the following text editor in this order:</p>
+<ol>
+<li><a href="https://github.com/neovim/neovim">Neovim</a></li>
+<li><a href="https://www.vim.org/">Vim</a></li>
+<li><a href="http://ex-vi.sourceforge.net/">Vi</a></li>
+<li><a href="https://www.nano-editor.org/">Nano</a></li>
+</ol>
+<p>The first editor that is found on your machine will be used to edit your files.</p>
+<p>For example, if you wanted to open the 2nd and 5th file as well as all files in the directory labeled &quot;b&quot;, you would run the following command:</p>
+<pre><code>nd edit 2 5 b
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="tokei---display-code-statistics"><a class="header" href="#tokei---display-code-statistics"><code>tokei</code> - Display Code Statistics</a></h1>
+<p><a href="https://github.com/XAMPPRocky/tokei"><code>Tokei</code></a> is a code statistics tool written in Rust. This tool displays data such as the number of files, total lines, comments, and blank lines present in your current directory.</p>
+<p><code>Tokei</code> is available as its own stand-alone CLI tool, but you can also access its default behavior by using the <code>tokei</code> subcommand:</p>
+<pre><code>nd tokei
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ft---filtering-items-by-filetype-or-glob"><a class="header" href="#ft---filtering-items-by-filetype-or-glob"><code>ft</code> - Filtering Items by Filetype or Glob</a></h1>
+<p>The <code>ft</code> subcommand allows you to filter results by filetypes or globs. This subcommand contains additional subcommands that allow you to control whether to match (include) or negate (ignore) filetypes or globs.</p>
+<h2 id="usage"><a class="header" href="#usage">Usage</a></h2>
+<pre><code>Filter directory items by filetype
+
+USAGE:
+    nd ft &lt;SUBCOMMAND&gt;
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+SUBCOMMANDS:
+    help       Prints this message or the help of the given subcommand(s)
+    match      Only display files matching the specified filetypes and/or globs
+    negate     Do not display files that match the specified filetypes and/or globs
+    options    List the current set of filetype definitions. Optionally search for a filetype. ie. `nd filetype options rust` 
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="matching-filetypes-or-globs"><a class="header" href="#matching-filetypes-or-globs">Matching Filetypes or Globs</a></h1>
+<p>You can include filetypes or globs by using the <code>match</code> subcommand. Use the <code>-f</code> flag to include filetypes and the <code>-g</code> flag to match globs.</p>
+<p>For example, if you only wanted to include Rust files and files that match the glob <code>*.asdf</code>, you would run:</p>
+<pre><code>nd ft match -f rust -g &quot;*.asdf&quot;
+</code></pre>
+<p>Both the <code>-f</code> and <code>-g</code> flags accept a list of filetypes or globs. An example:</p>
+<pre><code>nd ft match -f rust toml py -g &quot;*.asdf&quot; &quot;*.qwerty&quot;
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="negating-filetypes-or-globs"><a class="header" href="#negating-filetypes-or-globs">Negating Filetypes or Globs</a></h1>
+<p>You can exclude filetypes or globs by using the <code>negate</code> subcommand. Use the <code>-f</code> flag to exclude filetypes and the <code>-g</code> flag to exclude globs.</p>
+<p>For example, if you only wanted to negate C++ files and files that match the glob <code>*.asdf</code>, you would run:</p>
+<pre><code>nd ft negate -f cpp -g &quot;*.asdf&quot;
+</code></pre>
+<p>Both the <code>-f</code> and <code>-g</code> flags accept a list of filetypes or globs. An example:</p>
+<pre><code>nd ft negate -f c cpp java -g &quot;*.asdf&quot; &quot;*.qwerty&quot;
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="listing-filetype-definitions"><a class="header" href="#listing-filetype-definitions">Listing Filetype Definitions</a></h1>
+<p>If you want to see the built-in filetype globs, use the <code>options</code> subcommand to see a table containing the filetype and the globs for that particular filetype:</p>
+<pre><code>nd ft options
+</code></pre>
+<p>You can also search for a filetype to only display those matching globs. For example, if you wanted to see the globs for Rust files, you would run:</p>
+<pre><code>nd ft options rust
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="git---run-git-commands"><a class="header" href="#git---run-git-commands"><code>git</code> - Run Git Commands</a></h1>
+<blockquote>
+<p><strong>NOTE</strong>: Most Git commands require a preceeding run in a <a href="git/../labels.html">labeled mode</a>.</p>
+</blockquote>
+<p>In addition to respecting ignore-type files such as <code>.gitignore</code>s and displaying <a href="git/./status_markers.html">Git status markers</a>, <code>nomad</code> implements the following Git commands:</p>
+<ul>
+<li><a href="git/./add.html"><code>git add</code></a></li>
+<li><a href="git/./blame.html"><code>git blame</code></a></li>
+<li><a href="git/./branch.html"><code>git branch</code></a></li>
+<li><a href="git/./commit.html"><code>git commit</code></a></li>
+<li><a href="git/./diff.html"><code>git diff</code></a></li>
+<li><a href="git/./restore.html"><code>git restore</code></a></li>
+<li><a href="git/./status.html"><code>git status</code></a></li>
+</ul>
+<blockquote>
+<p><strong>TIP:</strong> I recommend taking a look at <a href="git/./status.html"><code>git status</code></a> before looking at the other sections.</p>
+</blockquote>
+<p><strong>These commands are not meant to be a full replacement for the original Git commands yet!</strong> Git is a <em>massive</em> ecosystem, so I have not yet implemented these commands to support everything the original <code>git</code> counterpart is capable of. <code>nomad</code>'s <code>git</code> commands work well if you need to do something basic with those Git commands, however.</p>
+<p>All Git-related functionality is implemented via the <a href="https://docs.rs/git2/latest/git2/"><code>git2</code></a> crate, which provides an API to Git.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="git-status-markers"><a class="header" href="#git-status-markers">Git Status Markers</a></h1>
+<p>Here is a table that contains the default Git status markers, the marker's color, and what it represents:</p>
+<table><thead><tr><th>Marker</th><th>Color</th><th>Status</th></tr></thead><tbody>
+<tr><td><code>!</code></td><td>Red</td><td>Conflicting</td></tr>
+<tr><td><code>D</code></td><td>Red</td><td>Deleted</td></tr>
+<tr><td><code>M</code></td><td>Orange</td><td>Modified</td></tr>
+<tr><td><code>R</code></td><td>Orange</td><td>Renamed</td></tr>
+<tr><td><code>TC</code></td><td>Purple</td><td>Type change</td></tr>
+<tr><td><code>SA</code></td><td>*Green</td><td>Staged, Added</td></tr>
+<tr><td><code>SD</code></td><td>*Red</td><td>Staged, Deleted</td></tr>
+<tr><td><code>SM</code></td><td>*Orange</td><td>Staged, Modified</td></tr>
+<tr><td><code>SR</code></td><td>*Orange</td><td>Staged, Renamed</td></tr>
+<tr><td><code>STC</code></td><td>*Purple</td><td>Staged, type change</td></tr>
+<tr><td><code>U</code></td><td>Gray</td><td>Untracked</td></tr>
+</tbody></table>
+<blockquote>
+<p>* The filename will also be painted the same color.</p>
+</blockquote>
+<p>I you do not like the default marker or color configuration, you can <a href="git/../customization/customization.html">customize it to your liking</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="git-status---git-status-in-tree-form"><a class="header" href="#git-status---git-status-in-tree-form"><code>git status</code> - <code>git status</code> in Tree Form</a></h1>
+<p>Use <code>git status</code> to see the Git status in tree form. You can run this in lieu of running <code>nomad</code> in normal mode to only see tracked files that contain a Git status.</p>
+<p>This command pairs well with the other Git commands described below this section.</p>
+<h3 id="usage-1"><a class="header" href="#usage-1">Usage</a></h3>
+<pre><code>USAGE:
+    nd git status [FLAGS] [OPTIONS]
+
+FLAGS:
+    -L, --all-labels           Label both files and directories. Alias for `-n -l`
+    -h, --help                 Prints help information
+    -l, --label-directories    Label directories with characters
+        --loc                  Display code statistics (lines of code, blanks, and comments) for each item
+    -m, --metadata             Show item metadata such as file permissions, owner, group, file size, and last modified time 
+        --no-colors            Do not display any colors
+        --no-git               Do not display Git status markers
+        --no-icons             Do not display icons
+    -n, --numbered             Label directory items with numbers
+        --plain                Mute icons, Git markers, and colors to display a plain tree
+    -s, --stats                Display traversal statistics after the tree is displayed
+        --summary              Display `tokei` (lines of code counter) statistics. This only applies if `--loc` is provided 
+    -V, --version              Prints version information
+
+OPTIONS:
+        --export &lt;export&gt;      Export the tree to a file. Optionally include a target filename
+    -p, --pattern &lt;pattern&gt;    Only display items matching this pattern. Supports regex expressions
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="git-add"><a class="header" href="#git-add"><code>git add</code></a></h1>
+<blockquote>
+<p><strong>NOTE</strong>: Requires a preceeding run in a <a href="git/../labels.html">labeled mode</a>.</p>
+</blockquote>
+<p>You can use the <code>git add</code> subcommand to quickly stage files. For example, if you wanted to stage the 2nd and 5th file as well as all files containing a Git status in the directory labeled &quot;b&quot;, you would run the following command:</p>
+<pre><code>nd git add 2 5 b
+</code></pre>
+<p>If you pass a directory label, only items containing a Git status will be staged, just like the original <code>git add</code> command.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="git-blame"><a class="header" href="#git-blame"><code>git blame</code></a></h1>
+<blockquote>
+<p><strong>NOTE</strong>: Requires a preceeding run in a <a href="git/../labels.html">labeled mode</a>.</p>
+</blockquote>
+<p>You can use the <code>git blame</code> subcommand to quickly blame a file. <strong>This subcommand only accepts one file, so directory labels will not work!</strong></p>
+<p><code>nomad</code>'s <code>git blame</code> offers some visual improvements over the original <code>git blame</code> command:</p>
+<ul>
+<li>Commit hashes, authors, and timestamps are colorized differently to provide contrast among the columns</li>
+<li>Lines are colorized based on a unique color assigned to each author
+<ul>
+<li>These colors are randomly chosen and will be different each time you run <code>git blame</code>. Commits made by you are plain white whereas commits by other authors are assigned a color.</li>
+</ul>
+</li>
+</ul>
+<h3 id="usage-2"><a class="header" href="#usage-2">Usage</a></h3>
+<pre><code>USAGE:
+    nd git blame [FLAGS] [OPTIONS] &lt;file-number&gt;
+
+FLAGS:
+        --emails     Display emails for each blame line instead of timestamps
+    -h, -help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -l, --lines &lt;lines&gt;...    Restrict a range of lines to display in the blame 
+
+ARGS:
+    &lt;file-number&gt;    Display a blame for this file
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="git-branch"><a class="header" href="#git-branch"><code>git branch</code></a></h1>
+<p>You can use the <code>git branch</code> subcommand to display all your branches in a tree form (this may be disabled, see the <a href="git/branch.html#usage">Usage</a> section).</p>
+<p><code>nomad</code>'s <code>git branch</code> displays additional data by default, such as:</p>
+<ul>
+<li>Whether a branch is <code>HEAD</code></li>
+<li>Whether an upstream branch is set</li>
+</ul>
+<blockquote>
+<p>Unfortunately I have not implemented <code>git checkout</code> for v1.0.0, but I plan on implementing it in the next version for quick branch switching.</p>
+</blockquote>
+<h3 id="usage-3"><a class="header" href="#usage-3">Usage</a></h3>
+<pre><code>USAGE:
+    nd git branch [FLAGS] [OPTIONS]
+
+FLAGS:
+    -f, --flat          Display branches in a normal list
+    -h, --help          Prints help information
+        --no-icons      Do not display icons
+    -n, --numbered      Label branches with numbers
+    -s, --statistics    Display the total number of branches
+    -V, --version       Prints version information
+
+OPTIONS:
+        --export &lt;export&gt;      Export the tree to a file. Optionally include a target filename
+    -p, --pattern &lt;pattern&gt;    Only display branches matching this pattern. Supports regex expressions
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="git-commit"><a class="header" href="#git-commit"><code>git commit</code></a></h1>
+<p><code>git commit</code> has also been implemented and offers some visual improvements over the original <code>git commit</code> command.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="git-diff"><a class="header" href="#git-diff"><code>git diff</code></a></h1>
+<blockquote>
+<p><strong>NOTE</strong>: Requires a preceeding run in a <a href="git/../labels.html">labeled mode</a>.</p>
+</blockquote>
+<p>You can use the <code>git diff</code> command to quickly display the diff for files. For example, if you wanted to <code>diff</code> the 2nd and 5th file as well as all files containing a Git status in the directory labeled &quot;b&quot;, you would run the following command:</p>
+<pre><code>nd git diff 2 5 b
+</code></pre>
+<p><code>nomad</code>'s <code>git diff</code> offers visual improvements over the original <code>git diff</code> command by making it much easier to read, in my opinion. See for yourself:</p>
+<!-- DO A SIDE BY SIDE COMPARISON OF THE ORIGINAL AND NOMAD'S GIT DIFF HERE -->
+<p>If you pass a directory label, only items containing a Git status will be <code>diff</code>ed, just like the original <code>git diff</code> command.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="git-restore"><a class="header" href="#git-restore"><code>git restore</code></a></h1>
+<blockquote>
+<p><strong>NOTE</strong>: Requires a preceeding run in a <a href="git/../labels.html">labeled mode</a>.</p>
+</blockquote>
+<p>You can use the <code>git restore</code> subcommand to restore files back to its clean state. For example, if you wanted to restore the 2nd and 5th file as well as all files containing a Git status in the directory labeled &quot;b&quot;, you would run the following command:</p>
+<pre><code>nd git restore 2 5 b
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="rootless-mode"><a class="header" href="#rootless-mode">Rootless Mode</a></h1>
+<p>Rootless mode is <code>nomad</code> in TUI form. You can interactively traverse directories while in this mode, preview files, and even run regex searches within the file.</p>
+<!-- ADD ROOTLESS MODE GIF HERE -->
+<p>Press <code>?</code> in Rootless mode to bring up the Help widget. This widget details how Rootless mode works, navigation, and keybindings.</p>
+<blockquote>
+<p><strong>NOTE:</strong> As of v1.0.0, Rootless mode does not support mouse interaction and operates solely on keyboard bindings.</p>
+</blockquote>
+<p>Git status colors are respected in this mode and can also be customized if you do not like the default configuration. See the <a href="rootless.html#customizing-nomad">Customizing <code>nomad</code></a> section to learn how to do so.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="customizing-nomad"><a class="header" href="#customizing-nomad">Customizing <code>nomad</code></a></h1>
+<p>Great news - you can customize <code>nomad</code> to your liking if you do not like the default configuration. And you do not have to create this configuration file yourself!</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="what-can-i-customize"><a class="header" href="#what-can-i-customize">&quot;What Can I Customize?&quot;</a></h1>
+<p>The following settings are customizable for the normal tree:</p>
+<ul>
+<li>Indentation</li>
+<li>Indentation characters (the tree's branches)</li>
+<li>Padding</li>
+<li>Directory color</li>
+<li>Label colors (for labeled modes)</li>
+<li>Git markers and its colors</li>
+<li>Regex match color</li>
+</ul>
+<p>The following settings are customizable for <a href="customization/../rootless.html">Rootless mode</a>:</p>
+<ul>
+<li>Widget border color</li>
+<li>Standard item highlight color (the color for items that do not contain a Git status)</li>
+<li>Git status colors (for items)</li>
+<li>Regex match color</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="config-edit---edit-the-configuration-file"><a class="header" href="#config-edit---edit-the-configuration-file"><code>config edit</code> - Edit the Configuration File</a></h1>
+<p>To simplify customization, <strong>you do <em>not</em> have to make your own configuration file</strong> -- <code>nomad</code> will write one to your disk if it does not already exist.</p>
+<p>To access the configuration file, simply use the <code>config edit</code> subcommand:</p>
+<pre><code>nd config edit
+</code></pre>
+<p>I have written a walkthrough of sorts into the TOML file detailing how you can choose built-in colors or pick a custom color, so I will not elaborate how to do so here. You can also take a look at <a href="https://github.com/JosephLai241/nomad/blob/main/nomad.toml"><code>nomad.toml</code></a> in this repository; this is the same configuration file that is written to your disk.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="config-preview---preview-your-settings"><a class="header" href="#config-preview---preview-your-settings"><code>config preview</code> - Preview Your Settings</a></h1>
+<p>You can quickly see a preview of your settings by using the <code>config preview</code> subcommand:</p>
+<pre><code>nd config preview
+</code></pre>
+<p>This will display a dummy tree with all your settings applied.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="releases---view-nomad-releases"><a class="header" href="#releases---view-nomad-releases"><code>releases</code> - View <code>nomad</code> Releases</a></h1>
+<p>You can view <code>nomad</code> releases directly from <code>nomad</code> itself. Releases are retrieved from GitHub.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="releases-all---view-all-releases"><a class="header" href="#releases-all---view-all-releases"><code>releases all</code> - View All Releases</a></h1>
+<p>Use the <code>releases all</code> subcommand to view all <code>nomad</code> releases in a table containing:</p>
+<ul>
+<li>The name of the release</li>
+<li>Version number</li>
+<li>Release Date</li>
+<li>Description</li>
+<li>Attached assets</li>
+</ul>
+<pre><code>nd releases all
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="releases-version_number---view-release-data-for-a-specific-version"><a class="header" href="#releases-version_number---view-release-data-for-a-specific-version"><code>releases VERSION_NUMBER</code> - View Release Data for a Specific Version</a></h1>
+<p>You can view release data for a specific version by passing in the version number. For example, if you wanted to view release data for v1.0.0, you would run the following command:</p>
+<pre><code>nd releases v1.0.0
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="upgrading-nomad"><a class="header" href="#upgrading-nomad">Upgrading <code>nomad</code></a></h1>
+<p><code>nomad</code> can upgrade itself!</p>
+<p>Simply run this command to upgrade to the latest version:</p>
+<pre><code>nd upgrade
+</code></pre>
+<p>You can also run <code>upgrade</code> with the <code>--check</code> flag to just check if there is an update available.</p>
+<pre><code>nd upgrade --check
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+    </body>
+</html>
