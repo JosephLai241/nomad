@@ -2,7 +2,7 @@ name: Deploy Maunal
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
