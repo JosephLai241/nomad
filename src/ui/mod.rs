@@ -583,7 +583,10 @@ where
                 // Empty file search error popup.
                 // ==============================
                 PopupMode::EmptyFileSearchError => match key.code {
-                    _ => app.popup_mode = PopupMode::Disabled,
+                    _ => {
+                        app.popup_mode = PopupMode::Disabled;
+                        app.ui_mode = UIMode::Normal;
+                    }
                 },
 
                 // ===========
