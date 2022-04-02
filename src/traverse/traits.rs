@@ -216,7 +216,7 @@ impl ToTree for Vec<TransformedItem> {
             })
         }
 
-        let tokei = if args.meta.loc {
+        let tokei = if args.meta.tokei {
             Some(loc_in_dir(target_directory))
         } else {
             None
@@ -283,7 +283,7 @@ impl ToTree for Vec<TransformedItem> {
 
                 let icon = get_file_icon(Path::new(&item.path));
 
-                if args.meta.loc {
+                if args.meta.tokei {
                     tree.begin_child(format_content(
                         args,
                         item.marker.clone(),

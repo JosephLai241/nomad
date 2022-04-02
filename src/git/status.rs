@@ -40,7 +40,7 @@ pub fn display_status_tree(
             numbers: args.labels.numbers,
         },
         meta: MetaArgs {
-            loc: args.meta.loc,
+            tokei: args.meta.tokei,
             metadata: args.meta.metadata,
         },
         modifiers: ModifierArgs {

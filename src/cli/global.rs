@@ -60,10 +60,10 @@ pub struct LabelArgs {
 #[derive(Debug, PartialEq, StructOpt)]
 pub struct MetaArgs {
     #[structopt(
-        long = "loc",
+        long = "tokei",
         help = "Display code statistics (lines of code, blanks, and comments) for each item"
     )]
-    pub loc: bool,
+    pub tokei: bool,
 
     #[structopt(
         short = "m",

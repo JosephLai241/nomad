@@ -196,7 +196,7 @@ pub fn display_branches(
             numbers: args.numbers,
         },
         meta: MetaArgs {
-            loc: false,
+            tokei: false,
             metadata: false,
         },
         modifiers: ModifierArgs {
