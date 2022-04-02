@@ -60,17 +60,17 @@ pub struct LabelArgs {
 #[derive(Debug, PartialEq, StructOpt)]
 pub struct MetaArgs {
     #[structopt(
-        long = "tokei",
-        help = "Display code statistics (lines of code, blanks, and comments) for each item"
-    )]
-    pub tokei: bool,
-
-    #[structopt(
         short = "m",
         long = "metadata",
         help = "Show item metadata such as file permissions, owner, group, file size, and last modified time"
     )]
     pub metadata: bool,
+
+    #[structopt(
+        long = "tokei",
+        help = "Display code statistics (lines of code, blanks, and comments) for each item"
+    )]
+    pub tokei: bool,
 }
 
 #[derive(Debug, PartialEq, StructOpt)]
