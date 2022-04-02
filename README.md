@@ -18,11 +18,15 @@
     + ["This `README` is just a bunch of GIFs. Where the hell is the manual?"](#this-readme-is-just-a-bunch-of-gifs-where-the-hell-is-the-manual)
 * [Prerequisites](#prerequisites)
 * [Standard Usage](#standard-usage)
-* [`bat` Files in the Tree](#bat-files-in-the-tree)
-* [Edit Files in the Tree](#edit-files-in-the-tree)
+* [`bat` - `bat` Files in the Tree](#bat-bat-files-in-the-tree)
+* [`edit` - Edit Files in the Tree](#edit-files-in-the-tree)
 * [`tokei`](#tokei)
+    + [`tokei` - Subcommand](#tokei-subcommand)
+    + [`nd --loc` - Tree View](#nd-loc-tree-view)
 * [Filtering (Including or Excluding) Items by Filetype](#filtering-including-or-excluding-items-by-filetype)
-    + [Viewing Filetype Globs](#viewing-filetype-globs)
+    + [`ft match` - Including Filetypes and/or Globs](#ft-match-including-filetypes-andor-globs)
+	+ [`ft negate` - Excluding Filetypes and/or Globs](#ft-negate-excluding-filetypes-andor-globs)
+    + [`ft options` - Viewing Filetype Globs](#viewing-filetype-globs)
 * [Git Integration](#git-integration)
 	+ [Git Status Markers](#git-status-markers)
     + [`git add`](#git-add)
@@ -34,6 +38,8 @@
     + [`git status`](#git-status)
 * [Rootless Mode](#rootless-mode)
 * [Configuration/Customization](#configurationcustomization)
+    + [`config edit` - Editing the Configuration File](#config-edit-editing-the-configuration-file)
+	+ [`config preview` - Previewing Your Configurations](#config-preview-previewing-your-configurations)
 * [Inspirations](#inspirations)
 
 # Introduction
@@ -54,45 +60,103 @@ The manual for `nomad` was originally this `README`, but it was too long to comf
 
 # Standard Usage
 
-# `bat` Files in the Tree
+`nomad`'s capabilities are drastically enhanced through the use of item labels.
 
-# Edit Files in the Tree
+# `bat` - `bat` Files in the Tree
+
+![bat demo][bat demo]
+
+# `edit` - Edit Files in the Tree
+
+![edit demo][edit demo]
 
 > Opened with [`Neovim`][Neovim].
 
 # `tokei`
 
-<!-- PUT BOTH TREE VIEW AND STANDALONE SUBCOMMAND GIFS HERE -->
+`Tokei` may be accessed through the subcommand or in tree view to display LoC data for individual files.
+
+## `tokei` - Subcommand
+
+![tokei subcommand demo][tokei subcommand demo]
+
+## `nd --loc` - Tree View
+
+![tokei tree demo][tokei tree demo]
 
 # Filtering (Including or Excluding) Items by Filetype
 
-## Viewing Filetype Globs
+You can filter out items in a directory by `match`ing or `negating` filetypes or globs.
+
+## `ft match` - Including Filetypes and/or Globs
+
+![filetype match demo][filetype match demo]
+
+## `ft negate` - Excluding Filetypes and/or Globs
+
+![filetype negate demo][filetype negate demo]
+
+## `ft options` - Viewing Filetype Globs
+
+You can view all the preset globs for each filetype by using the `ft options` subcommand. Optionally specify a filetype after the subcommand to search/view the globs for that specific filetype.
+
+![filetype options demo][filetype options demo]
 
 # Git Integration
+
+`nomad` has Git integration to allow for easy access to commonly used Git subcommands!
 
 ## Git Status Markers
 
 ## `git add`
 
+![git add demo][git add demo]
+
 ## `git blame`
+
+![git blame demo][git blame demo]
 
 ## `git branch`
 
+![git branch demo][git branch demo]
+
 ## `git commit`
+
+![git commit demo][git commit demo]
 
 ## `git diff`
 
+![git diff demo][git diff demo]
+
 ## `git restore`
 
+![git restore demo][git restore demo]
+
 ## `git status`
+
+![git status demo][git status demo]
 
 # Rootless Mode
 
 Rootless mode is the TUI (terminal UI) mode that allows you to dynamically interact with directory trees.
 
+![rootless mode demo][rootless mode demo]
+
 # Configuration/Customization
 
 You can configure/customize `nomad` *without* the hassles of creating your own configuration file in the correct directory with the correct syntax.
+
+## `config edit` - Editing the Configuration File
+
+You can easily access the configuration file by using the `config edit` subcommand.
+
+![config edit demo][config edit demo]
+
+## `config preview` - Previewing Your Configurations
+
+You can preview all your configuration options in a dummy tree by using the `config preview` subcommand.
+
+![config preview demo][config preview demo]
 
 # Inspirations
 
@@ -101,6 +165,25 @@ Be sure to check out the tools that inspired me to create this project!
 * [`tree`][tree] - the OG command
 * [`lsd`][lsd] - a modern `ls` alternative/rewrite
 
+<!-- DEMO GIFS -->
+[bat demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/bat.gif
+[edit demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/edit.gif
+[tokei subcommand demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/tokei-subcommand.gif
+[tokei tree demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/tokei-tree.gif
+[filetype match demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/ft-match.gif
+[filetype negate demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/ft-negate.gif
+[filetype options demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/ft-options.gif
+[git add demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/git-add.gif
+[git blame demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/git-blame.gif
+[git branch demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/git-branch.gif
+[git commit demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/git-commit.gif
+[git diff demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/git-diff.gif
+[git restore demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/git-restore.gif
+[git status demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/git-status.gif
+[rootless mode demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/rootless-mode.gif
+[config edit demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/config-edit.gif
+[config preview demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/config-preview.gif
+
 
 <!-- LINKS -->
 [bat]: https://github.com/sharkdp/bat
@@ -108,7 +191,6 @@ Be sure to check out the tools that inspired me to create this project!
 [tokei]: https://github.com/XAMPPRocky/tokei
 [tree]: https://linux.die.net/man/1/tree
 
-<!-- UPDATE THIS ONCE THE MANUAL'S DEPLOYED -->
 [nomad manual]: https://josephlai241.github.io/nomad/
 
 [Neovim]: https://github.com/neovim/neovim
