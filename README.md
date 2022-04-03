@@ -21,8 +21,8 @@
 * [`bat` - `bat` Files in the Tree](#bat-bat-files-in-the-tree)
 * [`edit` - Edit Files in the Tree](#edit-files-in-the-tree)
 * [`tokei`](#tokei)
-    + [`tokei` - Subcommand](#tokei-subcommand)
-    + [`nd --loc` - Tree View](#nd-loc-tree-view)
+    + [`tokei` - Subcommand (Overview)](#tokei-subcommand-overview)
+    + [`nd --tokei` - Flag (Tree View)](#nd-tokei-flag-tree-view)
 * [Filtering (Including or Excluding) Items by Filetype](#filtering-including-or-excluding-items-by-filetype)
     + [`ft match` - Including Filetypes and/or Globs](#ft-match-including-filetypes-andor-globs)
 	+ [`ft negate` - Excluding Filetypes and/or Globs](#ft-negate-excluding-filetypes-andor-globs)
@@ -76,13 +76,17 @@ The manual for `nomad` was originally this `README`, but it was too long to comf
 
 `Tokei` may be accessed through the subcommand or in tree view to display LoC data for individual files.
 
-## `tokei` - Subcommand
+## `tokei` - Subcommand (Overview)
 
 ![tokei subcommand demo][tokei subcommand demo]
 
-## `nd --loc` - Tree View
+You can quickly see a `tokei` summary/overview for a project by using the `tokei` subcommand.
+
+## `nd --tokei` - Flag (Tree View)
 
 ![tokei tree demo][tokei tree demo]
+
+You can view `tokei` statistics for individual files by using the `--tokei` flag. This will display the lines of blanks, code, comments, and total number of lines for each file.
 
 # Filtering (Including or Excluding) Items by Filetype
 
