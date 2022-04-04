@@ -63,6 +63,8 @@ The manual for `nomad` was originally this `README`, but it was too long to comf
 
 By default, `nomad` will display a tree visual representing the directory structure of the target directory and respect rules specified in ignore-type files such as `.gitignore`s. This behavior may be disabled.
 
+[standard-demo][standard-demo]
+
 ## Unlocked Functionality via Item Labels
 
 **`nomad`'s capabilities are drastically enhanced through the use of item labels.**
@@ -253,6 +255,7 @@ Be sure to check out the tools that inspired me to create this project!
 [git restore demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/git-restore.gif
 [git status demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/git-status.gif
 [rootless mode demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/rootless-mode.gif
+[standard-demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/standard.gif
 [config edit demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/config-edit.gif
 [config preview demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/config-preview.gif
 
