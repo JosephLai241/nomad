@@ -61,11 +61,11 @@ The manual for `nomad` was originally this `README`, but it was too long to comf
 
 # Standard Usage
 
+![standard-demo][standard-demo]
+
 By default, `nomad` will display a tree visual representing the directory structure of the target directory and respect rules specified in ignore-type files such as `.gitignore`s. This behavior may be disabled.
 
 Each item will also be labeled with a NerdFont-supported icon corresponding to its filetype as well as Git status markers indicating the Git status of the file. See the [Git Status Markers](#git-status-markers) section to learn more about what each default marker/color represents.
-
-![standard-demo][standard-demo]
 
 ## Unlocked Functionality via Item Labels
 
@@ -81,15 +81,17 @@ These are the flags that will apply labels to items within the tree:
 
 # `bat` - `bat` Files in the Tree
 
+![bat demo][bat demo]
+
 > **NOTE:** Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
 
 Quickly `bat` files by passing item labels into the `bat` subcommand.
 
 > **NOTE:** This command works with item and/or directory labels. If directory labels are provided, all items within that directory will be `bat`ed in the order they appear.
 
-![bat demo][bat demo]
-
 # `edit` - Edit Files in the Tree
+
+![edit demo][edit demo]
 
 > **NOTE:** Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
 
@@ -103,8 +105,6 @@ Quickly edit files by passing item labels into the edit subcommand.
 4. [Nano][Nano]
 
 > **NOTE:** This command works with item and/or directory labels. If directory labels are provided, all items within that directory will be opened in a text editor.
-
-![edit demo][edit demo]
 
 > Opened with [`Neovim`][Neovim], the best text editor.
 
@@ -138,9 +138,9 @@ You can filter out items in a directory by `match`ing or `negate`ing filetypes o
 
 ## `ft options` - Viewing Filetype Globs
 
-You can view all the preset globs for each filetype by using the `ft options` subcommand. Optionally specify a filetype after the subcommand to search/view the globs for that specific filetype.
-
 ![filetype options demo][filetype options demo]
+
+You can view all the preset globs for each filetype by using the `ft options` subcommand. Optionally specify a filetype after the subcommand to search/view the globs for that specific filetype.
 
 # Git Integration
 
@@ -172,15 +172,17 @@ If you do not like the default marker or color configuration, you can [customize
 
 ## `git add`
 
+![git add demo][git add demo]
+
 > **NOTE:** Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
 
 Quickly `git add` files by passing items labels into the subcommand.
 
 > **NOTE:** This command works with item and/or directory labels. If directory labels are provided, all items within that directory that are tracked by Git and contain a Git status will be added.
 
-![git add demo][git add demo]
-
 ## `git blame`
+
+![git blame demo][git blame demo]
 
 > **NOTE:** Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
 
@@ -190,26 +192,26 @@ Quickly run `git blame` on a file by passing an item label into the subcommand.
 
 Commits made by you remain plain while commits made by other authors are painted with a color. Each author is assigned a random color, so these colors will be different each time you run `git blame`.
 
-![git blame demo][git blame demo]
+> Be sure to check out [Mojibar][Mojibar], a cross-platform, quick-access tab and search bar for emojis written by my friend Luke Schenk.
 
 ## `git branch`
+
+![git branch demo][git branch demo]
 
 You can view `git branch` in tree form. This works especially well if your branch names look like filepaths. Some examples are:
 
 * `feature/git/something-new`
 * `bugfix/some-bug`
 
-![git branch demo][git branch demo]
-
-> Be sure to check out [Mojibar][Mojibar], a cross-platform, quick-access tab and search bar for emojis written by my friend Luke Schenk.
-
 ## `git commit`
-
-`git commit` has been integrated for convenience and offers some visual improvements over the original command.
 
 ![git commit demo][git commit demo]
 
+`git commit` has been integrated for convenience and offers some visual improvements over the original command.
+
 ## `git diff`
+
+![git diff demo][git diff demo]
 
 > **NOTE:** Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
 
@@ -217,9 +219,9 @@ Quickly `git diff` files by passing item labels into the subcommand. This comman
 
 > **NOTE:** This command works with item and/or directory labels. If directory labels are provided, all items within that directory that are tracked by Git and contain a Git status will be `diff`ed in the order they appear.
 
-![git diff demo][git diff demo]
-
 ## `git restore`
+
+![git restore demo][git restore demo]
 
 > **NOTE:** Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
 
@@ -227,19 +229,17 @@ Quickly `git restore` files by passing item labels into the subcommand.
 
 > **NOTE:** This command works with item and/or directory labels. If directory labels are provided, all items within that directory that are tracked by Git and contain a Git status will be restored.
 
-![git restore demo][git restore demo]
-
 ## `git status`
-
-You can view `git status` in tree form. This command will only display items that are tracked by Git and contain changes or are untracked.
 
 ![git status demo][git status demo]
 
+You can view `git status` in tree form. This command will only display items that are tracked by Git and contain changes or are untracked.
+
 # Rootless Mode
 
-Rootless mode is the TUI (terminal UI) mode that allows you to dynamically interact with directory trees.
-
 ![rootless mode demo][rootless mode demo]
+
+Rootless mode is the TUI (terminal UI) mode that allows you to dynamically interact with directory trees.
 
 # Configuration/Customization
 
@@ -247,15 +247,15 @@ You can configure/customize `nomad` *without* the hassles of creating your own c
 
 ## `config edit` - Editing the Configuration File
 
-You can easily access the configuration file by using the `config edit` subcommand.
-
 ![config edit demo][config edit demo]
+
+You can easily access the configuration file by using the `config edit` subcommand.
 
 ## `config preview` - Previewing Your Configurations
 
-You can preview all your configuration options in a dummy tree by using the `config preview` subcommand.
-
 ![config preview demo][config preview demo]
+
+You can preview all your configuration options in a dummy tree by using the `config preview` subcommand.
 
 # Inspirations
 
