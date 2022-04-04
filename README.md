@@ -39,6 +39,7 @@
     + [`git status`](#git-status)
 * [Rootless Mode](#rootless-mode)
 * [Configuration/Customization](#configurationcustomization)
+    + ["What Can I Customize?"](#what-can-i-customize)
     + [`config edit` - Editing the Configuration File](#config-edit---editing-the-configuration-file)
 	+ [`config preview` - Previewing Your Configurations](#config-preview---previewing-your-configurations)
 * [Inspirations](#inspirations)
@@ -93,6 +94,8 @@ Quickly `bat` files by passing item labels into the `bat` subcommand.
 
 ![edit demo][edit demo]
 
+> Opened with [`Neovim`][Neovim], the best text editor.
+
 > **NOTE:** Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
 
 Quickly edit files by passing item labels into the edit subcommand.
@@ -105,8 +108,6 @@ Quickly edit files by passing item labels into the edit subcommand.
 4. [Nano][Nano]
 
 > **NOTE:** This command works with item and/or directory labels. If directory labels are provided, all items within that directory will be opened in a text editor.
-
-> Opened with [`Neovim`][Neovim], the best text editor.
 
 # `tokei`
 
@@ -241,9 +242,41 @@ You can view `git status` in tree form. This command will only display items tha
 
 Rootless mode is the TUI (terminal UI) mode that allows you to dynamically interact with directory trees.
 
+There are three primary widgets that you can interact with. Here is a quick description of each widget:
+
+| Widget      | Description                                               | Location |
+|-------------|-----------------------------------------------------------|----------|
+| Breadcrumbs | Contains path breadcrumbs for parent directory navigation | Top      |
+| Inspect     | Contains the contents of the selected item                | Right    |
+| Normal      | Contains the directory tree                               | Left     |
+
 # Configuration/Customization
 
 You can configure/customize `nomad` *without* the hassles of creating your own configuration file in the correct directory with the correct syntax.
+
+## "What Can I Customize?"
+
+Here is a list of what you can customize for **standard mode**:
+
+* The tree's indentation and padding
+* The directory's color
+* The tree's indent characters (`|`, `├`, `─`, `└`)
+* The directory and item label's color
+* Git status markers and colors
+* The color of the pattern/regex match (when using the `-p`/`--pattern` flag)
+
+Here is a list of what you can customize for **Rootless mode**:
+
+* The color of the widget borders
+* The color of a standard item in the tree (one that does not contain any Git changes)
+* The color of items that contain a Git status
+* The color of the pattern/regex match when searching for patterns within the tree or file
+
+> The following standard mode settings will also be applied to the Normal widget within Rootless mode:
+>
+>     * Indentation/padding
+>     * Intent characters
+>     * Git markers 
 
 ## `config edit` - Editing the Configuration File
 
