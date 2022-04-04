@@ -15,7 +15,7 @@
 # Table of Contents
 
 * [Introduction](#introduction)
-    + ["This `README` is just a bunch of GIFs. Where the hell is the manual?"](#this-readme-is-just-a-bunch-of-gifs-where-the-hell-is-the-manual)
+    + ["This `README` barely explains what `nomad` does. Where the hell is the manual?"](#this-readme-barely-explains-what-nomad-does-where-the-hell-is-the-manual)
 * [Prerequisites](#prerequisites)
 * [Standard Usage](#standard-usage)
     + [Unlocked Functionality via Item Labels](#unlocked-functionality-via-item-labels)
@@ -50,9 +50,9 @@
 
 I think the `tree` command is a useful CLI tool, but is unfortunately lacking some features that I think would make it even better. I decided to build my own next gen `tree` command that implements the features I would have wanted in the original `tree` command.
 
-## "This `README` is just a bunch of GIFs. Where the hell is the manual?"
+## "This `README` barely explains what `nomad` does. Where the hell is the manual?"
 
-The manual for `nomad` was originally this `README`, but it was too long to comfortably navigate. This `README` merely serves as a preview of sorts with some information for each feature.
+The manual for `nomad` was originally this `README`, but it became too long to comfortably navigate. This `README` merely serves as a preview of sorts with some information for each feature whereas the manual provides a more in-depth look at `nomad`.
 
 **[The manual is available here][nomad manual]** and is also linked in the About section of this repository.
 
@@ -100,7 +100,7 @@ Quickly `bat` files by passing item labels into the `bat` subcommand.
 
 Quickly edit files by passing item labels into the edit subcommand.
 
-`nomad` will attempt to open files with the following text editors in this order:
+`nomad` will attempt to open files with your `$EDITOR` if it is set. If not, it will try the following text editors in this order:
 
 1. [Neovim][Neovim]
 2. [Vim][Vim]
@@ -274,9 +274,9 @@ Here is a list of what you can customize for **Rootless mode**:
 
 > The following standard mode settings will also be applied to the Normal widget within Rootless mode:
 >
->     * Indentation/padding
->     * Intent characters
->     * Git markers 
+> * Indentation/padding
+> * Intent characters
+> * Git markers 
 
 ## `config edit` - Editing the Configuration File
 
@@ -297,11 +297,12 @@ Be sure to check out the tools that inspired me to create this project!
 * [`tree`][tree] - the OG command
 * [`lsd`][lsd] - a modern `ls` alternative/rewrite
 
+
 <!-- DEMO GIFS -->
 [bat demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/bat.gif
+[config edit demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/config-edit.gif
+[config preview demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/config-preview.gif
 [edit demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/edit.gif
-[tokei subcommand demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/tokei-subcommand.gif
-[tokei tree demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/tokei-tree.gif
 [filetype match demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/ft-match.gif
 [filetype negate demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/ft-negate.gif
 [filetype options demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/ft-options.gif
@@ -314,17 +315,17 @@ Be sure to check out the tools that inspired me to create this project!
 [git status demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/git-status.gif
 [rootless mode demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/rootless-mode.gif
 [standard-demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/standard.gif
-[config edit demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/config-edit.gif
-[config preview demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/config-preview.gif
+[tokei subcommand demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/tokei-subcommand.gif
+[tokei tree demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/tokei-tree.gif
 
 
 <!-- LINKS -->
+[nomad manual]: https://josephlai241.github.io/nomad/
+
 [bat]: https://github.com/sharkdp/bat
 [lsd]: https://github.com/Peltoche/lsd
 [tokei]: https://github.com/XAMPPRocky/tokei
 [tree]: https://linux.die.net/man/1/tree
-
-[nomad manual]: https://josephlai241.github.io/nomad/
 
 [Mojibar]: https://github.com/LukeDSchenk/mojibar
 [Nano]: https://www.nano-editor.org/
@@ -333,3 +334,5 @@ Be sure to check out the tools that inspired me to create this project!
 [NerdFont Installation]: https://github.com/ryanoasis/nerd-fonts#font-installation
 [Vi]: https://en.wikipedia.org/wiki/Vi
 [Vim]: https://www.vim.org/
+
+
