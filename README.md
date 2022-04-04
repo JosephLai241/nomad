@@ -95,6 +95,13 @@ Quickly `bat` files by passing item labels into the `bat` subcommand.
 
 Quickly edit files by passing item labels into the edit subcommand.
 
+`nomad` will attempt to open files with the following text editors in this order:
+
+1. [Neovim][Neovim]
+2. [Vim][Vim]
+3. [Vi][Vi]
+4. [Nano][Nano]
+
 > **NOTE:** This command works with item and/or directory labels. If directory labels are provided, all items within that directory will be opened in a text editor.
 
 ![edit demo][edit demo]
@@ -287,6 +294,9 @@ Be sure to check out the tools that inspired me to create this project!
 [nomad manual]: https://josephlai241.github.io/nomad/
 
 [Mojibar]: https://github.com/LukeDSchenk/mojibar
+[Nano]: https://www.nano-editor.org/
 [Neovim]: https://github.com/neovim/neovim
 [NerdFont]: https://www.nerdfonts.com/
 [NerdFont Installation]: https://github.com/ryanoasis/nerd-fonts#font-installation
+[Vi]: https://en.wikipedia.org/wiki/Vi
+[Vim]: https://www.vim.org/
