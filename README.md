@@ -51,7 +51,7 @@ I think the `tree` command is a useful CLI tool, but is unfortunately lacking so
 
 ## "This `README` is just a bunch of GIFs. Where the hell is the manual?"
 
-The manual for `nomad` was originally this `README`, but it was too long to comfortably navigate. This `README` merely serves as a preview of sorts with some information.
+The manual for `nomad` was originally this `README`, but it was too long to comfortably navigate. This `README` merely serves as a preview of sorts with some information for each feature.
 
 **[The manual is available here][nomad manual]** and is also linked in the About section of this repository.
 
@@ -62,6 +62,8 @@ The manual for `nomad` was originally this `README`, but it was too long to comf
 # Standard Usage
 
 By default, `nomad` will display a tree visual representing the directory structure of the target directory and respect rules specified in ignore-type files such as `.gitignore`s. This behavior may be disabled.
+
+Each item will also be labeled with a NerdFont-supported icon corresponding to its filetype as well as Git status markers indicating the Git status of the file. See the [Git Status Markers](#git-status-markers) section to learn more about what each default marker/color represents.
 
 ![standard-demo][standard-demo]
 
@@ -79,17 +81,21 @@ These are the flags that will apply labels to items within the tree:
 
 # `bat` - `bat` Files in the Tree
 
-> **NOTE**: Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
+> **NOTE:** Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
 
 Quickly `bat` files by passing item labels into the `bat` subcommand.
+
+> **NOTE:** This command works with item and/or directory labels. If directory labels are provided, all items within that directory will be `bat`ed in the order they appear.
 
 ![bat demo][bat demo]
 
 # `edit` - Edit Files in the Tree
 
-> **NOTE**: Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
+> **NOTE:** Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
 
 Quickly edit files by passing item labels into the edit subcommand.
+
+> **NOTE:** This command works with item and/or directory labels. If directory labels are provided, all items within that directory will be opened in a text editor.
 
 ![edit demo][edit demo]
 
@@ -153,23 +159,29 @@ Here is a table that contains the default Git status markers, the marker's color
 
 > \* The filename will also be painted the same color.
 
-> \*\* Staged deleted filenames will also be painted with a strikethrough.
+> **NOTE:** Staged deleted filenames will also be painted with a strikethrough.
 
-I you do not like the default marker or color configuration, you can [customize it to your liking](#configurationcustomization).
+If you do not like the default marker or color configuration, you can [customize it to your liking](#configurationcustomization).
 
 ## `git add`
 
-> **NOTE**: Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
+> **NOTE:** Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
 
 Quickly `git add` files by passing items labels into the subcommand.
+
+> **NOTE:** This command works with item and/or directory labels. If directory labels are provided, all items within that directory that are tracked by Git and contain a Git status will be added.
 
 ![git add demo][git add demo]
 
 ## `git blame`
 
-> **NOTE**: Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
+> **NOTE:** Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
 
-Quickly run `git blame` on a file. 
+Quickly run `git blame` on a file by passing an item label into the subcommand.
+
+> **NOTE:** This command only accepts one item label.
+
+Commits made by you remain plain while commits made by other authors are painted with a color. Each author is assigned a random color, so these colors will be different each time you run `git blame`.
 
 ![git blame demo][git blame demo]
 
@@ -190,17 +202,21 @@ You can view `git branch` in tree form. This works especially well if your branc
 
 ## `git diff`
 
-> **NOTE**: Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
+> **NOTE:** Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
 
 Quickly `git diff` files by passing item labels into the subcommand. This command offers visual improvements and additional data over the original command.
+
+> **NOTE:** This command works with item and/or directory labels. If directory labels are provided, all items within that directory that are tracked by Git and contain a Git status will be `diff`ed in the order they appear.
 
 ![git diff demo][git diff demo]
 
 ## `git restore`
 
-> **NOTE**: Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
+> **NOTE:** Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
 
 Quickly `git restore` files by passing item labels into the subcommand.
+
+> **NOTE:** This command works with item and/or directory labels. If directory labels are provided, all items within that directory that are tracked by Git and contain a Git status will be restored in the order they appear.
 
 ![git restore demo][git restore demo]
 
