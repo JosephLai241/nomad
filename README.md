@@ -194,6 +194,8 @@ You can view `git branch` in tree form. This works especially well if your branc
 
 ![git branch demo][git branch demo]
 
+> Be sure to check out [Mojibar][Mojibar], a cross-platform, quick-access tab and search bar for emojis written by my friend Luke Schenk.
+
 ## `git commit`
 
 `git commit` has been integrated for convenience and offers some visual improvements over the original command.
@@ -216,7 +218,7 @@ Quickly `git diff` files by passing item labels into the subcommand. This comman
 
 Quickly `git restore` files by passing item labels into the subcommand.
 
-> **NOTE:** This command works with item and/or directory labels. If directory labels are provided, all items within that directory that are tracked by Git and contain a Git status will be restored in the order they appear.
+> **NOTE:** This command works with item and/or directory labels. If directory labels are provided, all items within that directory that are tracked by Git and contain a Git status will be restored.
 
 ![git restore demo][git restore demo]
 
@@ -284,6 +286,7 @@ Be sure to check out the tools that inspired me to create this project!
 
 [nomad manual]: https://josephlai241.github.io/nomad/
 
+[Mojibar]: https://github.com/LukeDSchenk/mojibar
 [Neovim]: https://github.com/neovim/neovim
 [NerdFont]: https://www.nerdfonts.com/
 [NerdFont Installation]: https://github.com/ryanoasis/nerd-fonts#font-installation
