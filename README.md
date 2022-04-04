@@ -63,7 +63,7 @@ The manual for `nomad` was originally this `README`, but it was too long to comf
 
 By default, `nomad` will display a tree visual representing the directory structure of the target directory and respect rules specified in ignore-type files such as `.gitignore`s. This behavior may be disabled.
 
-[standard-demo][standard-demo]
+![standard-demo][standard-demo]
 
 ## Unlocked Functionality via Item Labels
 
