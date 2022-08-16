@@ -1,4 +1,4 @@
-name: Deploy Maunal
+name: Deploy Manual
 on:
   push:
     branches:
