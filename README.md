@@ -173,6 +173,8 @@ If you do not like the default marker or color configuration, you can [customize
 
 ## `git add`
 
+### (Beta)
+
 ![git add demo][git add demo]
 
 > **NOTE:** Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
@@ -205,6 +207,8 @@ You can view `git branch` in tree form. This works especially well if your branc
 * `bugfix/some-bug`
 
 ## `git commit`
+
+### (Beta)
 
 ![git commit demo][git commit demo]
 
