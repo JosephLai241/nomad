@@ -2,11 +2,12 @@
 authors = ["Joseph Lai <joseph.lai241@protonmail.com>"]
 categories = ["command-line-utilities", "development-tools", "filesystem", "visualization"]
 description = "The customizable next gen tree command with Git integration and TUI"
+documentation = "https://josephlai241.github.io/nomad/"
 edition = "2021"
 homepage = "https://github.com/JosephLai241/nomad"
 keywords = ["command-line-tool", "developer-tool", "git", "regex", "tree"]
 license = "MIT"
-name = "nomad"
+name = "nomad-tree"
 readme = "README.md"
 repository = "https://github.com/JosephLai241/nomad"
 version = "1.0.0"
