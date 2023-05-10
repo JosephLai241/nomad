@@ -35,7 +35,6 @@
     + [`git branch`](#git-branch)
     + [`git commit`](#git-commit)
     + [`git diff`](#git-diff)
-    + [`git restore`](#git-restore)
     + [`git status`](#git-status)
 * [Rootless Mode](#rootless-mode)
 * [Configuration/Customization](#configurationcustomization)
@@ -173,7 +172,7 @@ If you do not like the default marker or color configuration, you can [customize
 
 ## `git add`
 
-### (Beta)
+### **🚧 This feature is currently in beta 🚧**
 
 ![git add demo][git add demo]
 
@@ -208,7 +207,7 @@ You can view `git branch` in tree form. This works especially well if your branc
 
 ## `git commit`
 
-### (Beta)
+### **🚧 This feature is currently in beta 🚧**
 
 ![git commit demo][git commit demo]
 
@@ -223,16 +222,6 @@ You can view `git branch` in tree form. This works especially well if your branc
 Quickly `git diff` files by passing item labels into the subcommand. This command offers visual improvements and additional data over the original command.
 
 > **NOTE:** This command works with item and/or directory labels. If directory labels are provided, all items within that directory that are tracked by Git and contain a Git status will be `diff`ed in the order they appear.
-
-## `git restore`
-
-![git restore demo][git restore demo]
-
-> **NOTE:** Requires a preceeding run in a [labeled mode](#unlocked-functionality-via-item-labels).
-
-Quickly `git restore` files by passing item labels into the subcommand.
-
-> **NOTE:** This command works with item and/or directory labels. If directory labels are provided, all items within that directory that are tracked by Git and contain a Git status will be restored.
 
 ## `git status`
 
@@ -315,7 +304,6 @@ Be sure to check out the tools that inspired me to create this project!
 [git branch demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/git-branch.gif
 [git commit demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/git-commit.gif
 [git diff demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/git-diff.gif
-[git restore demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/git-restore.gif
 [git status demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/git-status.gif
 [rootless mode demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/rootless-mode.gif
 [standard-demo]: https://github.com/JosephLai241/nomad/blob/demo-gifs/gifs/standard.gif
