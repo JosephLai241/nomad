@@ -153,9 +153,9 @@ fn get_diffs(
             )
             .unwrap_or_else(|| SYNTAX_SET.find_syntax_plain_text());
         let mut old_highlighter =
-            HighlightLines::new(old_syntax, &THEME_SET.themes["base16-eighties.dark"]);
+            HighlightLines::new(old_syntax, &THEME_SET.themes["base16-ocean.dark"]);
         let mut new_highlighter =
-            HighlightLines::new(new_syntax, &THEME_SET.themes["base16-eighties.dark"]);
+            HighlightLines::new(new_syntax, &THEME_SET.themes["base16-ocean.dark"]);
 
         if filename.is_empty() {
             let (new_filename, old_filename) = get_new_old_filenames(&delta);
