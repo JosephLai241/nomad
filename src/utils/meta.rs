@@ -3,7 +3,7 @@
 use crate::cli::global::GlobalArgs;
 
 use ansi_term::Colour;
-use chrono::{DateTime, Local, TimeZone, Utc};
+use chrono::{Local, NaiveDateTime};
 use unix_mode::to_string;
 use users::{get_group_by_gid, get_user_by_uid};
 
@@ -16,10 +16,15 @@ use std::os::windows::fs::MetadataExt;
 
 /// Convert a UNIX timestamp to a readable format.
 pub fn convert_time(timestamp: i64) -> String {
-    let utc_time = Utc.timestamp(timestamp, 0);
-    let local_time: DateTime<Local> = DateTime::from(utc_time);
-
-    local_time.format("%a %b %e %H:%M:%S %Y").to_string()
+    match NaiveDateTime::from_timestamp_opt(timestamp, 0) {
+        Some(date_time) => date_time
+            .and_local_timezone(Local)
+            .single()
+            .unwrap_or(Local::now())
+            .format("%a %b %e %H:%M:%S %Y")
+            .to_string(),
+        None => "".to_string(),
+    }
 }
 
 /// Convert bytes to different units depending on size.

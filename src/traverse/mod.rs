@@ -16,7 +16,7 @@ use crate::{
     style::models::NomadStyle, utils::paths::canonicalize_path,
 };
 
-use anyhow::{private, Result};
+use anyhow::{Result, __private};
 use ignore::{self, Walk};
 use ptree::{item::StringItem, PrintConfig};
 use regex::Regex;
@@ -34,7 +34,7 @@ pub fn walk_directory(
     let regex_expression = if let Some(ref pattern) = args.regex.pattern {
         match Regex::new(&pattern.clone()) {
             Ok(regex) => Some(regex),
-            Err(error) => return private::Err(NomadError::RegexError(error)),
+            Err(error) => return __private::Err(NomadError::RegexError(error)),
         }
     } else {
         None

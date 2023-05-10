@@ -16,7 +16,7 @@ use crate::{
 };
 
 use ansi_term::{Colour, Style};
-use anyhow::{private, Result};
+use anyhow::{Result, __private};
 use git2::{ObjectType, Repository};
 use itertools::Itertools;
 use ptree::{item::StringItem, PrintConfig};
@@ -132,7 +132,7 @@ fn build_status_tree(
     let regex_expression = if let Some(ref pattern) = args.regex.pattern {
         match Regex::new(&pattern.clone()) {
             Ok(regex) => Some(regex),
-            Err(error) => return private::Err(NomadError::RegexError(error)),
+            Err(error) => return __private::Err(NomadError::RegexError(error)),
         }
     } else {
         None

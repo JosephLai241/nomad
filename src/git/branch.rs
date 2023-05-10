@@ -18,7 +18,7 @@ use crate::{
 };
 
 use ansi_term::Colour;
-use anyhow::{private, Result};
+use anyhow::{Result, __private};
 use git2::{Branch, BranchType, Repository};
 use ptree::{item::StringItem, PrintConfig};
 use regex::Regex;
@@ -35,7 +35,7 @@ pub fn display_branches(
     let regex_expression = if let Some(ref pattern) = args.pattern {
         match Regex::new(&pattern.clone()) {
             Ok(regex) => Some(regex),
-            Err(error) => return private::Err(NomadError::RegexError(error)),
+            Err(error) => return __private::Err(NomadError::RegexError(error)),
         }
     } else {
         None
